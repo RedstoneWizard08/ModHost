@@ -1,8 +1,11 @@
+//! ModHost's OpenAPI system using [`utoipa`].
+
 use utoipa::{
     openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
     Modify,
 };
 
+/// The struct for the generated OpenAPI spec using [`utoipa`].
 #[derive(OpenApi)]
 #[openapi(
     info(
@@ -136,6 +139,7 @@ use utoipa::{
 )]
 pub struct ApiDocs;
 
+/// An addon for the OpenAPI spec to add token auth.
 #[derive(Debug, Clone, Copy)]
 pub struct TokenAuthAddon;
 

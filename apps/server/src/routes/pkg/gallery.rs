@@ -104,9 +104,9 @@ pub async fn list_handler(
 
     Ok(Response::builder()
         .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(
-            &transform_gallery(get_gallery(id, &mut conn).await?).await?,
-        )?))?)
+        .body(Body::new(serde_json::to_string(&transform_gallery(
+            get_gallery(id, &mut conn).await?,
+        ))?))?)
 }
 
 /// Get Gallery Image
@@ -151,9 +151,9 @@ pub async fn info_handler(
 
     Ok(Response::builder()
         .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(
-            &transform_gallery_image(img).await?,
-        )?))?)
+        .body(Body::new(serde_json::to_string(&transform_gallery_image(
+            img,
+        ))?))?)
 }
 
 /// Get Gallery Image Data
@@ -290,9 +290,9 @@ pub async fn upload_handler(
 
     Ok(Response::builder()
         .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(
-            &transform_gallery_image(image).await?,
-        )?))?)
+        .body(Body::new(serde_json::to_string(&transform_gallery_image(
+            image,
+        ))?))?)
 }
 
 /// Delete Gallery Image
@@ -420,7 +420,7 @@ pub async fn update_handler(
 
     Ok(Response::builder()
         .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(
-            &transform_gallery_image(img).await?,
-        )?))?)
+        .body(Body::new(serde_json::to_string(&transform_gallery_image(
+            img,
+        ))?))?)
 }

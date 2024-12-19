@@ -19,6 +19,12 @@ There are a lot of reasons to choose ModHost! Here are just a few:
 - [x] Easy to self-host
 - [x] Simple customization
 - [x] Highly configurable
+- [x] Flexible
+- [x] 100% open-source
+- [x] Super secure
+- [x] Built with trusted & tested technologies
+- [x] Supports almost any game
+- [x] Well-documented code
 
 ## Logo?
 

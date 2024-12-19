@@ -1,3 +1,5 @@
+//! Utilities for downloading & extracting [Bun](https://bun.sh).
+
 use crate::Result;
 use std::{
     env::consts::{ARCH, EXE_SUFFIX, OS},
@@ -8,13 +10,18 @@ use std::{
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
+/// The GitHub repo to get the Bun executable from.
 pub const BUN_REPO: &str = "https://github.com/oven-sh/bun";
+
+/// The Bun version to download.
 pub const BUN_VERSION: &str = "bun-v1.1.36";
 
+/// Get the base release URL for the download.
 pub fn get_base_url() -> String {
     format!("{}/releases/download/{}", BUN_REPO, BUN_VERSION)
 }
 
+/// Get the target architecture for Bun.
 pub fn get_bun_arch() -> &'static str {
     match ARCH {
         "x86_64" => "x64",
@@ -26,6 +33,7 @@ pub fn get_bun_arch() -> &'static str {
     }
 }
 
+/// Get the correct OS name for Bun.
 pub fn get_bun_os() -> &'static str {
     match OS {
         "linux" => "linux",
@@ -35,18 +43,22 @@ pub fn get_bun_os() -> &'static str {
     }
 }
 
+/// Get the Bun platform name.
 pub fn get_bun_platform() -> String {
     format!("bun-{}-{}", get_bun_os(), get_bun_arch())
 }
 
+/// Get the URL to download Bun from.
 pub fn get_bun_zip_url() -> String {
     format!("{}/{}.zip", get_base_url(), get_bun_platform())
 }
 
+/// Get the path to the Bun executable in the archive.
 pub fn get_bun_exe_path_in_zip() -> String {
     format!("{}/bun{}", get_bun_platform(), EXE_SUFFIX)
 }
 
+/// Download & extract the Bun executable, returning the path to it.
 pub async fn get_bun_exe() -> Result<PathBuf> {
     info!("Downloading Bun...");
 

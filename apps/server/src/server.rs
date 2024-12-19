@@ -1,3 +1,5 @@
+//! The main ModHost manager.
+
 use crate::{
     glue::make_glue,
     routes::{
@@ -17,12 +19,25 @@ use search::MeiliPackage;
 use std::net::{IpAddr, SocketAddr};
 use tokio::{join, net::TcpListener};
 
+/// The main ModHost manager.
 pub struct ModHost {
+    /// The app configuration.
     config: AppConfig,
+
+    /// The database pool.
     pool: DbPool,
+
+    /// The [`Glue`] instance attached to the server.
     glue: Glue,
+
+    /// The state object.
     state: AppState,
+
+    /// The [`SocketAddr`] for the server to bind to.
     addr: SocketAddr,
+
+    /// The internal [`axum`] router.
+    /// Will be [`Option::None`] until [`Self::router`] is called.
     router: Option<IntoMakeServiceWithConnectInfo<Router, SocketAddr>>,
 }
 
@@ -91,9 +106,9 @@ impl ModHost {
     }
 
     /// Register the router.
-    /// If you are registering versions, run this AFTER you run [`Self::versions`]!
-    /// If you are registering loaders, run this AFTER you run [`Self::loaders`]!
-    /// If you are registering tags, run this AFTER you run [`Self::tags`]!
+    /// - If you are registering versions, run this AFTER you run [`Self::versions`].
+    /// - If you are registering loaders, run this AFTER you run [`Self::loaders`].
+    /// - If you are registering tags, run this AFTER you run [`Self::tags`].
     pub fn router(mut self) -> Self {
         info!("Registering routes...");
 

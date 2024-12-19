@@ -1,3 +1,6 @@
+//! Utility macros for using ModHost.
+
+/// A small utility macro for creating [`crate::ModLoader`] objects.
 #[macro_export]
 macro_rules! loader {
     ($name: expr) => {
@@ -8,6 +11,7 @@ macro_rules! loader {
     };
 }
 
+/// A small utility macro for creating [`crate::Tag`] objects.
 #[macro_export]
 macro_rules! tag {
     ($id: expr, $name: expr, $icon: expr) => {
@@ -19,6 +23,7 @@ macro_rules! tag {
     };
 }
 
+/// A small utility macro for creating many [`crate::ModLoader`] objects.
 #[macro_export]
 macro_rules! loaders {
     [$($name: expr),*$(,)?] => {
@@ -26,6 +31,7 @@ macro_rules! loaders {
     };
 }
 
+/// A small utility macro for creating many [`crate::Tag`] objects.
 #[macro_export]
 macro_rules! tags {
     [$($id: expr, $name: expr, $icon: expr);*$(;)?] => {

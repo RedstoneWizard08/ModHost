@@ -1,4 +1,4 @@
-//! The logging stuff.
+//! ModHost's logging systems.
 
 use tracing_subscriber::{
     filter::LevelFilter, fmt, layer::SubscriberExt, registry, util::SubscriberInitExt, EnvFilter,

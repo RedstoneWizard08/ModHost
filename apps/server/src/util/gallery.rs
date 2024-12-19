@@ -1,6 +1,7 @@
 use crate::{state::AppState, Result};
 use db::{GalleryImage, PublicGalleryImage};
 
+/// Get a gallery image's bytes from S3.
 pub async fn get_image(id: impl AsRef<str>, state: &AppState) -> Result<Vec<u8>> {
     Ok(state
         .buckets
@@ -10,10 +11,11 @@ pub async fn get_image(id: impl AsRef<str>, state: &AppState) -> Result<Vec<u8>>
         .to_vec())
 }
 
-pub async fn transform_gallery_image(img: GalleryImage) -> Result<PublicGalleryImage> {
+/// Transform a [`GalleryImage`] into a [`PublicGalleryImage`], with the correct URL for it.
+pub fn transform_gallery_image(img: GalleryImage) -> PublicGalleryImage {
     let url = format!("/api/v1/packages/s3/gallery/{}", img.s3_id);
 
-    Ok(PublicGalleryImage {
+    PublicGalleryImage {
         id: img.id,
         name: img.name,
         package: img.package,
@@ -22,15 +24,16 @@ pub async fn transform_gallery_image(img: GalleryImage) -> Result<PublicGalleryI
         description: img.description,
         ordering: img.ordering,
         url,
-    })
+    }
 }
 
-pub async fn transform_gallery(images: Vec<GalleryImage>) -> Result<Vec<PublicGalleryImage>> {
+/// Transform an entire [`Vec`] of [`GalleryImage`]s into a [`Vec`] of [`PublicGalleryImage`]s.
+pub fn transform_gallery(images: Vec<GalleryImage>) -> Vec<PublicGalleryImage> {
     let mut output = Vec::new();
 
     for img in images {
-        output.push(transform_gallery_image(img).await?);
+        output.push(transform_gallery_image(img));
     }
 
-    Ok(output)
+    output
 }

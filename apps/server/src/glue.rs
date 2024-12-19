@@ -1,8 +1,11 @@
+//! ModHost's setup for [`jsglue`].
+
 use crate::Result;
 use app_config::AppConfig;
 use jsglue::{config::GlueConfig, framework::Framework, glue::Glue};
 
 /// Create a new [`Glue`] instance.
+/// This will build the UI (see [`crate::ui::build_ui`]).
 #[cfg(debug_assertions)]
 pub async fn make_glue(config: &AppConfig) -> Result<Glue> {
     use std::path::PathBuf;
@@ -25,6 +28,7 @@ pub async fn make_glue(config: &AppConfig) -> Result<Glue> {
 }
 
 /// Create a new [`Glue`] instance.
+/// This will build the UI (see [`crate::ui::build_ui`]).
 #[cfg(not(debug_assertions))]
 pub async fn make_glue(config: &AppConfig) -> Result<Glue> {
     Ok(Glue::new(

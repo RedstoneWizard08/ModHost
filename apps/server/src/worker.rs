@@ -1,3 +1,5 @@
+//! ModHost's worker, providing token invalidation.
+
 use crate::Result;
 use chrono::Utc;
 use db::{user_tokens, DbPool, UserToken};
@@ -6,6 +8,7 @@ use diesel_async::RunQueryDsl;
 use jsglue::abort::ABORT_HANDLES;
 use tokio::task::JoinHandle;
 
+/// Start the worker service and get a handle to its thread.
 pub fn run_worker(pool: DbPool) -> JoinHandle<Result<()>> {
     info!("Starting worker...");
 
@@ -18,7 +21,9 @@ pub fn run_worker(pool: DbPool) -> JoinHandle<Result<()>> {
     handle
 }
 
-pub async fn worker_loop(pool: DbPool) -> Result<()> {
+/// The internal worker loop.
+/// This function will never return unless an error occurs.
+async fn worker_loop(pool: DbPool) -> Result<()> {
     let mut conn = pool.get().await?;
 
     loop {

@@ -1,3 +1,6 @@
+#![doc = include_str!("../../../README.md")]
+#![warn(missing_docs)]
+
 #[macro_use]
 extern crate serde;
 
@@ -16,7 +19,6 @@ extern crate lazy_static;
 pub mod api;
 pub mod auth;
 pub mod bun;
-pub mod env;
 pub mod glue;
 pub mod logger;
 pub mod macros;
@@ -34,4 +36,5 @@ pub use routes::meta::tags::Tag;
 pub use routes::meta::vers::GameVersion;
 pub use server::*;
 
+/// ModHost's result type. Effectively the same as [`app_core::Result`].
 pub type Result<T, E = app_core::AppError> = app_core::Result<T, E>;

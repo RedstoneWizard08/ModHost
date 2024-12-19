@@ -1,14 +1,32 @@
+//! ModHost's UI code. Contains embedded assets, sources, and functions to build the UI.
+
 use crate::Result;
 use app_config::AppConfig;
 use std::{fs, path::PathBuf};
 
+/// The default favicon.ico bytes.
 pub const DEFAULT_FAVICON_ICO: &[u8] = include_bytes!("./assets/modhost.ico");
+
+/// The default favicon.png bytes.
 pub const DEFAULT_FAVICON_PNG: &[u8] = include_bytes!("./assets/modhost.png");
 
+/// The embedded source for the frontend.
+/// Yes, the entire source code is embedded in the binary.
 #[cfg(not(debug_assertions))]
 pub const UI_SOURCE: include_dir::Dir<'static> =
     include_dir::include_dir!("$CARGO_MANIFEST_DIR/../../ui");
 
+/// Build the frontend.
+/// In debug builds, this uses the config and a root path to the source
+/// to write the favicon files.
+/// In release builds, this will:
+///  - Download & extract [Bun](https://bun.sh)
+///  - Extract the UI source to a temp directory
+///  - Write the favicon files
+///  - Install dependencies
+///  - Build the UI
+/// In release builds, this will return a [`PathBuf`] containing the full
+/// path to the built UI. In debug builds this will return `()`.
 #[cfg(debug_assertions)]
 pub async fn build_ui(config: &AppConfig, dir: &PathBuf) -> Result<()> {
     if config.ui.favicon_ico == "default" {
@@ -46,6 +64,17 @@ pub async fn build_ui(config: &AppConfig, dir: &PathBuf) -> Result<()> {
     Ok(())
 }
 
+/// Build the frontend.
+/// In debug builds, this uses the config and a root path to the source
+/// to write the favicon files.
+/// In release builds, this will:
+///  - Download & extract [Bun](https://bun.sh)
+///  - Extract the UI source to a temp directory
+///  - Write the favicon files
+///  - Install dependencies
+///  - Build the UI
+/// In release builds, this will return a [`PathBuf`] containing the full
+/// path to the built UI. In debug builds this will return `()`.
 #[cfg(not(debug_assertions))]
 pub async fn build_ui(config: &AppConfig) -> Result<PathBuf> {
     use tempfile::TempDir;

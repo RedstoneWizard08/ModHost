@@ -1,3 +1,5 @@
+//! ModHost's routes & handlers.
+
 pub mod api;
 pub mod auth;
 pub mod meta;
@@ -8,6 +10,7 @@ use crate::{middleware::logger::logging_middleware, state::AppState};
 use axum::{middleware::from_fn, Router};
 use jsglue::{glue::Glue, util::is_debug};
 
+/// Create the router for ModHost.
 pub fn create_router(state: AppState, glue: Glue) -> Router {
     api::register(glue.register(Router::new(), is_debug()))
         .nest("/api/v1/auth", auth::router(state.clone()))

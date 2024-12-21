@@ -1,3 +1,5 @@
+//! The package search route.
+
 use crate::{auth::get_user_from_req, state::AppState, Result};
 use axum::{
     extract::{Query, State},
@@ -8,8 +10,11 @@ use axum_extra::extract::CookieJar;
 use db::PackageVisibility;
 use search::{Facet, SearchResults, Sort, SortMode};
 
-pub const MAX_PER_PAGE: usize = 100;
+/// The absolute maximum items per-page for pagination.
+/// The value from a query will be clamped with this.
+pub const MAX_PER_PAGE: usize = 200;
 
+/// Parameters to the search route.
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct SearchQuery {
     /// The query string.

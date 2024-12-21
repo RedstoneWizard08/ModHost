@@ -1,3 +1,5 @@
+//! Routes concerning user info.
+
 use crate::{state::AppState, Result};
 use axum::{
     body::Body,

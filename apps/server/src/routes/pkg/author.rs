@@ -1,3 +1,5 @@
+//! Routes concerning package authors.
+
 use crate::{auth::get_user_from_req, state::AppState, Result};
 use app_core::AppError;
 use axum::{

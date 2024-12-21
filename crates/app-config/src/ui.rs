@@ -1,38 +1,81 @@
+//! The UI config.
+
 use std::collections::HashMap;
 
+/// The UI config.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UIConfig {
+    /// The app name/title.
+    /// Defaults to `"ModHost"`
     pub app: String,
+
+    /// The app tagline.
+    /// Defaults to `"Your home for game mods"`
     pub tagline: String,
+    
+    /// Whether to show the beta badge on the website.
+    /// Defaults to `true`
     pub show_beta: bool,
+
+    /// The type of package to use in translations (Mods or Packages).
+    /// Defaults to [`PackageKind::Mods`]
     pub package_kind: PackageKind,
+
+    /// The default theme to apply if the user hasn't changed it.
+    /// Defaults to `"modhost"`
     pub default_theme: String,
+
+    /// The file extensions the frontend allows you to upload.
+    /// Defaults to `[".pak", ".jar", ".zip", ".tgz", ".tar.gz"]`
     pub package_file_formats: Vec<String>,
+
+    /// The name for game beta versions (Beta or Snapshot).
+    /// Defaults to [`BetaName::Beta`]
     pub game_beta_name: BetaName,
+
+    /// The URL or file path to get the logo PNG from.
+    /// If this is `"default"` it will use ModHost's logo.
+    /// Defaults to `"default"`
     pub favicon_png: String,
+
+    /// The URL or file path to get the favicon ICO from.
+    /// If this is `"default"` it will use ModHost's favicon.
+    /// Defaults to `"default"`
     pub favicon_ico: String,
+
+    /// The CSS theme color for meta tags.
+    /// Defaults to `"#068099"`
     pub theme_color: String,
 }
 
+/// The type of package to use in translations (Mods or Packages).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
 pub enum PackageKind {
+    /// Will show "mod" instead of "packages", etc.
     #[default]
     Mods,
+    
+    /// Will show "package" instead of "mod", etc.
     Packages,
 }
 
+/// The name for game beta versions (Beta or Snapshot).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
 pub enum BetaName {
+    /// Will show "beta" instead of "snapshot", etc.
     #[default]
     Beta,
+
+    /// Will show "snapshot" instead of "beta", etc.
     Snapshot,
 }
 
 impl PackageKind {
+    /// Get the string form for translations.
     pub fn stringify(&self) -> &'static str {
         match self {
             Self::Mods => "mods",
@@ -42,6 +85,7 @@ impl PackageKind {
 }
 
 impl BetaName {
+    /// Get the string form for translations.
     pub fn stringify(&self) -> &'static str {
         match self {
             Self::Beta => "beta",
@@ -51,6 +95,7 @@ impl BetaName {
 }
 
 impl UIConfig {
+    /// Get a map of environment variables for the UI.
     pub fn env(&self) -> HashMap<String, String> {
         let mut map = HashMap::new();
 

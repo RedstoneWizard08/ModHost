@@ -18,22 +18,6 @@ export const getUser = async (id: string | number): Promise<User | undefined> =>
     }
 };
 
-export const searchUsers = async (query: string): Promise<User[] | undefined> => {
-    try {
-        return await (
-            await fetch(`/api/v1/users/search?q=${query}`, {
-                headers: isLoggedIn()
-                    ? {
-                          Authorization: `Bearer ${getToken()}`,
-                      }
-                    : {},
-            })
-        ).json();
-    } catch (_err: any) {
-        return undefined;
-    }
-};
-
 export const getUserPackages = async (id: string | number): Promise<PackageData[] | undefined> => {
     try {
         return await (

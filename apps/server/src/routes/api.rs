@@ -1,3 +1,5 @@
+//! OpenAPI routes.
+
 use crate::{api::ApiDocs, state::AppState, Result};
 use axum::{extract::Query, routing::get, Router};
 use utoipa::OpenApi;
@@ -6,10 +8,12 @@ use utoipa_redoc::{Redoc, Servable as ServableRedoc};
 use utoipa_scalar::{Scalar, Servable as ServableScalar};
 use utoipa_swagger_ui::{Config, SwaggerUi};
 
+/// Parameters for the JSON OpenAPI format.
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, ToSchema, ToResponse, Serialize, Deserialize,
 )]
 pub struct JsonQueryParams {
+    /// Should it be pretty-printed?
     pub pretty: Option<bool>,
 }
 
@@ -52,6 +56,7 @@ pub async fn json_api(Query(JsonQueryParams { pretty }): Query<JsonQueryParams>)
     }
 }
 
+/// Register API docs and spec routes.
 pub fn register(router: Router<AppState>) -> Router<AppState> {
     router
         .merge(

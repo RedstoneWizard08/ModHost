@@ -1,3 +1,5 @@
+//! The route for the GitHub authentication callback.
+
 use std::collections::HashMap;
 
 use crate::{

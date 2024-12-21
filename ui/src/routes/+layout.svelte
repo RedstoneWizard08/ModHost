@@ -25,9 +25,6 @@
     import ContextMenu from "$components/ui/ContextMenu.svelte";
     import { page } from "$app/stores";
     import { setToken } from "$api";
-    import AuthorAddModal from "$components/modals/AuthorAddModal.svelte";
-    import UploadVersionModal from "$components/modals/UploadVersionModal.svelte";
-    import CreatePackageModal from "$components/modals/CreatePackageModal.svelte";
     import { updateGameVersionsIfNeeded } from "$lib/versions";
     import Drawers from "$components/ui/Drawers.svelte";
     import { siteConfig } from "$lib/config";
@@ -43,9 +40,6 @@
     let navigating = $state(false);
 
     const modalRegistry: Record<string, ModalComponent> = {
-        addAuthor: { ref: AuthorAddModal },
-        uploadVersion: { ref: UploadVersionModal },
-        createPackage: { ref: CreatePackageModal },
         confirmDelete: { ref: ConfirmDeleteModal },
         confirmDeleteImage: { ref: ConfirmDeleteImageModal },
         confirmDeleteVersion: { ref: ConfirmDeleteVersionModal },

@@ -1,3 +1,7 @@
+//! The logging middleware.
+//!
+//! I use this module in almost all of Rust-based web services, so it may be a little weird.
+
 pub mod macros;
 
 use crate::midlog_log;
@@ -7,9 +11,11 @@ use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
 
 lazy_static! {
+    /// A list of filtered paths which won't show up in the logs.
     pub static ref FILTERS: Arc<Mutex<Vec<&'static str>>> = Arc::new(Mutex::new(Vec::new()));
 }
 
+/// The main logging middleware handler.
 pub async fn logging_middleware(req: Request<Body>, next: Next) -> Response {
     let time_start = Utc::now().time();
     let method = &req.method().clone();

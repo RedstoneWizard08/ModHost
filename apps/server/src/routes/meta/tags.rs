@@ -1,6 +1,9 @@
+//! The meta endpoint for getting a list of tags.
+
 use crate::{state::AppState, Result};
 use axum::{extract::State, Json};
 
+/// A tag.
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct Tag {
     /// The ID of the tag.

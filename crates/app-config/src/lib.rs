@@ -1,3 +1,7 @@
+#![warn(missing_docs)]
+//! ModHost's configuration system.
+//! This contains utilities for loading, saving, using, and parsing configs.
+
 #[macro_use]
 extern crate serde;
 

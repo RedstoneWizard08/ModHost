@@ -1,3 +1,5 @@
+//! Routes concerning the current user.
+
 use crate::{auth::get_user_from_req, state::AppState, Result};
 use axum::{body::Body, extract::State, http::HeaderMap, response::Response};
 use axum_extra::extract::CookieJar;
@@ -5,7 +7,7 @@ use db::User;
 
 /// Current User
 ///
-/// Get information about the current user.
+/// Get information about the current authenticated user.
 #[utoipa::path(
     get,
     path = "/api/v1/users/me",

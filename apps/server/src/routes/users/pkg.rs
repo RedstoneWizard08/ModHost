@@ -1,3 +1,5 @@
+//! Routes concerning user packages.
+
 use crate::{auth::get_user_from_req, state::AppState, Result};
 use axum::{
     extract::{Path, State},
@@ -15,13 +17,20 @@ use diesel_async::RunQueryDsl;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::Mutex;
 
+/// The amount of time for a user's packages cache to automatically expire.
 const CACHE_EXPIRY_MS: i64 = 15 * 60 * 1000; // 15 minutes = 15m * 60s * 1000ms
 
 lazy_static! {
+    /// A cache of user packages.
+    /// This is cached because retrieving this info is a slow process.
+    /// 
+    /// [!TODO] The method of retreiving this info will soon be changed to a single select
+    /// query with some array manipulation, so this will be unnecessary when that happens.
     static ref USER_PACKAGES_CACHE: Arc<Mutex<HashMap<i32, (i64, Vec<PackageData>)>>> =
         Arc::new(Mutex::new(HashMap::new()));
 }
 
+/// Manually clear a user's packages cache.
 pub async fn clear_user_cache(id: i32) {
     USER_PACKAGES_CACHE.lock().await.remove(&id);
 }

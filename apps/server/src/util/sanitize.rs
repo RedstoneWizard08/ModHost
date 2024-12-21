@@ -1,4 +1,8 @@
+//! Utilities for sanitizing HTML.
+
+/// A trait for something containing HTML that can be sanitized.
 pub trait HtmlSanitize {
+    /// Sanitize this and return a [`String`].
     fn html_sanitize(&self) -> String;
 }
 

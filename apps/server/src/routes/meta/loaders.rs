@@ -1,6 +1,9 @@
+//! The meta endpoint for getting a list of mod loaders.
+
 use crate::{state::AppState, Result};
 use axum::{extract::State, Json};
 
+/// A mod loader.
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct ModLoader {
     /// The ID of the loader.

@@ -1,7 +1,8 @@
+//! Routes concerning packages.
+
 pub mod author;
 pub mod gallery;
 pub mod info;
-pub mod list;
 pub mod search;
 pub mod ver;
 
@@ -11,10 +12,10 @@ use axum::{
     Router,
 };
 
+/// Register package-related routes onto the router.
 pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
-        // .route("/", get(list::list_handler))
-        .route("/", put(list::create_handler))
+        .route("/", put(info::create_handler))
         .route("/search", get(search::search_handler))
         .route("/:id", get(info::info_handler))
         .route("/:id", patch(info::update_handler))

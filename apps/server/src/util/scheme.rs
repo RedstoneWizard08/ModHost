@@ -1,3 +1,5 @@
+//! The HTTP [`Scheme`] extractor.
+
 use axum::{
     extract::FromRequestParts,
     http::{self, request::Parts},
@@ -9,15 +11,18 @@ use url::Url;
 define_rejection! {
     #[status = BAD_REQUEST]
     #[body = "No scheme found in request"]
+    #[doc = "A rejection for when a scheme isn't found in a request."]
     pub struct FailedToResolveScheme;
 }
 
 composite_rejection! {
+    #[doc = "A composite rejection for when a scheme isn't found in a request."]
     pub enum SchemeRejection {
         FailedToResolveScheme,
     }
 }
 
+/// An extractor for HTTP schemes.
 #[derive(Debug, Clone)]
 pub struct Scheme(pub String);
 

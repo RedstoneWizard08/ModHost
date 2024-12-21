@@ -1,3 +1,5 @@
+//! Routes concerning package versions.
+
 use crate::{auth::get_user_from_req, state::AppState, util::versions::get_latest_version, Result};
 use anyhow::anyhow;
 use app_core::AppError;
@@ -20,22 +22,29 @@ use diesel_async::RunQueryDsl;
 use semver::Version;
 use sha1::{Digest, Sha1};
 
+/// Information for updaing a package version.
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, ToSchema, ToResponse, Serialize, Deserialize,
 )]
 pub struct PartialPackageVersion {
+    /// The display name of the version.
     #[serde(default)]
     pub name: Option<String>,
 
+    /// The version number.
+    /// This must be a string confirming to the [SemVer](https://semver.org/) standard.
     #[serde(default)]
     pub version_number: Option<String>,
 
+    /// The version changelog.
     #[serde(default)]
     pub changelog: Option<String>,
 
+    /// The mod loaders this version works on.
     #[serde(default)]
     pub loaders: Option<Vec<String>>,
 
+    /// The game versions this version works on.
     #[serde(default)]
     pub game_versions: Option<Vec<String>>,
 }
@@ -453,6 +462,10 @@ pub async fn update_handler(
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);
+    }
+
+    if let Some(ver_num) = &data.version_number {
+        Version::parse(ver_num)?;
     }
 
     let ver = update(package_versions::table)

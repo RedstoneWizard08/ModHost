@@ -1,3 +1,5 @@
+//! The route to initiate the GitHub login flow.
+
 use std::collections::HashMap;
 
 use super::CALLBACK_URL;

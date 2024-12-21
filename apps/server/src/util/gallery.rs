@@ -1,3 +1,5 @@
+//! Utilities for package galleries.
+
 use crate::{state::AppState, Result};
 use db::{GalleryImage, PublicGalleryImage};
 

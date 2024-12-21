@@ -1,9 +1,15 @@
+//! The meta endpoint for getting a list of game versions.
+
 use crate::{state::AppState, Result};
 use axum::{extract::State, Json};
 
+/// A game version.
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, ToResponse)]
 pub struct GameVersion {
+    /// The version's ID (or version number).
     pub id: String,
+
+    /// Whether this version is a beta version.
     pub beta: bool,
 }
 

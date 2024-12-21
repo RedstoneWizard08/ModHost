@@ -1,3 +1,5 @@
+//! Routes concerning package galleries.
+
 use anyhow::anyhow;
 use app_core::AppError;
 use axum::{

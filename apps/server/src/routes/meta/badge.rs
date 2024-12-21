@@ -1,3 +1,5 @@
+//! Meta endpoints for badges.
+
 use crate::{state::AppState, util::sanitize::HtmlSanitize, Result};
 use axum::{
     extract::{Path, State},

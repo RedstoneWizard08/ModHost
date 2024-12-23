@@ -52,6 +52,8 @@ app: ModHost.AppConfig = new {
         show_beta = true
         default_theme = "modhost"
         theme_color = "#068099"
+        badge_base = "#191d28"
+        badge_secondary = "#068099"
 
         favicon {
             ico = "default"

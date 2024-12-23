@@ -46,6 +46,14 @@ pub struct UIConfig {
     /// The CSS theme color for meta tags.
     /// Defaults to `"#068099"`
     pub theme_color: String,
+
+    /// The base badge color, used in the first part of the badge.
+    /// Defaults to `"#191d28"`.
+    pub badge_base: String,
+
+    /// The secondary badge color, used in the second part of the badge.
+    /// Defaults to `"#068099"`.
+    pub badge_secondary: String,
 }
 
 /// The type of package to use in translations (Mods or Packages).
@@ -145,6 +153,8 @@ impl Default for UIConfig {
             favicon_ico: "default".into(),
             favicon_png: "default".into(),
             theme_color: "#068099".into(),
+            badge_base: "#191d28".into(),
+            badge_secondary: "#068099".into(),
         }
     }
 }

@@ -15,6 +15,7 @@ app-config.workspace = true
 axum.workspace = true
 axum-core.workspace = true
 axum-extra.workspace = true
+base64.workspace = true
 cfg-if.workspace = true
 chrono.workspace = true
 clap.workspace = true

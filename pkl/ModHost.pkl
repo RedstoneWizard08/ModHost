@@ -162,6 +162,14 @@ class UIConfig {
     /// Defaults to `"#068099"`.
     theme_color: String(matches(Regex(#"#[0-9a-fA-F]{6}"#))) = "#068099"
 
+    /// The base badge color, used in the first part of the badge.
+    /// Defaults to `"#191d28"`.
+    badge_base: String(matches(Regex(#"#[0-9a-fA-F]{6}"#))) = "#191d28"
+
+    /// The secondary badge color, used in the second part of the badge.
+    /// Defaults to `"#068099"`.
+    badge_secondary: String(matches(Regex(#"#[0-9a-fA-F]{6}"#))) = "#068099"
+
     /// Favicon configuration.
     favicon: FaviconConfig = new {}
 
@@ -216,6 +224,8 @@ class RealUIConfig {
     favicon_ico: String
     favicon_png: String
     theme_color: String
+    badge_base: String
+    badge_secondary: String
 }
 
 class RealMeilisearchConfig {
@@ -246,6 +256,8 @@ function fixUIConfig(cfg: UIConfig): RealUIConfig = new {
     favicon_ico = cfg.favicon.ico
     favicon_png = cfg.favicon.png
     theme_color = cfg.theme_color
+    badge_base = cfg.badge_base
+    badge_secondary = cfg.badge_secondary
 }
 
 function fixMeilisearchConfig(cfg: MeilisearchConfig): RealMeilisearchConfig = new {

@@ -2,15 +2,17 @@
 
 use crate::{
     routes::meta::{loaders::ModLoader, tags::Tag, vers::GameVersion},
+    ui::DEFAULT_FAVICON_PNG,
     Result,
 };
 use app_config::AppConfig;
 use axum::body::Bytes;
+use base64::{prelude::BASE64_STANDARD, Engine};
 use db::DbPool;
 use oauth2::basic::BasicClient;
 use s3::Bucket;
 use search::MeilisearchService;
-use std::sync::Arc;
+use std::{fs, sync::Arc};
 
 /// S3 bucket state. This contains references to the buckets used by the server.
 #[derive(Clone)]
@@ -56,15 +58,32 @@ pub struct AppState {
     /// This should be able to verify based on bytes alone (check the file headers).
     /// This function returns a [`bool`] indicating whether the file is valid or not.
     pub verifier: Arc<Box<dyn Fn(Bytes) -> bool + Send + Sync>>,
+
+    /// The data URL of the icon PNG file (`data:image/png;base64,...`).
+    pub icon_png_data_url: String,
 }
 
 impl AppState {
     /// Instantiate a new [`AppState`] instance.
-    pub fn new(
+    pub async fn new(
         pool: DbPool,
         config: &AppConfig,
         verifier: Box<dyn Fn(Bytes) -> bool + Send + Sync>,
     ) -> Result<Self> {
+        let icon_data = if config.ui.favicon_png == "default" {
+            DEFAULT_FAVICON_PNG.to_vec()
+        } else if !config.ui.favicon_png.starts_with("http") {
+            fs::read(&config.ui.favicon_png)?
+        } else {
+            reqwest::get(&config.ui.favicon_png)
+                .await?
+                .bytes()
+                .await?
+                .to_vec()
+        };
+
+        let icon_b64 = BASE64_STANDARD.encode(icon_data);
+
         Ok(Self {
             pool,
             auth: config.auth.github()?,
@@ -78,6 +97,7 @@ impl AppState {
             tags: vec![],
             verifier: Arc::new(verifier),
             search: MeilisearchService::new(config)?,
+            icon_png_data_url: format!("data:image/png;base64,{}", icon_b64),
         })
     }
 }

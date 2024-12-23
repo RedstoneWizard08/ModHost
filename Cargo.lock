@@ -2364,6 +2364,7 @@ dependencies = [
  "axum",
  "axum-core",
  "axum-extra",
+ "base64 0.22.1",
  "cfg-if",
  "chrono",
  "clap",

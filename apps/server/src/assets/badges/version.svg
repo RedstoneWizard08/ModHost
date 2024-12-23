@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="204.5" height="28" role="img" aria-label="{site}: {version}">
+    <title>{site}: {version}</title>
+    
+    <g shape-rendering="crispEdges">
+        <rect width="130" height="28" fill="{badge_base}" />
+        <rect x="130" width="74.5" height="28" fill="{badge_secondary}" />
+    </g>
+
+    <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="100">
+        <image x="6" y="4" width="20" height="20" xlink:href="{icon}" />
+        <text transform="scale(.1)" x="735" y="175" fill="#fff">{site}</text>
+        <text transform="scale(.1)" x="1672.5" y="175" fill="#fff" font-weight="bold">{version}</text>
+    </g>
+</svg>

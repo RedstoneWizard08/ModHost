@@ -4,7 +4,9 @@ use crate::{
     schema::{packages, users},
     DbConn, GalleryImage, Package, PackageAuthor, PackageData, Result, User,
 };
-use diesel::{BelongingToDsl, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
+use diesel::{
+    BelongingToDsl, OptionalExtension, PgTextExpressionMethods, QueryDsl, SelectableHelper,
+};
 use diesel_async::RunQueryDsl;
 
 /// Get a package by its ID or slug.
@@ -25,7 +27,7 @@ pub async fn get_package(id: impl AsRef<str>, conn: &mut DbConn) -> Result<Packa
     }
 
     Ok(packages::table
-        .filter(packages::slug.eq(id))
+        .filter(packages::slug.ilike(id))
         .select(Package::as_select())
         .first(conn)
         .await?)

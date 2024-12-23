@@ -47,6 +47,7 @@ use utoipa::{
         crate::routes::pkg::gallery::s3_image_handler,
         crate::routes::pkg::gallery::info_handler,
         crate::routes::meta::badge::version_handler,
+        crate::routes::meta::badge::latest_version_handler,
         crate::routes::meta::vers::game_versions_handler,
         crate::routes::meta::loaders::loaders_handler,
         crate::routes::meta::tags::tags_handler,

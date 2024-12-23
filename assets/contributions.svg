@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="232" height="28" role="img" aria-label="CONTRIBUTIONS: WELCOME">
     <title>CONTRIBUTIONS: WELCOME</title>
+
     <g shape-rendering="crispEdges">
         <rect width="129.25" height="28" fill="#191d28" />
         <rect x="129.25" width="88.75" height="28" fill="#068099" />
     </g>
+    
     <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="100">
         <text transform="scale(.1)" x="661.25" y="175" textLength="1022.5" fill="#fff">CONTRIBUTIONS</text>
         <text transform="scale(.1)" x="1722.25" y="175" textLength="647.5" fill="#fff" font-weight="bold">WELCOME</text>

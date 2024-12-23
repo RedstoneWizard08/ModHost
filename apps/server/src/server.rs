@@ -55,7 +55,7 @@ impl ModHost {
 
         info!("Creating state...");
 
-        let state = AppState::new(pool.clone(), &config, verifier)?;
+        let state = AppState::new(pool.clone(), &config, verifier).await?;
 
         info!("Running migrations...");
 

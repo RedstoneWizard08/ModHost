@@ -46,8 +46,11 @@ pub struct SearchQuery {
     tag = "Packages",
     params(
         ("q" = Option<String>, Query, description = "The query string"),
-        ("page" = Option<i64>, Query, description = "The current page (zero-based indexed) - defaults to 0"),
-        ("per_page" = Option<i64>, Query, description = "How many items per page - defaults to 25"),
+        ("page" = Option<usize>, Query, description = "The current page. Defaults to 1"),
+        ("per_page" = Option<usize>, Query, description = "How many items per page. Defaults to 25."),
+        ("sort" = Option<Sort>, Query, description = "The sort mode. Defaults to None."),
+        ("dir" = Option<SortMode>, Query, description = "The sort direction. Defaults to None."),
+        ("filters" = Option<Vec<Facet>>, Query, description = "The search filters. This should be serialized as a `Vec<(String, Vec<String>)>` where the first element of the tuple is the facet name and the second is the value(s)."),
     ),
     responses(
         (status = 200, description = "Method returned ok", body = SearchResults),

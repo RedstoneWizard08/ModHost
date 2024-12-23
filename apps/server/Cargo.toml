@@ -10,7 +10,7 @@ readme.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-app-core.workspace = true
+app-core = { workspace = true, features = ["axum", "glue", "octocrab", "reqwest", "semver", "serde-json", "serde-yaml", "tempfile", "zip"] }
 app-config.workspace = true
 axum.workspace = true
 axum-core.workspace = true

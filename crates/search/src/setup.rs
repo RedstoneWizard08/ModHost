@@ -1,7 +1,10 @@
+//! Setup methods.
+
 use crate::MeilisearchService;
 use app_core::Result;
 
 impl MeilisearchService {
+    /// Ensure that filterable & sortable attributes are properly set up in the index.
     pub async fn ensure_setup(&self) -> Result<()> {
         // self.client.
         self.packages()

@@ -1,3 +1,5 @@
+//! Utilities for packages.
+
 use crate::{
     schema::{packages, users},
     DbConn, GalleryImage, Package, PackageAuthor, PackageData, Result, User,
@@ -5,6 +7,7 @@ use crate::{
 use diesel::{BelongingToDsl, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 
+/// Get a package by its ID or slug.
 pub async fn get_package(id: impl AsRef<str>, conn: &mut DbConn) -> Result<Package> {
     let id = id.as_ref();
 
@@ -28,6 +31,7 @@ pub async fn get_package(id: impl AsRef<str>, conn: &mut DbConn) -> Result<Packa
         .await?)
 }
 
+/// Get the full data for a package by its ID or slug.
 pub async fn get_full_package(id: impl AsRef<str>, conn: &mut DbConn) -> Result<PackageData> {
     let pkg = get_package(id, conn).await?;
 

@@ -1,3 +1,5 @@
+//! Utilities for indexing packages.
+
 use crate::{MeiliPackage, MeilisearchService};
 use anyhow::anyhow;
 use app_core::Result;
@@ -10,6 +12,9 @@ use itertools::Itertools;
 use meilisearch_sdk::documents::DocumentDeletionQuery;
 
 impl MeilisearchService {
+    /// Index all packages present in the database.
+    /// THIS IS A DESTRUCTIVE ACTION! IT WILL DELETE ALL EXISTING DATA
+    /// IN THE MEILISEARCH INDEX!
     pub async fn index_packages(&self, conn: &mut DbConn) -> Result<()> {
         // This is my baby abomination and I am so proud of it.
         let packages: Vec<MeiliPackage> = packages::table
@@ -44,6 +49,7 @@ impl MeilisearchService {
         Ok(())
     }
 
+    /// Update a package in the Meilisearch index.
     pub async fn update_package(&self, pkg: i32, conn: &mut DbConn) -> Result<()> {
         // Abomination #2! It's so beautiful! I make Rust programmers worldwide upset!
         let data: MeiliPackage = packages::table
@@ -81,6 +87,7 @@ impl MeilisearchService {
         Ok(())
     }
 
+    /// Delete a package from the Meilisearch index.
     pub async fn delete_package(&self, pkg: i32) -> Result<()> {
         let index = self.packages();
         let mut query = DocumentDeletionQuery::new(&index);

@@ -1,9 +1,13 @@
 //! ModHost's error type.
 
 mod err;
+
+#[cfg(feature = "axum")]
 mod util;
 
 pub use err::*;
+
+#[cfg(feature = "axum")]
 pub use util::*;
 
 /// A wrapper for the [`core::result::Result`] type that

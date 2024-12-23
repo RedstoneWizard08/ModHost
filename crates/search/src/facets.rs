@@ -1,21 +1,52 @@
+//! The front-facing facet filter system.
+
 use anyhow::anyhow;
 use app_core::Result;
 use chrono::NaiveDateTime;
 use db::PackageVisibility;
 
+/// A facet/filter.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, ToSchema, ToResponse)]
 pub enum Facet {
+    /// Filters game versions. It will match any provided.
     GameVersions(Vec<String>),
+
+    /// Filters mod loaders. It will match any provided.
     Loaders(Vec<String>),
+
+    /// Filter by tags. It will match any provided.
     Tags(Vec<String>),
+
+    /// Filter by a range of dates when the package was published.
+    /// The first element is the minimum date, the second is the maximum.
+    /// The comparison is `(item.published >= a && item.published <= b)`
     Published(NaiveDateTime, NaiveDateTime),
+
+    /// Filter by a range of dates when the package was updated.
+    /// The first element is the minimum date, the second is the maximum.
+    /// The comparison is `(item.published >= a && item.published <= b)`
     Updated(NaiveDateTime, NaiveDateTime),
+
+    /// Filter by a range of download counts for packages..
+    /// The first element is the minimum, the second is the maximum.
+    /// The comparison is `(item.published >= a && item.published <= b)`
     Downloads(i32, i32),
+
+    /// Filter by package visibility.
+    /// This is used internally, and is not accepted in the front-facing search API.
     Visibility(PackageVisibility),
+
+    /// Filter by authors. This will match if one of the package's authors
+    /// has the ID provided.
+    /// This is used internally, and is not accepted in the front-facing search API.
     Author(i32),
+
+    /// Provide a manual Meilisearch filter string.
+    /// This is used internally, and is not accepted in the front-facing search API.
     Manual(String),
 }
 
+/// A sort mode.
 #[derive(
     Debug,
     Clone,
@@ -32,23 +63,29 @@ pub enum Facet {
     Default,
 )]
 pub enum Sort {
+    /// Sort packages with the default sorter.
     #[serde(rename = "none")]
     None,
 
+    /// Sort packages by name, alphabetical.
     #[serde(rename = "name")]
     Name,
 
+    /// Sort packages by published date.
     #[serde(rename = "published")]
     Published,
 
+    /// Sort packages by updated date.
     #[serde(rename = "updated")]
     Updated,
 
+    /// Sort packages by downloads.
     #[serde(rename = "downloads")]
     #[default]
     Downloads,
 }
 
+/// The sort direction.
 #[derive(
     Debug,
     Clone,
@@ -65,15 +102,18 @@ pub enum Sort {
     Default,
 )]
 pub enum SortMode {
+    /// Sort packages in ascending order.
     #[serde(rename = "asc")]
     #[default]
     Ascending,
 
+    /// Sort packages in descending order.
     #[serde(rename = "desc")]
     Descending,
 }
 
 impl Facet {
+    /// Turn this facet into a Meilisearch filter string.
     pub fn into_filter_string(self) -> String {
         format!(
             "({})",
@@ -100,6 +140,9 @@ impl Facet {
         )
     }
 
+    /// Parse a facet.
+    /// This will not parse the [`Facet::Visibility`], [`Facet::Author`], or [`Facet::Manual`]
+    /// facets.
     pub fn parse(it: (String, Vec<String>)) -> Result<Facet> {
         match it.0.as_str() {
             // 'visibility', and 'author', and 'manual' can only be set by the system for security reasons
@@ -143,6 +186,7 @@ impl Facet {
 }
 
 impl Sort {
+    /// Get the field name to sort by.
     pub fn field(&self) -> &'static str {
         match self {
             Self::None => "",
@@ -155,6 +199,7 @@ impl Sort {
 }
 
 impl SortMode {
+    /// Get the Meilisearch sort mode.
     pub fn mode(&self) -> &'static str {
         match self {
             Self::Ascending => "asc",

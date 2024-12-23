@@ -9,7 +9,7 @@ authors.workspace = true
 readme.workspace = true
 
 [dependencies]
-app-core.workspace = true
+app-core = { workspace = true, features = ["diesel", "diesel-async"] }
 chrono.workspace = true
 diesel.workspace = true
 diesel-async.workspace = true

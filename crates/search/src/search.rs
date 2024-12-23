@@ -1,8 +1,11 @@
+//! The actual search functionality.
+
 use crate::{Facet, MeiliPackage, MeilisearchService, SearchResults, Sort, SortMode};
 use app_core::Result;
 use itertools::Itertools;
 
 impl MeilisearchService {
+    /// Perform a search query.
     pub async fn search(
         &self,
         query_str: impl AsRef<str>,
@@ -47,6 +50,7 @@ impl MeilisearchService {
 }
 
 // idk how to do this better and im fed up with trying at this point
+/// Create a sort string from a sort type and a sort direction.
 pub const fn create_very_dumb_sorter((sort, mode): (Sort, SortMode)) -> &'static [&'static str] {
     match (sort, mode) {
         (Sort::Name, SortMode::Ascending) => &["name:asc"],
@@ -62,6 +66,7 @@ pub const fn create_very_dumb_sorter((sort, mode): (Sort, SortMode)) -> &'static
     }
 }
 
+/// Create a filter string from a list of facets.
 pub fn create_filter_string(facets: Vec<Facet>) -> String {
     facets
         .into_iter()

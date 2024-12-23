@@ -1,3 +1,5 @@
+//! Models for Meilisearch.
+
 use chrono::NaiveDateTime;
 use db::{Package, PackageData, PackageVersion, PackageVisibility, User};
 use itertools::Itertools;
@@ -68,18 +70,30 @@ pub struct MeiliPackage {
     pub tags: Vec<String>,
 }
 
+/// The search results type.
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, ToSchema, ToResponse,
 )]
 pub struct SearchResults {
+    /// The page number requested.
     pub page: usize,
+
+    /// The total number of pages.
     pub pages: usize,
+
+    /// The number of hits returned from the database.
+    /// Most of the time, this will be the same as the pagination limit.
     pub hits: usize,
+
+    /// The total number of items that matched the query.
     pub total: usize,
+
+    /// The returned items.
     pub results: Vec<PackageData>,
 }
 
 impl MeiliPackage {
+    /// Create a [`MeiliPackage`] from data from the database.
     pub fn from_data(pkg: Package, authors: Vec<User>, versions: Vec<PackageVersion>) -> Self {
         Self {
             id: pkg.id,
@@ -117,6 +131,7 @@ impl MeiliPackage {
         }
     }
 
+    /// Turn this into [`PackageData`].
     pub fn into_data(self) -> PackageData {
         PackageData {
             id: self.id,

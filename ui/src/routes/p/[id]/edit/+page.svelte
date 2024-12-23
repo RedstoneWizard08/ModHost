@@ -194,10 +194,7 @@
         Visibility
     </p>
 
-    <select
-        class="select cursor-pointer rounded-lg !outline-none"
-        bind:value={visibility}
-    >
+    <select class="select cursor-pointer rounded-lg !outline-none" bind:value={visibility}>
         <option value="Public">Public</option>
         <option value="Private">Private</option>
         <option value="Unlisted">Unlisted</option>

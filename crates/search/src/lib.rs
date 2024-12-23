@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+//! ModHost's search system, based on Meilisearch using the [`meilisearch_sdk`].
+
 #[macro_use]
 extern crate serde;
 

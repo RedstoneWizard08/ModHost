@@ -1,3 +1,5 @@
+//! Utilities for axumite.
+
 use bytes::Bytes;
 use http::{
     header::{HeaderMap, HeaderName},
@@ -5,6 +7,7 @@ use http::{
 };
 use sha1::{Digest, Sha1};
 
+/// Check if a header's value equals a string.
 pub fn header_eq(headers: &HeaderMap, key: HeaderName, value: &'static str) -> bool {
     if let Some(header) = headers.get(&key) {
         header.as_bytes().eq_ignore_ascii_case(value.as_bytes())
@@ -13,6 +16,7 @@ pub fn header_eq(headers: &HeaderMap, key: HeaderName, value: &'static str) -> b
     }
 }
 
+/// Check if a header's value contains a string.
 pub fn header_contains(headers: &HeaderMap, key: HeaderName, value: &'static str) -> bool {
     let header = if let Some(header) = headers.get(&key) {
         header
@@ -27,6 +31,7 @@ pub fn header_contains(headers: &HeaderMap, key: HeaderName, value: &'static str
     }
 }
 
+/// Sign a key into a header.
 pub fn sign(key: &[u8]) -> HeaderValue {
     use base64::engine::Engine as _;
 

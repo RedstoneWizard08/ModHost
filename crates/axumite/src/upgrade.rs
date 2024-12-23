@@ -1,14 +1,4 @@
-use std::borrow::Cow;
-
-use async_trait::async_trait;
-use axum_core::{body::Body, extract::FromRequestParts, response::Response, Error};
-use futures_util::Future;
-use http::{header, request::Parts, HeaderValue, Method, StatusCode};
-use hyper_util::rt::TokioIo;
-use tokio_tungstenite::{
-    tungstenite::protocol::{self, WebSocketConfig},
-    WebSocketStream,
-};
+//! The upgrade request.
 
 use crate::{
     fail::{DefaultOnFailedUpgrade, OnFailedUpgrade},
@@ -20,8 +10,18 @@ use crate::{
     socket::WebSocket,
     util::{header_contains, header_eq, sign},
 };
+use async_trait::async_trait;
+use axum_core::{body::Body, extract::FromRequestParts, response::Response, Error};
+use futures_util::Future;
+use http::{header, request::Parts, HeaderValue, Method, StatusCode};
+use hyper_util::rt::TokioIo;
+use std::borrow::Cow;
+use tokio_tungstenite::{
+    tungstenite::protocol::{self, WebSocketConfig},
+    WebSocketStream,
+};
 
-#[cfg_attr(docsrs, doc(cfg(feature = "ws")))]
+/// A WebSocket upgrade request.
 pub struct WebSocketUpgrade<F = DefaultOnFailedUpgrade> {
     config: WebSocketConfig,
     protocol: Option<HeaderValue>,
@@ -43,31 +43,37 @@ impl<F> std::fmt::Debug for WebSocketUpgrade<F> {
 }
 
 impl<F> WebSocketUpgrade<F> {
+    /// Set the write buffer's size.
     pub fn write_buffer_size(mut self, size: usize) -> Self {
         self.config.write_buffer_size = size;
         self
     }
 
+    /// Set the maximum write buffer's size.
     pub fn max_write_buffer_size(mut self, max: usize) -> Self {
         self.config.max_write_buffer_size = max;
         self
     }
 
+    /// Set the maximum message size.
     pub fn max_message_size(mut self, max: usize) -> Self {
         self.config.max_message_size = Some(max);
         self
     }
 
+    /// Set the maximum frame size.
     pub fn max_frame_size(mut self, max: usize) -> Self {
         self.config.max_frame_size = Some(max);
         self
     }
 
+    /// Toggle accepting unmasked frames.
     pub fn accept_unmasked_frames(mut self, accept: bool) -> Self {
         self.config.accept_unmasked_frames = accept;
         self
     }
 
+    /// Set the protocols to allow.
     pub fn protocols<I>(mut self, protocols: I) -> Self
     where
         I: IntoIterator,
@@ -97,6 +103,7 @@ impl<F> WebSocketUpgrade<F> {
         self
     }
 
+    /// Set the callback for when an upgrade fails.
     pub fn on_failed_upgrade<C>(self, callback: C) -> WebSocketUpgrade<C>
     where
         C: OnFailedUpgrade,
@@ -111,6 +118,7 @@ impl<F> WebSocketUpgrade<F> {
         }
     }
 
+    /// Set the callback for when a WebSocket upgrades.
     #[must_use = "to set up the WebSocket connection, this response must be returned"]
     pub fn on_upgrade<C, Fut>(self, callback: C) -> Response
     where

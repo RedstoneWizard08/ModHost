@@ -1,4 +1,5 @@
 //! Error handling utilities.
+#![cfg(feature = "axum")]
 
 use axum::{body::Body, response::Response};
 use std::fmt::Display;

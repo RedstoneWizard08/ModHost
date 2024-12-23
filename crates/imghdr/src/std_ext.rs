@@ -1,3 +1,5 @@
+//! Extensions if the `std` feature is enabled.
+
 use std::fs::File;
 use std::io::{Read, Result};
 use std::path::Path;

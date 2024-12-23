@@ -1,3 +1,5 @@
+//! ModHost's database models.
+
 mod gallery;
 mod manifest;
 mod pkg;

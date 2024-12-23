@@ -11,7 +11,7 @@ readme.workspace = true
 [dependencies]
 anyhow.workspace = true
 app-config.workspace = true
-app-core.workspace = true
+app-core = { workspace = true, features = ["anyhow", "chrono", "meilisearch"] }
 chrono.workspace = true
 db.workspace = true
 diesel.workspace = true

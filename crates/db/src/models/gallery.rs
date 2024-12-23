@@ -1,7 +1,8 @@
-use chrono::NaiveDateTime;
-use diesel::pg::Pg;
+//! Package gallery-related models.
 
 use crate::{gallery_images, Package};
+use chrono::NaiveDateTime;
+use diesel::pg::Pg;
 
 /// A gallery image.
 #[derive(

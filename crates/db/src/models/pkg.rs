@@ -1,3 +1,5 @@
+//! Package-related models.
+
 use super::User;
 use crate::schema::packages;
 use chrono::NaiveDateTime;
@@ -5,6 +7,7 @@ use diesel::pg::Pg;
 use diesel_derive_enum::DbEnum;
 use itertools::Itertools;
 
+/// A package's visibility.
 #[derive(
     Debug,
     Clone,
@@ -23,9 +26,14 @@ use itertools::Itertools;
 )]
 #[ExistingTypePath = "crate::schema::sql_types::Visibility"]
 pub enum PackageVisibility {
+    /// The package is publicly visible.
     #[default]
     Public,
+
+    /// The package is private.
     Private,
+
+    /// The package is unlisted; it will not show up in search but can be accessed via ID or slug.
     Unlisted,
 }
 
@@ -201,6 +209,7 @@ pub struct PackageData {
 }
 
 impl Package {
+    /// Turn this package into [`PackageData`] by providing a list of [`User`]s.
     pub fn with_authors(self, authors: Vec<User>) -> PackageData {
         PackageData {
             id: self.id,
@@ -223,6 +232,7 @@ impl Package {
 }
 
 impl PackageVisibility {
+    /// Get the string form of this.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Private => "Private",

@@ -1,10 +1,10 @@
 //! Utilities for authentication.
 
+use crate::Result;
 use app_core::AppError;
 use axum::http::HeaderMap;
 use axum_extra::extract::CookieJar;
 use db::{get_user_for_token, DbConn, User};
-use crate::Result;
 
 /// Get a user from a request if the token is present.
 pub async fn get_user_from_req(

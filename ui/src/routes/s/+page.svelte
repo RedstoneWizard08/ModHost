@@ -401,7 +401,7 @@
                             initiator: "left",
                             items: [
                                 ...dedupe([5, 10, 15, 20, 25, 30, 35, perPage])
-                                    .sort()
+                                    .sort((a, b) => a - b)
                                     .map(
                                         (count) =>
                                             ({

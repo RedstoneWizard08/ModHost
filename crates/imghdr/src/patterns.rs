@@ -1,3 +1,5 @@
+//! Patterns for detection.
+
 use crate::Type;
 
 /// Maximum amount of bytes required for a format recognition

@@ -10,7 +10,7 @@ readme.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-app-core.workspace = true
+app-core = { workspace = true, features = ["url", "config", "s3", "toml"] }
 config.workspace = true
 oauth2.workspace = true
 rust-s3.workspace = true

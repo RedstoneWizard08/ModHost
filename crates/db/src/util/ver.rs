@@ -1,11 +1,13 @@
+//! Utilities for package versions.
+
+use crate::{schema::package_versions, DbConn, PackageVersion};
 use app_core::Result;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
 };
 use diesel_async::RunQueryDsl;
 
-use crate::{schema::package_versions, DbConn, PackageVersion};
-
+/// Get a version by its ID, name, or version number.
 pub async fn get_version(
     pkg: i32,
     id: impl AsRef<str>,

@@ -1,8 +1,13 @@
+#![deprecated]
+#![allow(deprecated)]
+//! Synchronous utilities.
+
 use crate::{packages, users, Package, PackageAuthor, PackageData, Result, SyncDbConn, User};
 use diesel::{
     BelongingToDsl, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper,
 };
 
+/// Synchronously get a package by its ID or slug.
 pub fn get_package_sync(id: impl AsRef<str>, conn: &mut SyncDbConn) -> Result<Package> {
     let id = id.as_ref();
 
@@ -24,6 +29,7 @@ pub fn get_package_sync(id: impl AsRef<str>, conn: &mut SyncDbConn) -> Result<Pa
         .first(conn)?)
 }
 
+/// Synchronously get the full data for a package by its ID or slug.
 pub fn get_full_package_sync(id: impl AsRef<str>, conn: &mut SyncDbConn) -> Result<PackageData> {
     let pkg = get_package_sync(id, conn)?;
 

@@ -12,7 +12,7 @@ pub struct UIConfig {
     /// The app tagline.
     /// Defaults to `"Your home for game mods"`
     pub tagline: String,
-    
+
     /// Whether to show the beta badge on the website.
     /// Defaults to `true`
     pub show_beta: bool,
@@ -56,7 +56,7 @@ pub enum PackageKind {
     /// Will show "mod" instead of "packages", etc.
     #[default]
     Mods,
-    
+
     /// Will show "package" instead of "mod", etc.
     Packages,
 }

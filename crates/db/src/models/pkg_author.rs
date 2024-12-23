@@ -1,3 +1,5 @@
+//! The package author relation model.
+
 use crate::{
     models::{pkg::Package, user::User},
     schema::package_authors,

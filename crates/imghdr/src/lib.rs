@@ -1,3 +1,4 @@
+#![warn(missing_docs)]
 //! Library that determines the type of image contained in a file or byte stream,
 //! basically the clone of the Python [imghdr](https://docs.python.org/library/imghdr.html) module.
 //!

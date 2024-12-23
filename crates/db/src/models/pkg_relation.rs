@@ -1,3 +1,5 @@
+//! Package relation-related models.
+
 use crate::{
     models::pkg_ver::{PackageVersion, PackageVersionRef},
     schema::package_relations,

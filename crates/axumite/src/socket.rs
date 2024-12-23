@@ -1,3 +1,5 @@
+//! The WebSocket wrapper.
+
 use std::{
     pin::Pin,
     task::{Context, Poll},
@@ -9,25 +11,34 @@ use http::HeaderValue;
 use hyper_util::rt::TokioIo;
 use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
 
+/// A WebSocket.
 #[derive(Debug)]
 pub struct WebSocket {
-    pub inner: WebSocketStream<TokioIo<hyper::upgrade::Upgraded>>,
-    pub protocol: Option<HeaderValue>,
+    /// The inner [`WebSocketStream`].
+    pub(crate) inner: WebSocketStream<TokioIo<hyper::upgrade::Upgraded>>,
+
+    /// The protocol used to connect.
+    pub(crate) protocol: Option<HeaderValue>,
 }
 
 impl WebSocket {
+    /// Receive a [`Message`] asynchronously.
+    /// This will wait for the next message to be received before returning.
     pub async fn recv(&mut self) -> Option<Result<Message, Error>> {
         self.next().await
     }
 
+    /// Send a [`Message`] asynchronously.
     pub async fn send(&mut self, msg: Message) -> Result<(), Error> {
         self.inner.send(msg).await.map_err(Error::new)
     }
 
+    /// Close the WebSocket, sending the close message.
     pub async fn close(mut self) -> Result<(), Error> {
         self.inner.close(None).await.map_err(Error::new)
     }
 
+    /// Get the protocol used to connect.
     pub fn protocol(&self) -> Option<&HeaderValue> {
         self.protocol.as_ref()
     }

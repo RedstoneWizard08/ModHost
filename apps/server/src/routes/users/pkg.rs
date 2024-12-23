@@ -23,7 +23,7 @@ const CACHE_EXPIRY_MS: i64 = 15 * 60 * 1000; // 15 minutes = 15m * 60s * 1000ms
 lazy_static! {
     /// A cache of user packages.
     /// This is cached because retrieving this info is a slow process.
-    /// 
+    ///
     /// [!TODO] The method of retreiving this info will soon be changed to a single select
     /// query with some array manipulation, so this will be unnecessary when that happens.
     static ref USER_PACKAGES_CACHE: Arc<Mutex<HashMap<i32, (i64, Vec<PackageData>)>>> =

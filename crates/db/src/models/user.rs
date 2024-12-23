@@ -1,3 +1,5 @@
+//! User-related models.
+
 use crate::schema::{user_tokens, users};
 use chrono::NaiveDateTime;
 use diesel::pg::Pg;

@@ -1,67 +1,77 @@
 //! The error type.
 
-use std::num::ParseIntError;
-use super::{AxumError, HasCode};
-use axum::response::{IntoResponse, Response};
-use diesel::r2d2::PoolError as SyncPoolError;
-use diesel_async::pooled_connection::deadpool::{BuildError, PoolError};
-use jsglue::config::GlueConfigBuilderError;
+#[cfg(feature = "axum")]
+use super::AxumError;
 use thiserror::Error;
 
 /// ModHost's error type, which uses [`thiserror`], wrapping many crates' error
 /// types, and providing some extra for custom responses.
 #[derive(Debug, Error)]
 pub enum AppError {
-    /// An error with the database pool occured.
+    /// An error with the async database pool occured.
     #[error(transparent)]
-    Pool(#[from] PoolError),
+    #[cfg(feature = "diesel-async")]
+    Pool(#[from] diesel_async::pooled_connection::deadpool::PoolError),
 
     /// An error with the synchronous database pool occured.
+    #[deprecated]
     #[error(transparent)]
-    SyncPool(#[from] SyncPoolError),
+    #[cfg(feature = "diesel")]
+    SyncPool(#[from] diesel::r2d2::PoolError),
 
     /// An error with a GitHub API client occured.
     #[error(transparent)]
+    #[cfg(feature = "octocrab")]
     GitHub(#[from] octocrab::Error),
 
     /// An error parsing a URL occured.
     #[error(transparent)]
+    #[cfg(feature = "url")]
     Url(#[from] url::ParseError),
 
     /// An error with the database occured.
     #[error(transparent)]
+    #[cfg(feature = "diesel")]
     Database(#[from] diesel::result::Error),
 
     /// An error with [`axum`] occured.
     #[error(transparent)]
+    #[cfg(feature = "axum")]
     Axum(#[from] axum::Error),
 
     /// An error with [`axum::http`] occured.
     #[error(transparent)]
+    #[cfg(feature = "axum")]
     AxumHttp(#[from] axum::http::Error),
 
     /// An error converting a header from [`reqwest`] to a string occured.
     #[error(transparent)]
+    #[cfg(feature = "reqwest")]
     Header(#[from] reqwest::header::ToStrError),
 
     /// An error parsing a header value occured.
     #[error(transparent)]
+    #[cfg(feature = "axum")]
     HeaderValue(#[from] axum::http::header::InvalidHeaderValue),
 
     /// An error with [`serde_json`] occured.
     #[error(transparent)]
+    #[cfg(feature = "serde-json")]
     Json(#[from] serde_json::Error),
 
     /// An error with [`serde_yaml`] occured.
     #[error(transparent)]
+    #[cfg(feature = "serde-yaml")]
     Yaml(#[from] serde_yaml::Error),
 
     /// An error serializing toml occured.
     #[error(transparent)]
+    #[cfg(feature = "toml")]
     TomlSer(#[from] toml::ser::Error),
 
     /// An error deserializing toml occured.
     #[error(transparent)]
+    #[cfg(feature = "toml")]
     TomlDe(#[from] toml::de::Error),
 
     /// An error involving environment variables occured.
@@ -70,10 +80,12 @@ pub enum AppError {
 
     /// An error with [`dotenvy`] occured.
     #[error(transparent)]
+    #[cfg(feature = "dotenvy")]
     Dotenv(#[from] dotenvy::Error),
 
     /// An error created using the [`anyhow`] crate occured.
     #[error(transparent)]
+    #[cfg(feature = "anyhow")]
     Anyhow(#[from] anyhow::Error),
 
     /// An IO error occured.
@@ -86,58 +98,71 @@ pub enum AppError {
 
     /// An error parsing multipart form data occured.
     #[error(transparent)]
+    #[cfg(feature = "axum")]
     Multipart(#[from] axum::extract::multipart::MultipartError),
 
     /// An error joining threads occured.
     #[error(transparent)]
+    #[cfg(feature = "tokio")]
     Join(#[from] tokio::task::JoinError),
 
     /// An error with [`reqwest`] occured.
     #[error(transparent)]
+    #[cfg(feature = "reqwest")]
     Http(#[from] reqwest::Error),
 
     /// An error configuring [`jsglue`] occured.
     #[error(transparent)]
-    Glue(#[from] GlueConfigBuilderError),
+    #[cfg(feature = "glue")]
+    Glue(#[from] jsglue::config::GlueConfigBuilderError),
 
     /// An error initializing the database occured.
     #[error(transparent)]
-    DbInit(#[from] BuildError),
+    #[cfg(feature = "diesel-async")]
+    DbInit(#[from] diesel_async::pooled_connection::deadpool::BuildError),
 
     /// An error validating semver occured.
     #[error(transparent)]
+    #[cfg(feature = "semver")]
     SemVer(#[from] semver::Error),
 
     /// A configuration parsing error occured.
     #[error(transparent)]
+    #[cfg(feature = "config")]
     Config(#[from] config::ConfigError),
 
     /// An error with S3 occured.
     #[error(transparent)]
+    #[cfg(feature = "s3")]
     S3(#[from] s3::error::S3Error),
 
     /// An error creating S3 credentials occured.
     #[error(transparent)]
+    #[cfg(feature = "s3")]
     S3Creds(#[from] s3::creds::error::CredentialsError),
 
     /// An error with zip files occured.
     #[error(transparent)]
+    #[cfg(feature = "zip")]
     Zip(#[from] zip::result::ZipError),
 
     /// An error with persisting temporary files occured.
     #[error(transparent)]
+    #[cfg(feature = "tempfile")]
     TempFile(#[from] tempfile::PersistError),
 
     /// An error parsing an integer occured.
     #[error(transparent)]
-    ParseInt(#[from] ParseIntError),
+    ParseInt(#[from] std::num::ParseIntError),
 
     /// An error parsing a date occured.
     #[error(transparent)]
+    #[cfg(feature = "chrono")]
     ParseDate(#[from] chrono::ParseError),
 
     /// An error with Meilisearch occured.
     #[error(transparent)]
+    #[cfg(feature = "meilisearch")]
     Meilisearch(#[from] meilisearch_sdk::errors::Error),
 
     /// A token was missing.
@@ -153,7 +178,8 @@ pub enum AppError {
     NotFound,
 }
 
-impl HasCode for AppError {
+#[cfg(feature = "axum")]
+impl super::HasCode for AppError {
     fn code(&self) -> u16 {
         match self {
             Self::Multipart(_) | Self::ParseInt(_) => 400,
@@ -164,20 +190,23 @@ impl HasCode for AppError {
     }
 }
 
-impl IntoResponse for AppError {
-    fn into_response(self) -> Response {
+#[cfg(feature = "axum")]
+impl axum::response::IntoResponse for AppError {
+    fn into_response(self) -> axum::response::Response {
         self.as_response()
     }
 }
 
+#[cfg(feature = "axum")]
 ///  A trait to fix an error to use our error type.
 pub trait FixError<T> {
     /// Fix the error!
-    fn fix_err(self) -> Result<T, Response>;
+    fn fix_err(self) -> Result<T, axum::response::Response>;
 }
 
+#[cfg(feature = "axum")]
 impl<T, E: Into<AppError>> FixError<T> for Result<T, E> {
-    fn fix_err(self) -> Result<T, Response> {
+    fn fix_err(self) -> Result<T, axum::response::Response> {
         self.map_err(|v| v.into().as_response())
     }
 }

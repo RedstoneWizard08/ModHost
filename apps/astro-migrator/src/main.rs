@@ -21,7 +21,7 @@ pub async fn main() -> Result<()> {
 
     run_migrations(&pool).await?;
 
-    let pkgs = config.storage.packages()?;
+    let pkgs = config.storage.projects()?;
     let imgs = config.storage.gallery()?;
 
     let mods_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("mods");
@@ -61,7 +61,7 @@ pub async fn main() -> Result<()> {
 
     let search = MeilisearchService::new(&config)?;
 
-    search.index_packages(&mut pool.get().await?).await?;
+    search.index_projects(&mut pool.get().await?).await?;
 
     fs::write(
         tags_file,

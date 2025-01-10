@@ -8,5 +8,6 @@
     "i18n-ally.enabledFrameworks": ["svelte"],
     "i18n-ally.displayLanguage": "en-US",
     "i18n-ally.keystyle": "nested",
-    "pkl.lsp.java.path": "/usr/local/sdkman/candidates/java/current/bin/java"
+    "pkl.lsp.java.path": "/usr/local/sdkman/candidates/java/current/bin/java",
+    "biome.enabled": false
 }

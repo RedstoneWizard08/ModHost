@@ -5,11 +5,11 @@ use axum::{
     extract::{Path, State},
     response::Response,
 };
-use db::get_package;
+use db::get_project;
 
 /// Version Badge
 ///
-/// Get a badge for a specific version of a package.
+/// Get a badge for a specific version of a project.
 #[utoipa::path(
     get,
     path = "/api/v1/meta/badge/version/{version}",
@@ -43,13 +43,13 @@ pub async fn version_handler(
 
 /// Latest Version Badge
 ///
-/// Get a badge for the latest version of a package.
+/// Get a badge for the latest version of a project.
 #[utoipa::path(
     get,
-    path = "/api/v1/meta/badge/latest/{package}",
+    path = "/api/v1/meta/badge/latest/{project}",
     tag = "Meta",
     params(
-        ("package" = String, description = "The package."),
+        ("project" = String, description = "The project."),
     ),
     responses(
         (status = 200, description = "Created a badge!", body = String),
@@ -57,12 +57,12 @@ pub async fn version_handler(
     ),
 )]
 #[debug_handler]
-pub async fn latest_version_handler(
+pub async fn latest_version_badge_handler(
     State(state): State<AppState>,
-    Path(package): Path<String>,
+    Path(project): Path<String>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_package(package, &mut conn).await?;
+    let pkg = get_project(project, &mut conn).await?;
     let ver = get_latest_version(pkg.id, &mut conn).await?;
 
     let data = format!(

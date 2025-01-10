@@ -1,8 +1,9 @@
-import type { Sort, SortMode } from "./search";
+import type { SortDirection, SortMode } from "@modhost/api";
 
 export interface UserPreferences {
-    sortBy: Sort;
-    sortDir: SortMode;
+    sortBy: SortMode;
+    sortDir: SortDirection;
+    perPage: number;
     locale: string;
     theme: string;
     lightMode: boolean;

@@ -2,7 +2,7 @@ use axum::body::Bytes;
 use clap::{Command, CommandFactory, Parser};
 use clap_complete::{generate, Generator, Shell};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
-use db::PackageManifest;
+use db::ProjectManifest;
 use flate2::read::GzDecoder;
 use modhost::{from_log_level, init_logger, loaders, GameVersion, ModHost, Result};
 use serde::{Deserialize, Serialize};
@@ -37,7 +37,7 @@ impl Cli {
         let _ = dotenvy::dotenv();
         init_logger(from_log_level(self.verbose.log_level_filter()));
 
-        ModHost::new(Box::new(verify_package))
+        ModHost::new(Box::new(verify_project))
             .await?
             .versions(get_minecraft_versions().await?)
             .loaders(loaders!["Forge", "Fabric", "Quilt", "NeoForge",])
@@ -93,7 +93,7 @@ pub async fn get_minecraft_versions() -> Result<Vec<GameVersion>> {
         .collect())
 }
 
-pub fn verify_package(bytes: Bytes) -> bool {
+pub fn verify_project(bytes: Bytes) -> bool {
     let mut data = GzDecoder::new(Cursor::new(bytes));
     let mut gunzip = Vec::new();
 
@@ -113,7 +113,7 @@ pub fn verify_package(bytes: Bytes) -> bool {
                         return false;
                     }
 
-                    if let Err(_) = serde_json::from_str::<PackageManifest>(&data) {
+                    if let Err(_) = serde_json::from_str::<ProjectManifest>(&data) {
                         return false;
                     }
 

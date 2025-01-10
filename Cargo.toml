@@ -106,11 +106,11 @@ app-core = { version = "0", path = "./crates/app-core" }
 app-config = { version = "0", path = "./crates/app-config" }
 axumite = { version = "0", path = "./crates/axumite" }
 db = { version = "0", path = "./crates/db" }
+db-util = { version = "0", path = "./crates/db-util" }
 imghdr = { version = "0", path = "./crates/imghdr", features = ["serde"] }
 include_dir = { version = "0", path = "./crates/include_dir" }
 include_dir_macros = { version = "0", path = "./crates/include_dir_macros" }
 jsglue = { version = "0", path = "./crates/jsglue" }
 modhost = { version = "0", path = "./apps/server" }
-modhost-api = { version = "0", path = "./crates/modhost-api" }
 parse-wiki-text-2 = { version = "0", path = "./crates/parse-wiki-text-2" }
 search = { version = "0", path = "./crates/search" }

@@ -1,6 +1,6 @@
-//! Package gallery-related models.
+//! Project gallery-related models.
 
-use crate::{gallery_images, Package};
+use crate::{gallery_images, Project};
 use chrono::NaiveDateTime;
 use diesel::pg::Pg;
 
@@ -23,14 +23,14 @@ use diesel::pg::Pg;
     ToResponse,
 )]
 #[diesel(table_name = gallery_images)]
-#[diesel(belongs_to(Package, foreign_key = package))]
+#[diesel(belongs_to(Project, foreign_key = project))]
 #[diesel(check_for_backend(Pg))]
 pub struct GalleryImage {
     /// The gallery image ID.
     pub id: i32,
 
-    /// The package ID.
-    pub package: i32,
+    /// The project ID.
+    pub project: i32,
 
     /// The display name of the version.
     pub name: String,
@@ -59,8 +59,8 @@ pub struct PublicGalleryImage {
     /// The gallery image ID.
     pub id: i32,
 
-    /// The package ID.
-    pub package: i32,
+    /// The project ID.
+    pub project: i32,
 
     /// The display name of the version.
     pub name: String,
@@ -100,11 +100,11 @@ pub struct PublicGalleryImage {
     ToResponse,
 )]
 #[diesel(table_name = gallery_images)]
-#[diesel(belongs_to(Package, foreign_key = package))]
+#[diesel(belongs_to(Project, foreign_key = project))]
 #[diesel(check_for_backend(Pg))]
 pub struct NewGalleryImage {
-    /// The package ID.
-    pub package: i32,
+    /// The project ID.
+    pub project: i32,
 
     /// The display name of the version.
     pub name: String,

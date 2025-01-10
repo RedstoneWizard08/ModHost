@@ -1,37 +1,38 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
-    import { getUser, getUserPackages } from "$api";
     import { page } from "$app/stores";
-    import type { LoadingState, PackageData, Sort, SortMode, User } from "$lib/types";
+    import type { LoadingState } from "$lib/types";
     import { onMount } from "svelte";
-    import { user as userStore, userPreferencesStore } from "$lib/stores";
+    import { user as userStore, userPreferencesStore } from "$lib/user";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import PackageList from "$components/ui/PackageList.svelte";
-    import { guessSortMode } from "$lib/utils";
-    import { contextMenu, type ContextMenuItem } from "$lib/contextMenu";
+    import { guessSortMode } from "$lib/util";
+    import { contextMenu, type ContextMenuItem } from "$lib/ui";
     import TablerIconCheck from "$components/icons/TablerIconCheck.svelte";
     import IconBlank from "$components/icons/IconBlank.svelte";
     import { afterNavigate, beforeNavigate, goto } from "$app/navigation";
     import { siteConfig } from "$lib/config";
     import Icon from "@iconify/svelte";
+    import { client } from "$lib/api";
+    import { unwrapOrNull, type FullProject, type SortMode, type User } from "@modhost/api";
 
     const id = $derived($page.params.id);
     const toasts = getToastStore();
     const showDetails = $derived(($page.url.searchParams.get("showDetails") ?? "false") == "true");
 
     let loadingState = $state<LoadingState>("loading");
-    let user: User | undefined = $state(undefined);
-    let packages: PackageData[] = $state([]);
+    let user = $state<User | null>(null);
+    let packages = $state<FullProject[]>([]);
 
     const downloads = $derived(packages.reduce((a, b) => a + b.downloads, 0));
 
     onMount(async () => {
         loadingState = "loading";
         $userPreferencesStore.sortBy = guessSortMode($page.url.searchParams.get("sort") ?? "");
-        user = await getUser(id);
+        user = unwrapOrNull(await client.user(id).get());
 
         if (user) {
-            packages = (await getUserPackages(id)) ?? [];
+            packages = unwrapOrNull(await client.user(id).projects()) ?? [];
             loadingState = "ready";
         } else {
             loadingState = "failed";
@@ -40,7 +41,7 @@
 
     beforeNavigate(() => {
         loadingState = "loading";
-        user = undefined;
+        user = null;
         packages = [];
     });
 
@@ -49,10 +50,10 @@
         if (to?.route.id == "/u/[id]") {
             loadingState = "loading";
             $userPreferencesStore.sortBy = guessSortMode($page.url.searchParams.get("sort") ?? "");
-            user = await getUser(id);
+            user = unwrapOrNull(await client.user(id).get());
 
             if (user) {
-                packages = (await getUserPackages(id)) ?? [];
+                packages = unwrapOrNull(await client.user(id).projects()) ?? [];
                 loadingState = "ready";
             } else {
                 loadingState = "failed";
@@ -74,13 +75,13 @@
                 <img
                     src="/modhost.png"
                     alt="author's profile"
-                    class="mr-4 aspect-square h-16 rounded-token"
+                    class="rounded-token mr-4 aspect-square h-16"
                 />
             {:else}
                 <img
                     src="https://avatars.githubusercontent.com/u/{user?.github_id}"
                     alt="author's profile"
-                    class="mr-4 aspect-square h-16 rounded-token"
+                    class="rounded-token mr-4 aspect-square h-16"
                 />
             {/if}
 
@@ -93,7 +94,11 @@
             {/if}
 
             {#if user.admin}
-                <span class="variant-filled-error badge">{$_("user.admin")}</span>
+                <span class="variant-filled-error badge ml-2">{$_("user.admin")}</span>
+            {/if}
+
+            {#if user.moderator}
+                <span class="variant-filled-secondary badge ml-2">{$_("user.moderator")}</span>
             {/if}
 
             {#if $userStore && $userStore.github_id == user.github_id}
@@ -122,7 +127,7 @@
 
         <div class="flex flex-row items-center justify-between">
             <button
-                class="variant-soft-secondary btn mb-4 w-fit hover:variant-filled-primary"
+                class="variant-soft-secondary btn hover:variant-filled-primary mb-4 w-fit"
                 onclick={() => ($userPreferencesStore.compact = !$userPreferencesStore.compact)}
             >
                 <Icon icon="tabler:layout-dashboard" height="24" class="mr-2" />
@@ -149,7 +154,8 @@
                                             $userPreferencesStore.sortBy == name
                                                 ? TablerIconCheck
                                                 : IconBlank,
-                                        action: () => ($userPreferencesStore.sortBy = name as Sort),
+                                        action: () =>
+                                            ($userPreferencesStore.sortBy = name as SortMode),
                                     }) as ContextMenuItem,
                             ),
                             { type: "SEPARATOR" },

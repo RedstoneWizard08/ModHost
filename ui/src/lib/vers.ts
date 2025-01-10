@@ -1,6 +1,6 @@
 import { get } from "svelte/store";
-import { gameVersions } from "./versions";
 import { _ } from "svelte-i18n";
+import { gameVersions } from "./meta";
 
 export const tryAggregateVersions = (vers: string[]): string[] => {
     const available = get(gameVersions) || [];

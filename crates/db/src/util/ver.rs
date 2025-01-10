@@ -1,6 +1,6 @@
-//! Utilities for package versions.
+//! Utilities for project versions.
 
-use crate::{schema::package_versions, DbConn, PackageVersion};
+use crate::{schema::project_versions, DbConn, ProjectVersion};
 use app_core::Result;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
@@ -9,16 +9,16 @@ use diesel_async::RunQueryDsl;
 
 /// Get a version by its ID, name, or version number.
 pub async fn get_version(
-    pkg: i32,
+    project: i32,
     id: impl AsRef<str>,
     conn: &mut DbConn,
-) -> Result<PackageVersion> {
+) -> Result<ProjectVersion> {
     let id = id.as_ref();
 
     if let Ok(id) = id.parse::<i32>() {
-        let ver = package_versions::table
+        let ver = project_versions::table
             .find(id)
-            .select(PackageVersion::as_select())
+            .select(ProjectVersion::as_select())
             .first(conn)
             .await
             .optional()?;
@@ -28,13 +28,13 @@ pub async fn get_version(
         }
     }
 
-    if let Some(ver) = package_versions::table
+    if let Some(ver) = project_versions::table
         .filter(
-            package_versions::version_number
+            project_versions::version_number
                 .eq(id)
-                .and(package_versions::package.eq(pkg)),
+                .and(project_versions::project.eq(project)),
         )
-        .select(PackageVersion::as_select())
+        .select(ProjectVersion::as_select())
         .first(conn)
         .await
         .optional()?
@@ -42,13 +42,13 @@ pub async fn get_version(
         return Ok(ver);
     }
 
-    Ok(package_versions::table
+    Ok(project_versions::table
         .filter(
-            package_versions::name
+            project_versions::name
                 .eq(id)
-                .and(package_versions::package.eq(pkg)),
+                .and(project_versions::project.eq(project)),
         )
-        .select(PackageVersion::as_select())
+        .select(ProjectVersion::as_select())
         .first(conn)
         .await?)
 }

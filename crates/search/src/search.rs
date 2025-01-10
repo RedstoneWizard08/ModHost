@@ -1,6 +1,6 @@
 //! The actual search functionality.
 
-use crate::{Facet, MeiliPackage, MeilisearchService, SearchResults, Sort, SortMode};
+use crate::{Facet, MeiliProject, MeilisearchService, SearchResults, Sort, SortMode};
 use app_core::Result;
 use itertools::Itertools;
 
@@ -14,7 +14,7 @@ impl MeilisearchService {
         per_page: usize,
         sort: Option<(Sort, SortMode)>,
     ) -> Result<SearchResults> {
-        let index = self.packages();
+        let index = self.projects();
         let filter = create_filter_string(facets);
         let mut query = index.search();
 
@@ -34,7 +34,7 @@ impl MeilisearchService {
             }
         }
 
-        let res = query.execute::<MeiliPackage>().await?;
+        let res = query.execute::<MeiliProject>().await?;
         let total = res.total_hits.unwrap_or_default();
         let per_page = res.hits_per_page.unwrap_or_default();
         let results = res.hits.into_iter().map(|v| v.result).collect_vec();

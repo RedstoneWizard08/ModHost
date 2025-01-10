@@ -1,4 +1,4 @@
-//! Utilities for package galleries.
+//! Utilities for project galleries.
 
 use crate::{state::AppState, Result};
 use db::{GalleryImage, PublicGalleryImage};
@@ -15,12 +15,12 @@ pub async fn get_image(id: impl AsRef<str>, state: &AppState) -> Result<Vec<u8>>
 
 /// Transform a [`GalleryImage`] into a [`PublicGalleryImage`], with the correct URL for it.
 pub fn transform_gallery_image(img: GalleryImage) -> PublicGalleryImage {
-    let url = format!("/api/v1/packages/s3/gallery/{}", img.s3_id);
+    let url = format!("/api/v1/projects/s3/gallery/{}", img.s3_id);
 
     PublicGalleryImage {
         id: img.id,
         name: img.name,
-        package: img.package,
+        project: img.project,
         created_at: img.created_at,
         updated_at: img.updated_at,
         description: img.description,

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
     import Icon from "@iconify/svelte";
 
     interface Props {
@@ -16,11 +16,11 @@
 
 <a
     href={urlPath}
-    class="variant-glass-surface flex flex-row items-center justify-start rounded-md p-4 py-2 transition-all hover:variant-soft-primary"
-    class:!variant-glass-primary={$page.route.id == route ||
-        extraMatches.includes($page.route.id ?? "")}
-    class:hover:!variant-outline-secondary={$page.route.id == route ||
-        extraMatches.includes($page.route.id ?? "")}
+    class="variant-glass-surface hover:variant-soft-primary flex flex-row items-center justify-start rounded-md p-4 py-2 transition-all"
+    class:!variant-glass-primary={page.route.id == route ||
+        extraMatches.includes(page.route.id ?? "")}
+    class:hover:!variant-outline-secondary={page.route.id == route ||
+        extraMatches.includes(page.route.id ?? "")}
 >
     <Icon {icon} height="24" class="mr-2" />
     {text}

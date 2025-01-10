@@ -2,8 +2,7 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { getPackage, updatePackage } from "$api";
-    import { currentPackage, editSaving } from "$lib/stores";
+    import { currentProject, editSaving } from "$lib/state";
     import Icon from "@iconify/svelte";
     import {
         Autocomplete,
@@ -12,8 +11,9 @@
         type AutocompleteOption,
         type PopupSettings,
     } from "@skeletonlabs/skeleton";
-    import { getLicenses } from "$lib/licenses";
-    import type { ProjectVisibility } from "$lib/types";
+    import { unwrapOrNull, type ProjectVisibility } from "@modhost/api";
+    import { licenses } from "$lib/meta";
+    import { client } from "$lib/api";
 
     const id = $derived($page.params.id);
     const modals = getModalStore();
@@ -33,23 +33,23 @@
     const realLicense = $derived(license != "" ? license : undefined);
 
     onMount(async () => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        slug = $currentPackage.slug;
-        name = $currentPackage.name;
-        repo = $currentPackage.source ?? "";
-        issues = $currentPackage.issues ?? "";
-        wiki = $currentPackage.wiki ?? "";
-        license = $currentPackage.license ?? "";
-        visibility = $currentPackage.visibility;
+        slug = $currentProject.slug;
+        name = $currentProject.name;
+        repo = $currentProject.source ?? "";
+        issues = $currentProject.issues ?? "";
+        wiki = $currentProject.wiki ?? "";
+        license = $currentProject.license ?? "";
+        visibility = $currentProject.visibility;
 
-        allLicenses = (await getLicenses()).map((v) => ({ value: v, label: v }));
+        allLicenses = $licenses.map((v) => ({ value: v, label: v }));
     });
 
     const save = async () => {
         $editSaving = true;
 
-        await updatePackage(id, {
+        await client.project(id).update({
             name,
             visibility,
             source: realRepo,
@@ -58,15 +58,15 @@
             license: realLicense,
         });
 
-        $currentPackage = await getPackage(id);
+        $currentProject = unwrapOrNull(await client.project(id).get());
 
-        slug = $currentPackage?.slug ?? slug;
-        name = $currentPackage?.name ?? name;
-        repo = $currentPackage?.source ?? repo;
-        issues = $currentPackage?.issues ?? issues;
-        wiki = $currentPackage?.wiki ?? wiki;
-        license = $currentPackage?.license ?? license;
-        visibility = $currentPackage?.visibility ?? visibility;
+        slug = $currentProject?.slug ?? slug;
+        name = $currentProject?.name ?? name;
+        repo = $currentProject?.source ?? repo;
+        issues = $currentProject?.issues ?? issues;
+        wiki = $currentProject?.wiki ?? wiki;
+        license = $currentProject?.license ?? license;
+        visibility = $currentProject?.visibility ?? visibility;
 
         $editSaving = false;
     };
@@ -89,13 +89,13 @@
     };
 </script>
 
-<p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+<p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
     <Icon icon="tabler:settings" height="24" class="mr-2" />
     General Settings
 </p>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:link" height="24" class="mr-2" />
         Slug
     </p>
@@ -110,7 +110,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:eye" height="24" class="mr-2" />
         Display Name
     </p>
@@ -124,7 +124,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:code" height="24" class="mr-2" />
         Source Code
     </p>
@@ -138,7 +138,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:exclamation-circle" height="24" class="mr-2" />
         Issue Tracker
     </p>
@@ -152,7 +152,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:world" height="24" class="mr-2" />
         Wiki
     </p>
@@ -166,7 +166,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:license" height="24" class="mr-2" />
         License
     </p>
@@ -182,14 +182,14 @@
 
     <div
         data-popup="licensesAutocomplete"
-        class="h-[50%] w-[40%] overflow-scroll rounded-lg bg-secondary-700 p-2"
+        class="bg-secondary-700 h-[50%] w-[40%] overflow-scroll rounded-lg p-2"
     >
         <Autocomplete bind:input={license} options={allLicenses} on:selection={onLicenseSelect} />
     </div>
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:eye" height="24" class="mr-2" />
         Visibility
     </p>
@@ -204,7 +204,7 @@
 <div class="flex flex-row items-center justify-start gap-2">
     <button
         type="button"
-        class="variant-filled-primary btn mt-2 flex flex-row items-center justify-center rounded-lg transition-all hover:variant-ghost-primary hover:text-token"
+        class="variant-filled-primary btn hover:variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
         onclick={save}
     >
         <Icon icon="tabler:device-floppy" height="24" class="mr-2" />
@@ -213,7 +213,7 @@
 
     <button
         type="button"
-        class="variant-filled-error btn mt-2 flex flex-row items-center justify-center rounded-lg transition-all hover:variant-ghost-error"
+        class="variant-filled-error btn hover:variant-ghost-error mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
         onclick={deleteProject}
     >
         <Icon icon="tabler:trash" height="24" class="mr-2" />

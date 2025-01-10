@@ -49,7 +49,7 @@
 </svelte:head>
 
 <div
-    class="m-0 flex w-full flex-col items-center justify-center bg-gradient-to-b from-primary-900 from-10% via-secondary-700 to-surface-900 to-90% p-10 py-40"
+    class="from-primary-900 via-secondary-700 to-surface-900 m-0 flex w-full flex-col items-center justify-center bg-gradient-to-b from-10% to-90% p-10 py-40"
 >
     <!-- When you can't decide what font to use: -->
     <h2 class="flex flex-row items-center justify-center text-3xl md:text-4xl">
@@ -60,7 +60,7 @@
         {/if}
     </h2>
 
-    <span class="mt-2 animate-border-blink border-r-2 pr-1 text-xl font-bold">
+    <span class="animate-border-blink mt-2 border-r-2 pr-1 text-xl font-bold">
         {text}
     </span>
 

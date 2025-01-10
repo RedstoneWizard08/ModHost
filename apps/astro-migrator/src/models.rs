@@ -1,8 +1,9 @@
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use db::{
-    gallery_images, package_authors, package_versions, packages, DbConn, NewGalleryImage,
-    NewPackage, NewPackageVersion, Package, PackageAuthor, PackageVersion, PackageVisibility,
+    gallery_images, project_authors, project_versions, projects, version_files, DbConn,
+    NewGalleryImage, NewProject, NewProjectFile, NewProjectVersion, Project, ProjectAuthor,
+    ProjectVersion, ProjectVisibility,
 };
 use diesel::{insert_into, SelectableHelper};
 use diesel_async::RunQueryDsl;
@@ -12,7 +13,7 @@ use serde_this_or_that::{as_bool, as_i64};
 use sha1::{Digest, Sha1};
 use std::{fs, path::PathBuf};
 
-pub const DESC_PREFIX: &str = "> *If this is your package, please contact **@RedstoneWizard08** on the [Astroneer Modding Discord](https://discord.gg/bBqdVYxu4k) to claim it!*\n\n";
+pub const DESC_PREFIX: &str = "> *If this is your project, please contact **@RedstoneWizard08** on the [Astroneer Modding Discord](https://discord.gg/bBqdVYxu4k) to claim it!*\n\n";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BoolField {
@@ -169,7 +170,7 @@ impl From<DumpMod> for Mod {
 }
 
 impl Version {
-    pub async fn upload(&self, bucket: &Box<Bucket>) -> Result<String> {
+    pub async fn upload(&self, bucket: &Box<Bucket>) -> Result<(String, i64)> {
         let mods_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("mods")
             .join("releaseMods");
@@ -184,33 +185,46 @@ impl Version {
 
         bucket.put_object(format!("/{}", &file_id), &file).await?;
 
-        Ok(file_id)
+        Ok((file_id, file.len() as i64))
     }
 
     pub async fn as_ver(
         self,
-        pkg: &Package,
+        pkg: &Project,
         db: &mut DbConn,
         bucket: &Box<Bucket>,
-    ) -> Result<PackageVersion> {
-        let id = self.upload(bucket).await?;
-        let ver = self.into_ver(pkg, id);
+    ) -> Result<ProjectVersion> {
+        let (id, size) = self.upload(bucket).await?;
+        let file_name = self.release_file_name.clone();
+        let ver = self.into_ver(pkg);
 
-        let ver = insert_into(package_versions::table)
+        let ver = insert_into(project_versions::table)
             .values(ver)
-            .returning(PackageVersion::as_returning())
+            .returning(ProjectVersion::as_returning())
             .get_result(db)
+            .await?;
+
+        let file = NewProjectFile {
+            file_name: file_name,
+            s3_id: id.clone(),
+            sha1: id,
+            version_id: ver.id,
+            size,
+        };
+
+        insert_into(version_files::table)
+            .values(file)
+            .execute(db)
             .await?;
 
         Ok(ver)
     }
 
-    pub fn into_ver(self, pkg: &Package, file_id: String) -> NewPackageVersion {
-        NewPackageVersion {
-            package: pkg.id,
+    pub fn into_ver(self, pkg: &Project) -> NewProjectVersion {
+        NewProjectVersion {
+            project: pkg.id,
             name: self.version.clone(),
             version_number: self.version,
-            file_id,
             changelog: Some("Migrated from astroneermods.space.".into()),
             loaders: vec![Some("AstroModIntegrator".into())],
             game_versions: vec![Some(self.astro_build)],
@@ -220,8 +234,8 @@ impl Version {
 }
 
 impl Mod {
-    pub fn into_pkg(self) -> NewPackage {
-        NewPackage {
+    pub fn into_pkg(self) -> NewProject {
+        NewProject {
             slug: self.mod_id,
             name: self.name,
             readme: format!("{}{}", DESC_PREFIX, self.description),
@@ -231,9 +245,9 @@ impl Mod {
             wiki: None,
             tags: self.tags.into_iter().map(|v| Some(v)).collect(),
             visibility: if self.published {
-                PackageVisibility::Public
+                ProjectVisibility::Public
             } else {
-                PackageVisibility::Private
+                ProjectVisibility::Private
             },
             license: Some(self.license),
         }
@@ -245,21 +259,21 @@ impl Mod {
         db: &mut DbConn,
         bucket: &Box<Bucket>,
         imgs: &Box<Bucket>,
-    ) -> Result<(Package, Vec<PackageVersion>)> {
+    ) -> Result<(Project, Vec<ProjectVersion>)> {
         let pkg = self.clone().into_pkg();
 
-        let pkg = insert_into(packages::table)
+        let pkg = insert_into(projects::table)
             .values(pkg)
-            .returning(Package::as_returning())
+            .returning(Project::as_returning())
             .get_result(db)
             .await?;
 
-        let author = PackageAuthor {
+        let author = ProjectAuthor {
             user_id,
-            package: pkg.id,
+            project: pkg.id,
         };
 
-        insert_into(package_authors::table)
+        insert_into(project_authors::table)
             .values(author)
             .execute(db)
             .await?;
@@ -284,7 +298,7 @@ impl Mod {
                 name: self.mod_id.clone(),
                 description: None,
                 ordering: 0, // We want this to be first, but easily allow the user to override it.
-                package: pkg.id,
+                project: pkg.id,
                 s3_id: img_id,
             };
 
@@ -301,7 +315,7 @@ impl Mod {
         for ver in self.versions.clone() {
             if ver.release_file_name == "" {
                 println!(
-                    "Encountered invalid version: {} (package: {})",
+                    "Encountered invalid version: {} (project: {})",
                     ver.version, pkg.slug
                 );
                 continue;

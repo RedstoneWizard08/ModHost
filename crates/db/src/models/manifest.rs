@@ -1,31 +1,31 @@
-//! The package manifest model.
+//! The project manifest model.
 
-/// A manifest for a package.
+/// A manifest for a project.
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, ToSchema, ToResponse, Serialize, Deserialize,
 )]
-pub struct PackageManifest {
-    /// The package name
+pub struct ProjectManifest {
+    /// The project name
     pub name: String,
 
-    /// The package author
+    /// The project authors
     pub authors: Vec<String>,
 
-    /// The package version
+    /// The project version
     pub version: String,
 
-    /// The package description
+    /// The project description
     pub description: String,
 
-    /// The loaders this package works on
+    /// The loaders this project works on
     pub loaders: Vec<String>,
 
-    /// The game versions this package works on
+    /// The game versions this project works on
     pub game_versions: Vec<String>,
 
-    /// This package's dependencies
+    /// This project's dependencies
     pub dependencies: Vec<String>,
 
-    /// This package's incompatibilities
+    /// This project's incompatibilities
     pub incompatibilities: Vec<String>,
 }

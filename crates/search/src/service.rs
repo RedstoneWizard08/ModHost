@@ -12,8 +12,8 @@ pub struct MeilisearchService {
     /// The underlying Meilisearch client.
     pub(crate) client: Client,
 
-    /// The ID of the packages index.
-    pub(crate) packages: String,
+    /// The ID of the projects index.
+    pub(crate) projects: String,
 }
 
 impl MeilisearchService {
@@ -21,12 +21,12 @@ impl MeilisearchService {
     pub fn new(cfg: &AppConfig) -> Result<Self> {
         Ok(Self {
             client: Client::new(cfg.meilisearch.url(), Some(&cfg.meilisearch.key))?,
-            packages: cfg.meilisearch.pkg_index.clone(),
+            projects: cfg.meilisearch.project_index.clone(),
         })
     }
 
-    /// Get the packages [`Index`].
-    pub fn packages(&self) -> Index {
-        self.client.index(&self.packages)
+    /// Get the projects [`Index`].
+    pub fn projects(&self) -> Index {
+        self.client.index(&self.projects)
     }
 }

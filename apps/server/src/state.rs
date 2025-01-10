@@ -17,8 +17,8 @@ use std::{fs, sync::Arc};
 /// S3 bucket state. This contains references to the buckets used by the server.
 #[derive(Clone)]
 pub struct BucketState {
-    /// A reference to the bucket for packages.
-    pub packages: Box<Bucket>,
+    /// A reference to the bucket for projects.
+    pub projects: Box<Bucket>,
 
     /// A reference to the bucket for gallery images.
     pub gallery: Box<Bucket>,
@@ -88,7 +88,7 @@ impl AppState {
             pool,
             auth: config.auth.github()?,
             buckets: BucketState {
-                packages: config.storage.packages()?,
+                projects: config.storage.projects()?,
                 gallery: config.storage.gallery()?,
             },
             config: config.clone(),

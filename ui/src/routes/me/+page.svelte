@@ -2,7 +2,7 @@
     import { goto } from "$app/navigation";
     import { base } from "$app/paths";
     import AuthRequired from "$components/auth/AuthRequired.svelte";
-    import { user } from "$lib/stores";
+    import { user } from "$lib/user";
 
     let renderErrPage = false;
 

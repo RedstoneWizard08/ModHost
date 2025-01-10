@@ -1,6 +1,6 @@
 <script lang="ts">
     import { fade, slide } from "svelte/transition";
-    import { contextMenuStore } from "$lib/contextMenu";
+    import { contextMenuStore } from "$lib/ui";
 </script>
 
 {#if $contextMenuStore}
@@ -48,7 +48,7 @@
                     {:else if item.type == "ITEM"}
                         <button
                             onclick={async (ev) => item.type == "ITEM" && (await item.action(ev))}
-                            class="flex items-center gap-2 overflow-hidden whitespace-nowrap p-2 pl-3 pr-12 rounded-container-token hover:variant-soft-primary"
+                            class="rounded-container-token hover:variant-soft-primary flex items-center gap-2 overflow-hidden whitespace-nowrap p-2 pl-3 pr-12"
                         >
                             {#if item.icon}
                                 <item.icon />

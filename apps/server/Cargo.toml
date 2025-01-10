@@ -23,6 +23,7 @@ clap-verbosity-flag.workspace = true
 colored.workspace = true
 ctrlc.workspace = true
 db.workspace = true
+db-util.workspace = true
 diesel.workspace = true
 diesel-async.workspace = true
 diesel_async_migrations.workspace = true

@@ -3,31 +3,30 @@
     import { afterNavigate, goto, replaceState } from "$app/navigation";
     import { base } from "$app/paths";
     import {
-        currentSearchStore,
-        packagesStore,
-        userPreferencesStore,
-        updatePackagesStore,
+        currentQuery,
         emptySearchResults,
-        tagsStore,
-    } from "$lib/stores";
+        searchResults,
+        updateSearchResults,
+    } from "$lib/state";
     import { vsprintf } from "sprintf-js";
-    import type { Facet, LoadingState, Sort, SortMode } from "$lib/types";
     import IconBlank from "$components/icons/IconBlank.svelte";
     import { onMount } from "svelte";
     import { page } from "$app/stores";
-    import { dedupe, guessSortMode } from "$lib/utils";
-    import { contextMenu, type ContextMenuItem } from "$lib/contextMenu";
+    import { dedupe, guessSortMode } from "$lib/util";
+    import { contextMenu, type ContextMenuItem } from "$lib/ui";
     import PackageList from "$components/ui/PackageList.svelte";
     import TablerIconCheck from "$components/icons/TablerIconCheck.svelte";
     import { siteConfig } from "$lib/config";
     import Icon from "@iconify/svelte";
-    import { searchPackages } from "$api";
-    import { gameVersions } from "$lib/versions";
-    import { modLoaders } from "$lib/loaders";
+    import { gameVersions, loaders, tags } from "$lib/meta";
+    import type { LoadingState } from "$lib/types";
+    import { userPreferencesStore } from "$lib/user";
+    import { unwrapOrNull, type Facet, type SortMode, type SortDirection } from "@modhost/api";
+    import { client } from "$lib/api";
 
     let currentPage = $state(1);
     let perPage = $state(30);
-    let loadingState: LoadingState = $state($packagesStore.hits == 0 ? "loading" : "ready");
+    let loadingState: LoadingState = $state($searchResults.hits == 0 ? "loading" : "ready");
     let loaderFilters = $state<string[]>([]);
     let versionFilters = $state<string[]>([]);
     let tagFilters = $state<string[]>([]);
@@ -41,7 +40,7 @@
     );
 
     const searchedTags = $derived(
-        $tagsStore.filter(
+        $tags.filter(
             (v) =>
                 v.id.toLowerCase().includes(tagsSearch.toLowerCase()) ||
                 v.name.toLowerCase().includes(tagsSearch.toLowerCase()),
@@ -57,7 +56,7 @@
         const queryVersionFilters = $page.url.searchParams.get("versions");
         const queryTagFilters = $page.url.searchParams.get("tags");
 
-        loadingState = (await updatePackagesStore()) ? "ready" : "failed";
+        loadingState = (await updateSearchResults()) ? "ready" : "failed";
         $userPreferencesStore.sortBy = guessSortMode($page.url.searchParams.get("sort") ?? "");
 
         $userPreferencesStore.sortDir = dir
@@ -69,11 +68,11 @@
             : $userPreferencesStore.sortDir;
 
         if (
-            $currentSearchStore == "" &&
+            $currentQuery == "" &&
             $page.url.searchParams.has("q") &&
             $page.url.searchParams.get("q") != ""
         ) {
-            $currentSearchStore = $page.url.searchParams.get("q")!;
+            $currentQuery = $page.url.searchParams.get("q")!;
         }
 
         try {
@@ -102,32 +101,34 @@
     });
 
     $effect(() => {
-        const facets: Facet<any>[] = [];
+        const facets: Facet[] = [];
 
         if (loaderFilters.length > 0) {
-            facets.push(["loaders", loaderFilters] as Facet<"loaders">);
+            facets.push(["loaders", loaderFilters]);
         }
 
         if (versionFilters.length > 0) {
-            facets.push(["game_versions", versionFilters] as Facet<"game_versions">);
+            facets.push(["game_versions", versionFilters]);
         }
 
         if (tagFilters.length > 0) {
-            facets.push(["tags", tagFilters] as Facet<"tags">);
+            facets.push(["tags", tagFilters]);
         }
 
-        searchPackages(
-            $currentSearchStore,
-            facets,
-            $userPreferencesStore.sortBy,
-            $userPreferencesStore.sortDir,
-            currentPage,
-            perPage,
-        ).then((v) => ($packagesStore = v ?? emptySearchResults));
+        client
+            .search(
+                $currentQuery,
+                currentPage,
+                perPage,
+                $userPreferencesStore.sortBy,
+                $userPreferencesStore.sortDir,
+                facets,
+            )
+            .then((v) => ($searchResults = unwrapOrNull(v) ?? emptySearchResults));
     });
 
     const updateQuery = async () => {
-        if ($currentSearchStore != "") $page.url.searchParams.set("q", $currentSearchStore);
+        if ($currentQuery != "") $page.url.searchParams.set("q", $currentQuery);
         else $page.url.searchParams.delete("q");
 
         if ($userPreferencesStore.sortBy != "none")
@@ -152,12 +153,12 @@
     };
 
     const prevPage = () => {
-        currentPage = Math.max(1, Math.min(currentPage - 1, $packagesStore.pages));
+        currentPage = Math.max(1, Math.min(currentPage - 1, $searchResults.pages));
         updateQuery();
     };
 
     const nextPage = () => {
-        currentPage = Math.max(1, Math.min(currentPage + 1, $packagesStore.pages));
+        currentPage = Math.max(1, Math.min(currentPage + 1, $searchResults.pages));
         updateQuery();
     };
 
@@ -196,9 +197,7 @@
 </script>
 
 <svelte:head>
-    <title
-        >{$currentSearchStore || $_(`search.title.${siteConfig.type}`)} - {siteConfig.siteName}</title
-    >
+    <title>{$currentQuery || $_(`search.title.${siteConfig.type}`)} - {siteConfig.siteName}</title>
 </svelte:head>
 
 <div class="flex h-full w-full flex-col items-start md:flex-row md:justify-between">
@@ -209,11 +208,11 @@
 
         <hr class="w-full" />
 
-        {#if $currentSearchStore || loaderFilters.length > 0 || versionFilters.length > 0}
+        {#if $currentQuery || loaderFilters.length > 0 || versionFilters.length > 0}
             <button
-                class="variant-soft-secondary btn w-fit hover:variant-filled-primary"
+                class="variant-soft-secondary btn hover:variant-filled-primary w-fit"
                 onclick={() => {
-                    $currentSearchStore = "";
+                    $currentQuery = "";
                     loaderFilters = [];
                     versionFilters = [];
                     updateQuery();
@@ -229,7 +228,7 @@
         <p class="mx-2">Filter Mod Loaders</p>
 
         <div class="flex w-full flex-col items-start justify-start space-y-2">
-            {#each $modLoaders || [] as loader}
+            {#each $loaders || [] as loader}
                 <button
                     type="button"
                     class="variant-glass-primary btn w-full justify-start rounded-xl"
@@ -263,7 +262,7 @@
             {/each}
         </div>
 
-        {#if $tagsStore.length > 0}
+        {#if $tags.length > 0}
             <hr class="w-full" />
 
             <p class="mx-2">Filter Tags</p>
@@ -295,33 +294,33 @@
 
     <div class="flex h-full w-full flex-col items-center justify-start">
         <div
-            class="sticky top-0 z-10 mb-2 flex w-full flex-col border-surface-600 bg-surface-900 p-2 backdrop-blur md:flex-row md:items-center md:justify-between"
+            class="border-surface-600 bg-surface-900 sticky top-0 z-10 mb-2 flex w-full flex-col p-2 backdrop-blur md:flex-row md:items-center md:justify-between"
         >
             <h1 class="mb-2 text-lg md:mb-0">
-                {#if !$currentSearchStore}
-                    {@html vsprintf($_("search.found_plural"), [$packagesStore.total])}
+                {#if !$currentQuery}
+                    {@html vsprintf($_("search.found_plural"), [$searchResults.total])}
                     {$_(`search.plural.${siteConfig.type}`)}
                 {:else}
                     {@html vsprintf(
-                        $packagesStore.total == 1
+                        $searchResults.total == 1
                             ? $_("search.found_singular")
                             : $_("search.found_plural"),
-                        [$packagesStore.total],
+                        [$searchResults.total],
                     )}
 
                     <a href="{base}/s" class="anchor no-underline">
-                        {$packagesStore.total == 1
+                        {$searchResults.total == 1
                             ? $_(`search.singular.${siteConfig.type}`)
                             : $_(`search.plural.${siteConfig.type}`)}
                     </a>
 
-                    {#if $currentSearchStore != ""}
+                    {#if $currentQuery != ""}
                         {$_("search.matching")}
                         <button
-                            class="transition-all hover:variant-filled-error hover:rounded hover:p-1 hover:px-2 hover:line-through"
-                            onclick={() => ($currentSearchStore = "")}
+                            class="hover:variant-filled-error transition-all hover:rounded hover:p-1 hover:px-2 hover:line-through"
+                            onclick={() => ($currentQuery = "")}
                         >
-                            {$currentSearchStore}
+                            {$currentQuery}
                         </button>
                     {/if}
                 {/if}
@@ -332,13 +331,13 @@
             >
                 <div class="flex flex-row flex-wrap items-center space-x-1 md:mr-8 md:space-x-2">
                     <button
-                        class="variant-glass-primary btn btn-sm text-center font-bold transition-all hover:variant-ghost-primary"
+                        class="variant-glass-primary btn btn-sm hover:variant-ghost-primary text-center font-bold transition-all"
                         disabled={currentPage <= 1}
                         onclick={prevPage}><Icon height="24" icon="tabler:arrow-left" /></button
                     >
 
-                    {#if $packagesStore.pages > 3}
-                        {#if currentPage < $packagesStore.pages - 1}
+                    {#if $searchResults.pages > 3}
+                        {#if currentPage < $searchResults.pages - 1}
                             <button
                                 class="variant-filled-primary btn btn-icon-sm text-center font-bold transition-all"
                                 >{currentPage}</button
@@ -346,34 +345,34 @@
                         {/if}
 
                         <button
-                            class="variant-glass-primary btn btn-icon-sm text-center font-bold transition-all hover:variant-ghost-primary"
+                            class="variant-glass-primary btn btn-icon-sm hover:variant-ghost-primary text-center font-bold transition-all"
                             disabled>...</button
                         >
 
-                        {#if currentPage >= $packagesStore.pages - 1}
+                        {#if currentPage >= $searchResults.pages - 1}
                             <button
-                                class="variant-glass-primary btn btn-icon-sm text-center font-bold transition-all hover:variant-ghost-primary"
+                                class="variant-glass-primary btn btn-icon-sm hover:variant-ghost-primary text-center font-bold transition-all"
                                 class:!variant-filled-primary={currentPage ==
-                                    $packagesStore.pages - 1}
+                                    $searchResults.pages - 1}
                                 onclick={() => {
-                                    currentPage = $packagesStore.pages - 1;
+                                    currentPage = $searchResults.pages - 1;
                                     updateQuery();
-                                }}>{$packagesStore.pages - 1}</button
+                                }}>{$searchResults.pages - 1}</button
                             >
                         {/if}
 
                         <button
-                            class="variant-glass-primary btn btn-icon-sm text-center font-bold transition-all hover:variant-ghost-primary"
-                            class:!variant-filled-primary={currentPage == $packagesStore.pages}
+                            class="variant-glass-primary btn btn-icon-sm hover:variant-ghost-primary text-center font-bold transition-all"
+                            class:!variant-filled-primary={currentPage == $searchResults.pages}
                             onclick={() => {
-                                currentPage = $packagesStore.pages;
+                                currentPage = $searchResults.pages;
                                 updateQuery();
-                            }}>{$packagesStore.pages}</button
+                            }}>{$searchResults.pages}</button
                         >
                     {:else}
-                        {#each new Array($packagesStore.pages) as _, page}
+                        {#each new Array($searchResults.pages) as _, page}
                             <button
-                                class="variant-glass-primary btn btn-icon-sm text-center font-bold transition-all hover:variant-ghost-primary"
+                                class="variant-glass-primary btn btn-icon-sm hover:variant-ghost-primary text-center font-bold transition-all"
                                 class:!variant-filled-primary={currentPage == page + 1}
                                 onclick={() => {
                                     currentPage = page + 1;
@@ -384,8 +383,8 @@
                     {/if}
 
                     <button
-                        class="variant-glass-primary btn btn-sm text-center font-bold transition-all hover:variant-ghost-primary"
-                        disabled={currentPage >= $packagesStore.pages}
+                        class="variant-glass-primary btn btn-sm hover:variant-ghost-primary text-center font-bold transition-all"
+                        disabled={currentPage >= $searchResults.pages}
                         onclick={nextPage}
                     >
                         <Icon height="24" icon="tabler:arrow-right" /></button
@@ -396,7 +395,7 @@
                     class="flex flex-row flex-wrap items-center justify-end space-x-1 md:space-x-2"
                 >
                     <button
-                        class="variant-soft-secondary btn rounded-full border border-transparent p-2 text-sm transition-all hover:border-secondary-500 md:text-base"
+                        class="variant-soft-secondary btn hover:border-secondary-500 rounded-full border border-transparent p-2 text-sm transition-all md:text-base"
                         use:contextMenu={{
                             initiator: "left",
                             items: [
@@ -423,7 +422,7 @@
                     </button>
 
                     <button
-                        class="variant-soft-secondary btn btn-sm border border-transparent transition-all hover:border-secondary-500"
+                        class="variant-soft-secondary btn btn-sm hover:border-secondary-500 border border-transparent transition-all"
                         onclick={() =>
                             ($userPreferencesStore.compact = !$userPreferencesStore.compact)}
                     >
@@ -435,7 +434,7 @@
                     </button>
 
                     <button
-                        class="variant-soft-secondary btn w-[9rem] rounded-full border border-transparent p-2 text-sm transition-all hover:border-secondary-500 md:w-[9.5rem] md:text-base"
+                        class="variant-soft-secondary btn hover:border-secondary-500 w-[9rem] rounded-full border border-transparent p-2 text-sm transition-all md:w-[9.5rem] md:text-base"
                         use:contextMenu={{
                             initiator: "left",
                             items: [
@@ -449,7 +448,7 @@
                                                     ? TablerIconCheck
                                                     : IconBlank,
                                             action: () => {
-                                                $userPreferencesStore.sortBy = name as Sort;
+                                                $userPreferencesStore.sortBy = name as SortMode;
                                                 updateQuery();
                                             },
                                         }) as ContextMenuItem,
@@ -465,7 +464,8 @@
                                                     ? TablerIconCheck
                                                     : IconBlank,
                                             action: () => {
-                                                $userPreferencesStore.sortDir = name as SortMode;
+                                                $userPreferencesStore.sortDir =
+                                                    name as SortDirection;
                                                 updateQuery();
                                             },
                                         }) as ContextMenuItem,
@@ -507,11 +507,11 @@
             >
                 {#each Array(6) as _}
                     <div
-                        class="placeholder h-24 w-full animate-pulse rounded-container-token"
+                        class="placeholder rounded-container-token h-24 w-full animate-pulse"
                     ></div>
                 {/each}
             </dl>
-        {:else if loadingState == "ready" && $packagesStore.total == 0}
+        {:else if loadingState == "ready" && $searchResults.total == 0}
             <p class="w-full text-center opacity-50">
                 {$_(`errors.none_published.${siteConfig.type}`)}
             </p>
@@ -523,7 +523,7 @@
                 <PackageList
                     {showDetails}
                     compact={$userPreferencesStore.compact}
-                    packages={$packagesStore}
+                    packages={$searchResults}
                 />
             </dl>
         {:else if loadingState == "failed"}

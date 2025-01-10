@@ -24,7 +24,10 @@ fn get_config_internal() -> Result<AppConfig> {
 
 /// Get the [`AppConfig`] for the server.
 pub fn get_config() -> Result<AppConfig> {
-    let config = get_config_internal().unwrap_or_default();
+    let config = get_config_internal().unwrap_or_else(|err| {
+        error!("Failed to deserialize config: {}", err);
+        Default::default()
+    });
 
     config.save()?;
 

@@ -7,7 +7,7 @@ impl MeilisearchService {
     /// Ensure that filterable & sortable attributes are properly set up in the index.
     pub async fn ensure_setup(&self) -> Result<()> {
         // self.client.
-        self.packages()
+        self.projects()
             .set_filterable_attributes(&[
                 "id",
                 "loaders",
@@ -31,7 +31,7 @@ impl MeilisearchService {
             ])
             .await?;
 
-        self.packages()
+        self.projects()
             .set_sortable_attributes(&[
                 "id",
                 "loaders",

@@ -2,39 +2,41 @@
     import { afterNavigate, beforeNavigate } from "$app/navigation";
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
-    import type {
-        ProjectVisibility,
-        LoadingState,
-        PackageData,
-        PackageVersion,
-        Tag,
-    } from "$lib/types";
+    import type { LoadingState } from "$lib/types";
     import {
         fixLoaderName,
         getLoaders,
         getGameVersions,
         markdownInline,
         formatDate,
-    } from "$lib/utils";
+        copyText,
+    } from "$lib/util";
     import { onMount } from "svelte";
-    import { getPackage, getPackageGallery, getPackageVersions } from "$api";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import { base } from "$app/paths";
-    import { currentPackage, tagsStore, user } from "$lib/stores";
+    import { currentProject } from "$lib/state";
     import { tryAggregateVersions } from "$lib/vers";
     import { siteConfig } from "$lib/config";
-    import { copyText } from "$lib/clipboard";
     import Icon from "@iconify/svelte";
     import { pkgRoutes } from "$lib/routes";
     import ProjectTabs from "$components/ui/ProjectTabs.svelte";
-    import type { PublicGalleryImage } from "$lib/types/gallery";
+    import {
+        unwrapOrNull,
+        type GalleryImage,
+        type ProjectVersion,
+        type ProjectVisibility,
+        type Tag,
+    } from "@modhost/api";
+    import { user } from "$lib/user";
+    import { tags as allTags } from "$lib/meta";
+    import { client } from "$lib/api";
 
     const maxVersions = 10;
     const id = $derived($page.params.id);
     const toasts = getToastStore();
 
     let loadingState: LoadingState = $state("loading");
-    let versions: PackageVersion[] = $state([]);
+    let versions: ProjectVersion[] = $state([]);
 
     let name = $state("");
     let repo = $state("");
@@ -43,7 +45,7 @@
     let tags = $state<Tag[]>([]);
     let license = $state<string | undefined>(undefined);
     let vis = $state<ProjectVisibility>("Public");
-    let image = $state<PublicGalleryImage | undefined>(undefined);
+    let image = $state<GalleryImage | undefined>(undefined);
 
     const loaders = $derived(getLoaders(versions));
     const gameVersions = $derived(getGameVersions(versions));
@@ -53,9 +55,7 @@
     const hasWiki = $derived(wiki != "");
 
     const canEdit = $derived(
-        ($currentPackage &&
-            $user &&
-            !!($currentPackage as PackageData).authors.find((v) => v.id == $user.id)) ||
+        ($currentProject && $user && !!$currentProject.authors.find((v) => v.id == $user.id)) ||
             ($user && $user.admin),
     );
 
@@ -64,29 +64,30 @@
     );
 
     const copyId = async () => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        await copyText($currentPackage.id.toString(), toasts);
+        await copyText($currentProject.id.toString(), toasts);
     };
 
     onMount(async () => {
-        $currentPackage = await getPackage(id);
-        versions = (await getPackageVersions(id)) ?? [];
+        $currentProject = unwrapOrNull(await client.project(id).get());
+        versions = unwrapOrNull(await client.project(id).versions().list()) ?? [];
 
-        if ($currentPackage) {
-            name = $currentPackage.name;
-            repo = $currentPackage.source ?? "";
-            issues = $currentPackage.issues ?? "";
-            wiki = $currentPackage.wiki ?? "";
-            license = $currentPackage.license;
-            vis = $currentPackage.visibility;
-            tags = $currentPackage.tags
-                .filter((t) => !!$tagsStore.find((v) => v.id == t))
-                .map((t) => $tagsStore.find((v) => v.id == t)!);
+        if ($currentProject) {
+            name = $currentProject.name;
+            repo = $currentProject.source ?? "";
+            issues = $currentProject.issues ?? "";
+            wiki = $currentProject.wiki ?? "";
+            license = $currentProject.license;
+            vis = $currentProject.visibility;
+            tags =
+                $currentProject.tags
+                    ?.filter((t) => !!$allTags.find((v) => v.id == t))
+                    .map((t) => $allTags.find((v) => v.id == t)!) ?? [];
 
             loadingState = "ready";
 
-            const gallery = (await getPackageGallery(id)) ?? [];
+            const gallery = unwrapOrNull(await client.project(id).gallery().list()) ?? [];
 
             if (gallery.length >= 1) {
                 image = gallery[0];
@@ -99,31 +100,31 @@
     beforeNavigate(({ to }) => {
         if (pkgRoutes.includes(to?.route.id ?? "")) return;
 
-        $currentPackage = undefined;
+        $currentProject = null;
         loadingState = "loading";
     });
 
     afterNavigate(({ to }) => {
-        if (pkgRoutes.includes(to?.route.id ?? "") && !$currentPackage) {
+        if (pkgRoutes.includes(to?.route.id ?? "") && !$currentProject) {
             reset();
         }
     });
 
     const reset = async () => {
-        $currentPackage = await getPackage(id);
-        versions = (await getPackageVersions(id)) ?? [];
+        $currentProject = unwrapOrNull(await client.project(id).get());
+        versions = unwrapOrNull(await client.project(id).versions().list()) ?? [];
 
-        if ($currentPackage) {
-            name = $currentPackage.name;
-            repo = $currentPackage.source ?? "";
-            issues = $currentPackage.issues ?? "";
-            wiki = $currentPackage.wiki ?? "";
-            license = $currentPackage.license;
-            vis = $currentPackage.visibility;
+        if ($currentProject) {
+            name = $currentProject.name;
+            repo = $currentProject.source ?? "";
+            issues = $currentProject.issues ?? "";
+            wiki = $currentProject.wiki ?? "";
+            license = $currentProject.license;
+            vis = $currentProject.visibility;
 
             loadingState = "ready";
 
-            const gallery = (await getPackageGallery(id)) ?? [];
+            const gallery = unwrapOrNull(await client.project(id).gallery().list()) ?? [];
 
             if (gallery.length >= 1) {
                 image = gallery[0];
@@ -138,12 +139,12 @@
 </script>
 
 <svelte:head>
-    <title>{$currentPackage?.name ?? $_("site.loading")} - {siteConfig.siteName}</title>
+    <title>{$currentProject?.name ?? $_("site.loading")} - {siteConfig.siteName}</title>
 </svelte:head>
 
 {#if loadingState == "loading"}
     <div class="placeholder m-2 mx-auto w-32 animate-pulse"></div>
-{:else if loadingState == "ready" && $currentPackage}
+{:else if loadingState == "ready" && $currentProject}
     <div class="flex w-full flex-col gap-2 md:flex-row">
         <div
             class="card flex w-full flex-col items-start justify-start gap-2 self-baseline p-4 md:w-[30%]"
@@ -157,7 +158,7 @@
             {/if}
 
             <div class="flex w-full flex-row items-center justify-between">
-                <a href="/p/{id}" class="text-2xl font-bold text-primary-500">
+                <a href="/p/{id}" class="text-primary-500 text-2xl font-bold">
                     {name}
                 </a>
 
@@ -166,7 +167,7 @@
                         <a
                             aria-label="Edit"
                             href="/p/{id}/edit"
-                            class="flex flex-row items-center justify-center rounded-full p-2 transition-all hover:variant-filled-primary"
+                            class="hover:variant-filled-primary flex flex-row items-center justify-center rounded-full p-2 transition-all"
                         >
                             <Icon icon="tabler:pencil" height="24" />
                         </a>
@@ -190,13 +191,13 @@
             <span
                 class="style-markdown w-full select-text hyphens-auto text-wrap break-words *:select-text"
             >
-                {@html markdownInline($currentPackage.description)}
+                {@html markdownInline($currentProject.description)}
             </span>
 
             <span class="text-sm opacity-50">
                 <span
-                    >{$currentPackage.downloads}
-                    {$currentPackage.downloads == 1
+                    >{$currentProject.downloads}
+                    {$currentProject.downloads == 1
                         ? $_("list.download_singluar")
                         : $_("list.download_plural")}</span
                 >
@@ -289,31 +290,31 @@
             {/if}
 
             <p class="text-sm opacity-50">{$_("package.version.published")}</p>
-            <p class="mb-1">{formatDate(new Date($currentPackage.created_at))}</p>
+            <p class="mb-1">{formatDate(new Date($currentProject.created_at))}</p>
 
             <p class="text-sm opacity-50">{$_("package.version.updated")}</p>
-            <p>{formatDate(new Date($currentPackage.updated_at))}</p>
+            <p>{formatDate(new Date($currentProject.updated_at))}</p>
 
             <hr class="w-full" />
 
             <dt class="text-sm opacity-50">{$_("package.created_by")}</dt>
 
-            {#each $currentPackage.authors as author}
+            {#each $currentProject.authors as author}
                 <a
-                    class="card flex w-full flex-row items-center p-2 hover:variant-soft-primary"
+                    class="card hover:variant-soft-primary flex w-full flex-row items-center p-2"
                     href="{base}/u/{author.username}"
                 >
                     {#if author.github_id == -1}
                         <img
                             src="/modhost.png"
                             alt="author's profile afirst child cssvatar"
-                            class="my-auto mr-4 aspect-square h-8 rounded-token"
+                            class="rounded-token my-auto mr-4 aspect-square h-8"
                         />
                     {:else}
                         <img
                             src="https://avatars.githubusercontent.com/u/{author.github_id}"
                             alt="author's profile afirst child cssvatar"
-                            class="my-auto mr-4 aspect-square h-8 rounded-token"
+                            class="rounded-token my-auto mr-4 aspect-square h-8"
                         />
                     {/if}
                     {author.username}
@@ -325,7 +326,7 @@
             <span class="flex flex-row items-center justify-end">
                 {$_(`id.${siteConfig.type}`)}&nbsp;
                 <button class="anchor select-text no-underline" onclick={copyId}
-                    >{$currentPackage.id}</button
+                    >{$currentProject.id}</button
                 >
             </span>
         </div>

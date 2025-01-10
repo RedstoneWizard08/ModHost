@@ -1,4 +1,4 @@
-//! Routes concerning package galleries.
+//! Routes concerning project galleries.
 
 use anyhow::anyhow;
 use app_core::AppError;
@@ -12,8 +12,8 @@ use axum::{
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
 use db::{
-    gallery_images, get_full_package, get_gallery, get_gallery_image, get_package, package_authors,
-    packages, GalleryImage, NewGalleryImage, Package, PackageAuthor, PackageVisibility,
+    gallery_images, get_full_project, get_gallery, get_gallery_image, get_project, project_authors,
+    projects, GalleryImage, NewGalleryImage, Project, ProjectAuthor, ProjectVisibility,
     PublicGalleryImage,
 };
 use diesel::{delete, insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
@@ -33,8 +33,8 @@ use crate::{
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, ToSchema, ToResponse,
 )]
 pub struct GalleryImageUpload {
-    /// The package ID.
-    pub package: i32,
+    /// The project ID.
+    pub project: i32,
 
     /// The display name of the image.
     pub name: String,
@@ -69,30 +69,30 @@ pub struct PartialGalleryImage {
 
 /// Get Gallery Images
 ///
-/// Get gallery images for a package.
+/// Get gallery images for a project.
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/{id}/gallery",
+    path = "/api/v1/projects/{id}/gallery",
     tag = "Gallery",
     responses(
-        (status = 200, description = "The package's gallery images.", body = Vec<PublicGalleryImage>),
-        (status = INTERNAL_SERVER_ERROR, description = "Error: package might not exist, or another error occured!"),
+        (status = 200, description = "The project's gallery images.", body = Vec<PublicGalleryImage>),
+        (status = INTERNAL_SERVER_ERROR, description = "Error: project might not exist, or another error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package ID or slug"),
+        ("id" = String, Path, description = "The project ID or slug"),
     ),
 )]
 #[debug_handler]
-pub async fn list_handler(
+pub async fn list_gallery_handler(
     jar: CookieJar,
     headers: HeaderMap,
     Path(id): Path<String>,
     State(state): State<AppState>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_full_package(id.clone(), &mut conn).await?;
+    let pkg = get_full_project(id.clone(), &mut conn).await?;
 
-    if pkg.visibility == PackageVisibility::Private {
+    if pkg.visibility == ProjectVisibility::Private {
         match get_user_from_req(&jar, &headers, &mut conn).await {
             Ok(user) => {
                 if !pkg.authors.iter().any(|v| v.github_id == user.github_id) && !user.admin {
@@ -116,28 +116,28 @@ pub async fn list_handler(
 /// Get information about a specific gallery image
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/{id}/gallery/{image}",
+    path = "/api/v1/projects/{id}/gallery/{image}",
     tag = "Gallery",
     responses(
         (status = 200, description = "Found gallery image!", body = PublicGalleryImage),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this image is for."),
+        ("id" = String, Path, description = "The project that this image is for."),
         ("image" = String, Path, description = "The image ID."),
     ),
 )]
 #[debug_handler]
-pub async fn info_handler(
+pub async fn gallery_info_handler(
     jar: CookieJar,
     headers: HeaderMap,
     Path((id, image)): Path<(String, String)>,
     State(state): State<AppState>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_full_package(id.clone(), &mut conn).await?;
+    let pkg = get_full_project(id.clone(), &mut conn).await?;
 
-    if pkg.visibility == PackageVisibility::Private {
+    if pkg.visibility == ProjectVisibility::Private {
         match get_user_from_req(&jar, &headers, &mut conn).await {
             Ok(user) => {
                 if !pkg.authors.iter().any(|v| v.github_id == user.github_id) && !user.admin {
@@ -164,7 +164,7 @@ pub async fn info_handler(
 /// A URL to this endpoint should be returned by any other gallery endpoints.
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/s3/gallery/{id}",
+    path = "/api/v1/projects/s3/gallery/{id}",
     tag = "Gallery",
     responses(
         (status = 200, description = "The gallery image.", body = Vec<u8>),
@@ -187,14 +187,14 @@ pub async fn s3_image_handler(
 /// Upload a gallery image
 #[utoipa::path(
     put,
-    path = "/api/v1/packages/{id}/gallery",
+    path = "/api/v1/projects/{id}/gallery",
     tag = "Gallery",
     responses(
         (status = 200, description = "Created gallery image!", body = PublicGalleryImage),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this gallery image is for."),
+        ("id" = String, Path, description = "The project that this gallery image is for."),
     ),
     request_body(content = GalleryImageUpload, description = "The gallery image metadata"),
     security(
@@ -202,7 +202,7 @@ pub async fn s3_image_handler(
     ),
 )]
 #[debug_handler]
-pub async fn upload_handler(
+pub async fn upload_gallery_handler(
     jar: CookieJar,
     headers: HeaderMap,
     Path(id): Path<String>,
@@ -211,11 +211,11 @@ pub async fn upload_handler(
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
-    let pkg = get_package(id, &mut conn).await?;
+    let pkg = get_project(id, &mut conn).await?;
 
-    let authors = package_authors::table
-        .filter(package_authors::package.eq(pkg.id))
-        .select(PackageAuthor::as_select())
+    let authors = project_authors::table
+        .filter(project_authors::project.eq(pkg.id))
+        .select(ProjectAuthor::as_select())
         .load(&mut conn)
         .await?;
 
@@ -269,17 +269,17 @@ pub async fn upload_handler(
         .await?;
 
     let data = NewGalleryImage {
-        package: pkg.id,
+        project: pkg.id,
         name,
         description,
         ordering,
         s3_id: file_name,
     };
 
-    update(packages::table)
-        .filter(packages::id.eq(pkg.id))
-        .set(packages::updated_at.eq(Utc::now().naive_utc()))
-        .returning(Package::as_returning())
+    update(projects::table)
+        .filter(projects::id.eq(pkg.id))
+        .set(projects::updated_at.eq(Utc::now().naive_utc()))
+        .returning(Project::as_returning())
         .get_result(&mut conn)
         .await
         .unwrap();
@@ -302,14 +302,14 @@ pub async fn upload_handler(
 /// Delete a gallery image
 #[utoipa::path(
     delete,
-    path = "/api/v1/packages/{id}/gallery/{image}",
+    path = "/api/v1/projects/{id}/gallery/{image}",
     tag = "Gallery",
     responses(
         (status = 200, description = "Deleted gallery image!", body = String),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this gallery image is for."),
+        ("id" = String, Path, description = "The project that this gallery image is for."),
         ("image" = String, Path, description = "The gallery image ID number."),
     ),
     security(
@@ -317,20 +317,20 @@ pub async fn upload_handler(
     ),
 )]
 #[debug_handler]
-pub async fn delete_handler(
+pub async fn delete_gallery_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path((package, image)): Path<(String, String)>,
+    Path((project, image)): Path<(String, String)>,
     State(state): State<AppState>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
-    let pkg = get_package(package, &mut conn).await?;
+    let pkg = get_project(project, &mut conn).await?;
     let img = get_gallery_image(image, &mut conn).await?;
 
-    let authors = package_authors::table
-        .filter(package_authors::package.eq(pkg.id))
-        .select(PackageAuthor::as_select())
+    let authors = project_authors::table
+        .filter(project_authors::project.eq(pkg.id))
+        .select(ProjectAuthor::as_select())
         .load(&mut conn)
         .await?;
 
@@ -367,14 +367,14 @@ pub async fn delete_handler(
 /// Update gallery image metadata
 #[utoipa::path(
     patch,
-    path = "/api/v1/packages/{id}/gallery/{image}",
+    path = "/api/v1/projects/{id}/gallery/{image}",
     tag = "Gallery",
     responses(
         (status = 200, description = "Updated gallery image!", body = PublicGalleryImage),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this gallery image is for."),
+        ("id" = String, Path, description = "The project that this gallery image is for."),
         ("image" = String, Path, description = "The gallery image ID."),
     ),
     request_body(content = PartialGalleryImage, description = "The information to update"),
@@ -383,21 +383,21 @@ pub async fn delete_handler(
     ),
 )]
 #[debug_handler]
-pub async fn update_handler(
+pub async fn update_gallery_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path((package, image)): Path<(String, String)>,
+    Path((project, image)): Path<(String, String)>,
     State(state): State<AppState>,
     Json(data): Json<PartialGalleryImage>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
-    let pkg = get_package(package, &mut conn).await?;
+    let pkg = get_project(project, &mut conn).await?;
     let img = get_gallery_image(image, &mut conn).await?;
 
-    let authors = package_authors::table
-        .filter(package_authors::package.eq(pkg.id))
-        .select(PackageAuthor::as_select())
+    let authors = project_authors::table
+        .filter(project_authors::project.eq(pkg.id))
+        .select(ProjectAuthor::as_select())
         .load(&mut conn)
         .await?;
 

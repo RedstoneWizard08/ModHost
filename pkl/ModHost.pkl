@@ -89,8 +89,8 @@ class S3Config {
 
 /// S3 (storage) buckets configuration.
 class BucketsConfig {
-    /// The name/ID of the bucket for packages.
-    packages: String
+    /// The name/ID of the bucket for projects.
+    projects: String
 
     /// The name/ID of the bucket for gallery images.
     gallery: String
@@ -105,9 +105,9 @@ class StorageConfig {
     buckets: BucketsConfig
 }
 
-/// UI configuration for packages.
-class UIPackagesConfig {
-    /// The kind of package we are hosting.
+/// UI configuration for projects.
+class UIProjectsConfig {
+    /// The kind of projects we are hosting.
     /// Defaults to `"Mods"`.
     kind: String(this == "Mods" || this == "Packages") = "Mods"
 
@@ -173,8 +173,8 @@ class UIConfig {
     /// Favicon configuration.
     favicon: FaviconConfig = new {}
 
-    /// UI configuration for packages.
-    packages: UIPackagesConfig = new {}
+    /// UI configuration for projects.
+    projects: UIProjectsConfig = new {}
     
     /// UI configuration for the game we are hosting mods for.
     game: UIGameConfig = new {}
@@ -182,8 +182,8 @@ class UIConfig {
 
 /// Meilisearch indexes configuration
 class MeilisearchIndexConfig {
-    /// The name of the packages index
-    packages: String = "packages"
+    /// The name of the projects index
+    projects: String = "projects"
 }
 
 /// Meilisearch configuration.
@@ -209,7 +209,7 @@ class RealStorageConfig {
     s3_endpoint: String
     s3_access_key: String
     s3_secret_key: String
-    packages_bucket: String
+    projects_bucket: String
     gallery_bucket: String
 }
 
@@ -217,10 +217,10 @@ class RealUIConfig {
     app: String
     tagline: String
     show_beta: Boolean
-    package_kind: String(this == "Mods" || this == "Packages")
+    project_kind: String(this == "Mods" || this == "Packages")
     default_theme: String
     game_beta_name: String(this == "Beta" || this == "Snapshot")
-    package_file_formats: List<String>
+    project_file_formats: List<String>
     favicon_ico: String
     favicon_png: String
     theme_color: String
@@ -233,7 +233,7 @@ class RealMeilisearchConfig {
     port: Int
     protocol: String
     key: String
-    pkg_index: String
+    project_index: String
 }
 
 function fixStorageConfig(cfg: StorageConfig): RealStorageConfig = new {
@@ -241,7 +241,7 @@ function fixStorageConfig(cfg: StorageConfig): RealStorageConfig = new {
     s3_endpoint = cfg.s3.endpoint
     s3_access_key = cfg.s3.access_key
     s3_secret_key = cfg.s3.secret_key
-    packages_bucket = cfg.buckets.packages
+    projects_bucket = cfg.buckets.projects
     gallery_bucket = cfg.buckets.gallery
 }
 
@@ -249,10 +249,10 @@ function fixUIConfig(cfg: UIConfig): RealUIConfig = new {
     app = cfg.app
     tagline = cfg.tagline
     show_beta = cfg.show_beta
-    package_kind = cfg.packages.kind
+    project_kind = cfg.projects.kind
     default_theme = cfg.default_theme
     game_beta_name = cfg.game.beta_name
-    package_file_formats = cfg.packages.file_formats
+    project_file_formats = cfg.projects.file_formats
     favicon_ico = cfg.favicon.ico
     favicon_png = cfg.favicon.png
     theme_color = cfg.theme_color
@@ -265,7 +265,7 @@ function fixMeilisearchConfig(cfg: MeilisearchConfig): RealMeilisearchConfig = n
     port = cfg.port
     protocol = cfg.protocol
     key = cfg.key
-    pkg_index = cfg.indexes.packages
+    project_index = cfg.indexes.projects
 }
 
 mh_converters: Mapping<Class | String, (unknown) -> Any> = new {

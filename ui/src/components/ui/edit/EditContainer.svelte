@@ -1,16 +1,15 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
-    import { page } from "$app/stores";
-    import type { LoadingState } from "$lib/types";
+    import { page } from "$app/state";
     import { fly } from "svelte/transition";
     import { type Snippet } from "svelte";
     import { getToastStore, ProgressRadial } from "@skeletonlabs/skeleton";
-    import { currentPackage, editLoadingState, editSaving } from "$lib/stores";
+    import { currentProject, editLoadingState, editSaving } from "$lib/state";
     import { siteConfig } from "$lib/config";
     import { vsprintf } from "sprintf-js";
     import EditNav from "$components/ui/edit/EditNav.svelte";
 
-    const id = $derived($page.params.id);
+    const id = $derived(page.params.id);
 
     interface Props {
         children: Snippet;
@@ -21,8 +20,8 @@
 
 <svelte:head>
     <title
-        >{$currentPackage
-            ? vsprintf($_("site.editing"), [$currentPackage.name])
+        >{$currentProject
+            ? vsprintf($_("site.editing"), [$currentProject.name])
             : $_("site.loading")} - {siteConfig.siteName}</title
     >
 </svelte:head>
@@ -30,7 +29,7 @@
 {#if $editLoadingState != "failed"}
     {#if $editSaving}
         <div
-            class="fixed left-0 right-0 top-0 z-50 flex h-full w-full flex-row items-center justify-center bg-primary-900 bg-opacity-25 text-white"
+            class="bg-primary-900 fixed left-0 right-0 top-0 z-50 flex h-full w-full flex-row items-center justify-center bg-opacity-25 text-white"
             in:fly={{ y: 20 }}
             out:fly={{ y: 20 }}
         >
@@ -40,8 +39,8 @@
 
     <h1 class="h3 mx-4 mb-1 font-bold">
         <span class="h3 font-bold" in:fly={{ y: 20 }}
-            >{$currentPackage
-                ? vsprintf($_("site.editing"), [$currentPackage.name])
+            >{$currentProject
+                ? vsprintf($_("site.editing"), [$currentProject.name])
                 : $_("site.loading")}</span
         >
     </h1>
@@ -54,7 +53,7 @@
         >
             {#if $editLoadingState == "loading"}
                 <div class="placeholder m-2 mx-auto w-32 animate-pulse"></div>
-            {:else if $editLoadingState == "ready" && $currentPackage}
+            {:else if $editLoadingState == "ready" && $currentProject}
                 {@render children?.()}
             {/if}
         </section>

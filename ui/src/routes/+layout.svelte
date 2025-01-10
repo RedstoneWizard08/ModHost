@@ -3,12 +3,7 @@
     import "highlight.js/styles/github-dark.min.css";
 
     import "carta-md/default.css";
-    import {
-        currentScrollPosition,
-        updateTagsStore,
-        updateUserStore,
-        userPreferencesStore,
-    } from "$lib/stores";
+    import { currentScrollPosition } from "$lib/state";
     import {
         Modal,
         Toast,
@@ -24,17 +19,17 @@
     import HeaderBar from "$components/ui/HeaderBar.svelte";
     import ContextMenu from "$components/ui/ContextMenu.svelte";
     import { page } from "$app/stores";
-    import { setToken } from "$api";
-    import { updateGameVersionsIfNeeded } from "$lib/versions";
     import Drawers from "$components/ui/Drawers.svelte";
     import { siteConfig } from "$lib/config";
-    import { updateModLoadersIfNeeded } from "$lib/loaders";
     import ConfirmDeleteModal from "$components/modals/ConfirmDeleteModal.svelte";
     import ConfirmDeleteVersionModal from "$components/modals/ConfirmDeleteVersionModal.svelte";
     import ConfirmDeleteImageModal from "$components/modals/ConfirmDeleteImageModal.svelte";
     import type { NavigationTarget } from "@sveltejs/kit";
     import { editRoutes, pkgRoutes } from "$lib/routes";
     import ImageViewModal from "$components/modals/ImageViewModal.svelte";
+    import { setToken } from "$lib/api";
+    import { updateUser, userPreferencesStore } from "$lib/user";
+    import { initMeta } from "$lib/meta";
 
     const { data, children }: { data: any; children: Snippet } = $props();
     let navigating = $state(false);
@@ -68,12 +63,7 @@
         document.body.dataset.theme = $userPreferencesStore.theme ?? siteConfig.defaultTheme;
 
         (async () => {
-            await Promise.all([
-                updateUserStore(),
-                updateGameVersionsIfNeeded(),
-                updateModLoadersIfNeeded(),
-                updateTagsStore(),
-            ]);
+            await Promise.all([initMeta(), updateUser()]);
         })();
     });
 

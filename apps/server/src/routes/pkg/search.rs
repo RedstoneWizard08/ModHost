@@ -1,4 +1,4 @@
-//! The package search route.
+//! The project search route.
 
 use crate::{auth::get_user_from_req, state::AppState, Result};
 use axum::{
@@ -7,7 +7,7 @@ use axum::{
     Json,
 };
 use axum_extra::extract::CookieJar;
-use db::PackageVisibility;
+use db::ProjectVisibility;
 use search::{Facet, SearchResults, Sort, SortMode};
 
 /// The absolute maximum items per-page for pagination.
@@ -37,13 +37,13 @@ pub struct SearchQuery {
     pub filters: Option<String>,
 }
 
-/// Search Packages
+/// Search Projects
 ///
-/// Search packages by a query string
+/// Search project by a query string
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/search",
-    tag = "Packages",
+    path = "/api/v1/projects/search",
+    tag = "Projects",
     params(
         ("q" = Option<String>, Query, description = "The query string"),
         ("page" = Option<usize>, Query, description = "The current page. Defaults to 1"),
@@ -58,7 +58,7 @@ pub struct SearchQuery {
     ),
 )]
 #[debug_handler]
-pub async fn search_handler(
+pub async fn search_projects_handler(
     jar: CookieJar,
     headers: HeaderMap,
     State(state): State<AppState>,
@@ -83,13 +83,13 @@ pub async fn search_handler(
             if !user.admin {
                 facets.push(Facet::Manual(format!(
                     "{} OR {}",
-                    Facet::Visibility(PackageVisibility::Public).into_filter_string(),
+                    Facet::Visibility(ProjectVisibility::Public).into_filter_string(),
                     Facet::Author(user.id).into_filter_string()
                 )))
             }
         }
 
-        Err(_) => facets.push(Facet::Visibility(PackageVisibility::Public)),
+        Err(_) => facets.push(Facet::Visibility(ProjectVisibility::Public)),
     }
 
     for item in filters {

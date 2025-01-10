@@ -2,11 +2,11 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { addPackageAuthor, getPackage, getUser, removePackageAuthor } from "$api";
-    import { currentPackage, editSaving } from "$lib/stores";
+    import { currentProject, editSaving } from "$lib/state";
     import Icon from "@iconify/svelte";
     import { getToastStore } from "@skeletonlabs/skeleton";
-    import type { User } from "$lib/types";
+    import { unwrap, unwrapOrNull, type User } from "@modhost/api";
+    import { client } from "$lib/api";
 
     const id = $derived($page.params.id);
     const toasts = getToastStore();
@@ -19,32 +19,32 @@
     let removedAuthors = $state<number[]>([]);
 
     onMount(() => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        authors = [...$currentPackage.authors];
+        authors = [...$currentProject.authors];
         displayAuthors = [...authors];
     });
 
     const save = async () => {
         $editSaving = true;
 
-        let newPkg = $currentPackage;
+        let newPkg = $currentProject;
 
-        for (const user of $currentPackage?.authors ?? []) {
+        for (const user of $currentProject?.authors ?? []) {
             if (!authors.find((v) => v.id == user.id)) {
-                newPkg = await removePackageAuthor(id, user.id);
+                newPkg = unwrap(await client.project(id).authors().remove(user.id));
             }
         }
 
         for (const user of authors) {
             if (!newPkg?.authors.find((v) => v.id == user.id)) {
-                newPkg = await addPackageAuthor(id, user.id);
+                newPkg = unwrap(await client.project(id).authors().add(user.id));
             }
         }
 
-        $currentPackage = await getPackage(id);
+        $currentProject = unwrap(await client.project(id).get());
 
-        authors = $currentPackage?.authors ?? authors;
+        authors = $currentProject?.authors ?? authors;
         newAuthors = [];
         removedAuthors = [];
         displayAuthors = [...authors];
@@ -115,7 +115,7 @@
         checking = true;
 
         try {
-            const user = await getUser(person);
+            const user = unwrapOrNull(await client.user(person).get());
 
             // trigger the catch block
             if (!user) throw new Error("No user found!");
@@ -142,7 +142,7 @@
     };
 </script>
 
-<p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+<p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
     <Icon icon="tabler:users" height="24" class="mr-2" />
     Manage Members
 </p>
@@ -150,7 +150,7 @@
 <div class="card variant-glass-surface w-full space-y-2 p-4">
     {#each displayAuthors as author}
         <a
-            class="card flex flex-row items-center justify-between p-2 hover:variant-soft-primary"
+            class="card hover:variant-soft-primary flex flex-row items-center justify-between p-2"
             href="/u/{author.username}"
         >
             <div
@@ -165,13 +165,13 @@
                     <img
                         src="/modhost.png"
                         alt="author's profile afirst child cssvatar"
-                        class="my-auto mr-2 aspect-square h-8 rounded-token"
+                        class="rounded-token my-auto mr-2 aspect-square h-8"
                     />
                 {:else}
                     <img
                         src="https://avatars.githubusercontent.com/u/{author.github_id}"
                         alt="author's profile afirst child cssvatar"
-                        class="my-auto mr-2 aspect-square h-8 rounded-token"
+                        class="rounded-token my-auto mr-2 aspect-square h-8"
                     />
                 {/if}
                 {author.username}
@@ -179,7 +179,7 @@
 
             <button
                 type="button"
-                class="variant-soft-error btn transition-all hover:variant-filled-error"
+                class="variant-soft-error btn hover:variant-filled-error transition-all"
                 onclick={removeMember(author.id)}
             >
                 <Icon icon="tabler:trash" height="24" />
@@ -189,7 +189,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full space-y-2 p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:plus" height="24" class="mr-2" />
         Add People
     </p>
@@ -204,7 +204,7 @@
 
     <button
         type="button"
-        class="variant-ghost-secondary btn flex flex-row items-center justify-center rounded-lg transition-all hover:variant-soft-primary"
+        class="variant-ghost-secondary btn hover:variant-soft-primary flex flex-row items-center justify-center rounded-lg transition-all"
         onclick={addPerson}
         disabled={checking}
     >

@@ -1,10 +1,10 @@
-//! Utilities for indexing packages.
+//! Utilities for indexing projects.
 
-use crate::{MeiliPackage, MeilisearchService};
+use crate::{MeiliProject, MeilisearchService};
 use anyhow::anyhow;
 use app_core::Result;
 use db::{
-    package_authors, package_versions, packages, users, DbConn, Package, PackageVersion, User,
+    project_authors, project_versions, projects, users, DbConn, Project, ProjectVersion, User,
 };
 use diesel::{ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
@@ -12,73 +12,73 @@ use itertools::Itertools;
 use meilisearch_sdk::documents::DocumentDeletionQuery;
 
 impl MeilisearchService {
-    /// Index all packages present in the database.
+    /// Index all project present in the database.
     /// THIS IS A DESTRUCTIVE ACTION! IT WILL DELETE ALL EXISTING DATA
     /// IN THE MEILISEARCH INDEX!
-    pub async fn index_packages(&self, conn: &mut DbConn) -> Result<()> {
+    pub async fn index_projects(&self, conn: &mut DbConn) -> Result<()> {
         // This is my baby abomination and I am so proud of it.
-        let packages: Vec<MeiliPackage> = packages::table
-            .inner_join(package_authors::table.inner_join(users::table))
-            .inner_join(package_versions::table)
+        let projects: Vec<MeiliProject> = projects::table
+            .inner_join(project_authors::table.inner_join(users::table))
+            .inner_join(project_versions::table)
             .select((
-                Package::as_select(),
+                Project::as_select(),
                 User::as_select(),
-                PackageVersion::as_select(),
+                ProjectVersion::as_select(),
             ))
-            .load::<(Package, User, PackageVersion)>(conn)
+            .load::<(Project, User, ProjectVersion)>(conn)
             .await?
             .into_iter()
-            .into_group_map_by(|v: &(Package, User, PackageVersion)| v.0.clone())
+            .into_group_map_by(|v: &(Project, User, ProjectVersion)| v.0.clone())
             .into_iter()
-            .map(|v: (Package, Vec<(Package, User, PackageVersion)>)| {
+            .map(|v: (Project, Vec<(Project, User, ProjectVersion)>)| {
                 (
                     v.0,
                     v.1.into_iter()
                         .map(|v| (v.1, v.2))
-                        .unzip::<User, PackageVersion, Vec<User>, Vec<PackageVersion>>(),
+                        .unzip::<User, ProjectVersion, Vec<User>, Vec<ProjectVersion>>(),
                 )
             })
-            .map(|v| MeiliPackage::from_data(v.0, v.1 .0, v.1 .1))
+            .map(|v| MeiliProject::from_data(v.0, v.1 .0, v.1 .1))
             .collect_vec();
 
-        let index = self.packages();
+        let index = self.projects();
 
         index.delete_all_documents().await?;
-        index.add_documents(packages.as_slice(), Some("id")).await?;
+        index.add_documents(projects.as_slice(), Some("id")).await?;
 
         Ok(())
     }
 
-    /// Update a package in the Meilisearch index.
-    pub async fn update_package(&self, pkg: i32, conn: &mut DbConn) -> Result<()> {
+    /// Update a project in the Meilisearch index.
+    pub async fn update_project(&self, project: i32, conn: &mut DbConn) -> Result<()> {
         // Abomination #2! It's so beautiful! I make Rust programmers worldwide upset!
-        let data: MeiliPackage = packages::table
-            .inner_join(package_authors::table.inner_join(users::table))
-            .inner_join(package_versions::table)
+        let data: MeiliProject = projects::table
+            .inner_join(project_authors::table.inner_join(users::table))
+            .inner_join(project_versions::table)
             .select((
-                Package::as_select(),
+                Project::as_select(),
                 User::as_select(),
-                PackageVersion::as_select(),
+                ProjectVersion::as_select(),
             ))
-            .filter(packages::id.eq(pkg))
-            .load::<(Package, User, PackageVersion)>(conn)
+            .filter(projects::id.eq(project))
+            .load::<(Project, User, ProjectVersion)>(conn)
             .await?
             .into_iter()
-            .into_group_map_by(|v: &(Package, User, PackageVersion)| v.0.clone())
+            .into_group_map_by(|v: &(Project, User, ProjectVersion)| v.0.clone())
             .into_iter()
-            .map(|v: (Package, Vec<(Package, User, PackageVersion)>)| {
+            .map(|v: (Project, Vec<(Project, User, ProjectVersion)>)| {
                 (
                     v.0,
                     v.1.into_iter()
                         .map(|v| (v.1, v.2))
-                        .unzip::<User, PackageVersion, Vec<User>, Vec<PackageVersion>>(),
+                        .unzip::<User, ProjectVersion, Vec<User>, Vec<ProjectVersion>>(),
                 )
             })
-            .map(|v| MeiliPackage::from_data(v.0, v.1 .0, v.1 .1))
-            .find(|v| v.id == pkg)
-            .ok_or(anyhow!("Could not find package with ID {}!", pkg))?;
+            .map(|v| MeiliProject::from_data(v.0, v.1 .0, v.1 .1))
+            .find(|v| v.id == project)
+            .ok_or(anyhow!("Could not find project with ID {}!", project))?;
 
-        self.packages()
+        self.projects()
             .add_or_replace(&[data], Some("id"))
             .await?
             .wait_for_completion(&self.client, None, None)
@@ -87,11 +87,11 @@ impl MeilisearchService {
         Ok(())
     }
 
-    /// Delete a package from the Meilisearch index.
-    pub async fn delete_package(&self, pkg: i32) -> Result<()> {
-        let index = self.packages();
+    /// Delete a project from the Meilisearch index.
+    pub async fn delete_project(&self, project: i32) -> Result<()> {
+        let index = self.projects();
         let mut query = DocumentDeletionQuery::new(&index);
-        let filter = format!("id = {}", pkg);
+        let filter = format!("id = {}", project);
 
         query.with_filter(&filter);
         index.delete_documents_with(&query).await?;

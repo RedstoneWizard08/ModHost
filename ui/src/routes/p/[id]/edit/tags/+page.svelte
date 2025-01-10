@@ -2,14 +2,15 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { getPackage } from "$api";
-    import { currentPackage, editSaving } from "$lib/stores";
+    import { currentProject, editSaving } from "$lib/state";
     import Icon from "@iconify/svelte";
+    import { client } from "$lib/api";
+    import { unwrap } from "@modhost/api";
 
     const id = $derived($page.params.id);
 
     onMount(() => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
         // Fields go here
     });
@@ -19,7 +20,7 @@
 
         // Update code goes here
 
-        $currentPackage = await getPackage(id);
+        $currentProject = unwrap(await client.project(id).get());
 
         // Field update code goes here
 
@@ -27,7 +28,7 @@
     };
 </script>
 
-<p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+<p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
     <Icon icon="tabler:tags" height="24" class="mr-2" />
     Manage Tags
 </p>

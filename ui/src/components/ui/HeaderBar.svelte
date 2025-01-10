@@ -1,8 +1,8 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
     import { AppBar, getDrawerStore } from "@skeletonlabs/skeleton";
-    import { currentScrollPosition, currentSearchStore } from "$lib/stores";
-    import { page } from "$app/stores";
+    import { currentQuery, currentScrollPosition } from "$lib/state";
+    import { page } from "$app/state";
     import { fly } from "svelte/transition";
     import IconAuth from "$components/auth/IconAuth.svelte";
     import { onMount } from "svelte";
@@ -15,18 +15,18 @@
     const drawerStore = getDrawerStore();
 
     onMount(() => {
-        $currentSearchStore = $page.route.id == "/s" ? ($page.url.searchParams.get("q") ?? "") : "";
+        $currentQuery = page.route.id == "/s" ? (page.url.searchParams.get("q") ?? "") : "";
     });
 
     const updateQuery = async () => {
-        if ($page.route.id != "/s") {
+        if (page.route.id != "/s") {
             await goto("/s", { keepFocus: true });
         }
 
-        if ($currentSearchStore != "") $page.url.searchParams.set("q", $currentSearchStore);
-        else $page.url.searchParams.delete("q");
+        if ($currentQuery != "") page.url.searchParams.set("q", $currentQuery);
+        else page.url.searchParams.delete("q");
 
-        replaceState($page.url, $page.state);
+        replaceState(page.url, page.state);
     };
 
     const openHomeDrawer = () => {
@@ -52,7 +52,7 @@
         </button>
 
         <a class="flex items-center gap-2" href="/">
-            <img src="/favicon.png" alt="logo" class="aspect-square w-8 min-w-8 rounded-token" />
+            <img src="/favicon.png" alt="logo" class="rounded-token aspect-square w-8 min-w-8" />
             <span class="hidden lg:inline">{siteConfig.siteName}</span>
 
             {#if siteConfig.showBeta}
@@ -70,7 +70,7 @@
             class="input-group input-group-divider w-full grid-cols-[1fr] transition-all lg:grid-cols-[auto_1fr]"
             transition:fly={{ y: -40 }}
         >
-            <a href="/s" class="hidden text-surface-400 lg:inline">
+            <a href="/s" class="text-surface-400 hidden lg:inline">
                 <Icon icon="tabler:search" height="24" class="hidden lg:block" />
             </a>
 
@@ -79,7 +79,7 @@
                 class="w-full transition-all"
                 placeholder={$_(`search.placeholder.${siteConfig.type}`)}
                 bind:this={inputElement}
-                bind:value={$currentSearchStore}
+                bind:value={$currentQuery}
                 onfocus={() => (active = true)}
                 onblur={() => (active = false)}
                 oninput={updateQuery}

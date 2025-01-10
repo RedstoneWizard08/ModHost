@@ -1,9 +1,9 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
-    import { deleteVersion } from "$api";
-    import { currentPackage } from "$lib/stores";
     import { goto } from "$app/navigation";
+    import { currentProject } from "$lib/state";
+    import { client } from "$lib/api";
 
     const modals = getModalStore();
     const toasts = getToastStore();
@@ -12,9 +12,9 @@
     const confirmDelete = async () => {
         loading = true;
 
-        if (!$currentPackage) {
+        if (!$currentProject) {
             toasts.trigger({
-                message: `Internal error: $currentPackage is undefined!`,
+                message: `Internal error: $currentProject is undefined!`,
                 hideDismiss: true,
                 timeout: 5000,
                 background: "variant-filled-error",
@@ -40,29 +40,29 @@
 
         const { versionId } = $modals[0].meta;
 
-        await deleteVersion($currentPackage.id, versionId);
+        await client.project($currentProject.id).versions().version(versionId).delete();
 
         loading = false;
         modals.close();
-        goto(`/p/${$currentPackage.id}/edit/versions`, { invalidateAll: true });
+        goto(`/p/${$currentProject.id}/edit/versions`, { invalidateAll: true });
     };
 </script>
 
 {#if $modals[0]}
-    <div class="w-modal-slim relative rounded-lg bg-surface-500 p-8 shadow-xl">
+    <div class="w-modal-slim bg-surface-500 relative rounded-lg p-8 shadow-xl">
         <header class="text-2xl font-bold">Confirm Deletion</header>
 
         <p>Are you sure you want to delete this project version?</p>
 
         <footer class="modal-footer mt-4 flex flex-row items-center">
             <button
-                class="variant-filled-error btn mr-2 !outline-none transition-all hover:variant-ghost-error"
+                class="variant-filled-error btn hover:variant-ghost-error mr-2 !outline-none transition-all"
                 disabled={loading}
                 onclick={confirmDelete}>Delete</button
             >
 
             <button
-                class="variant-filled-secondary btn mr-2 !outline-none transition-all hover:variant-ghost-primary"
+                class="variant-filled-secondary btn hover:variant-ghost-primary mr-2 !outline-none transition-all"
                 disabled={loading}
                 onclick={() => modals.close()}>{$_("action.cancel")}</button
             >

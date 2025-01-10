@@ -1,14 +1,13 @@
 <script lang="ts">
     import { _, locales, locale } from "svelte-i18n";
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
     import TablerIconUpload from "$components/icons/TablerIconUpload.svelte";
     import {
         contextMenu,
         openContextMenu,
         type ContextMenuItem,
         type ContextMenuProps,
-    } from "$lib/contextMenu";
-    import { user, userPreferencesStore } from "$lib/stores";
+    } from "$lib/ui/contextMenu";
     import { getModalStore } from "@skeletonlabs/skeleton";
     import TablerIconWorld from "$components/icons/TablerIconWorld.svelte";
     import TablerIconCheck from "$components/icons/TablerIconCheck.svelte";
@@ -18,10 +17,11 @@
     import { goto } from "$app/navigation";
     import TablerIconLogin2 from "$components/icons/TablerIconLogin2.svelte";
     import TablerIconLogin from "$components/icons/TablerIconLogin.svelte";
-    import { setToken } from "$api";
+    import { setToken } from "$lib/api";
     import TablerIconUser from "$components/icons/TablerIconUser.svelte";
     import { siteConfig } from "$lib/config";
     import Icon from "@iconify/svelte";
+    import { user, userPreferencesStore } from "$lib/user";
 
     const modals = getModalStore();
 
@@ -119,7 +119,7 @@
                     type: "ITEM",
                     label: $_("auth_icon.login"),
                     icon: TablerIconLogin2,
-                    action: () => goto(`/api/v1/auth/github/login?redirect_uri=${$page.url}`),
+                    action: () => goto(`/api/v1/auth/github/login?redirect_uri=${page.url}`),
                 });
             }
 

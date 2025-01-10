@@ -1,72 +1,72 @@
 //! Models for Meilisearch.
 
 use chrono::NaiveDateTime;
-use db::{Package, PackageData, PackageVersion, PackageVisibility, User};
+use db::{Project, ProjectData, ProjectVersion, ProjectVisibility, User};
 use itertools::Itertools;
 
-/// A package for search indexing.
+/// A project for search indexing.
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, ToSchema, ToResponse,
 )]
-pub struct MeiliPackage {
-    /// The package's ID.
+pub struct MeiliProject {
+    /// The project's ID.
     pub id: i32,
 
-    /// The package's name.
+    /// The project's name.
     pub name: String,
 
-    /// The package's URL slug.
+    /// The project's URL slug.
     pub slug: String,
 
-    /// The package's README.
+    /// The project's README.
     pub readme: String,
 
-    /// A short description of the package.
+    /// A short description of the project.
     pub description: String,
 
-    /// The date the package was created.
+    /// The date the project was created.
     pub created_at: NaiveDateTime,
 
-    /// The date the package was last updated.
+    /// The date the project was last updated.
     pub updated_at: NaiveDateTime,
 
-    /// The amount of downloads a package has.
+    /// The amount of downloads a project has.
     pub downloads: i32,
 
-    /// An optional link to the package's source code.
+    /// An optional link to the project's source code.
     pub source: Option<String>,
 
-    /// An optional link to the package's issue tracker.
+    /// An optional link to the project's issue tracker.
     pub issues: Option<String>,
 
-    /// An optional link to the package's wiki.
+    /// An optional link to the project's wiki.
     pub wiki: Option<String>,
 
-    /// The visibility of a package.
-    pub visibility: PackageVisibility,
+    /// The visibility of a project.
+    pub visibility: ProjectVisibility,
 
-    /// The license the package is under.
+    /// The license the project is under.
     pub license: Option<String>,
 
-    /// The versions of this package.
-    pub versions: Vec<PackageVersion>,
+    /// The versions of this project.
+    pub versions: Vec<ProjectVersion>,
 
-    /// A list of version IDs for this package.
+    /// A list of version IDs for this project.
     pub version_ids: Vec<i32>,
 
-    /// This package's authors.
+    /// This project's authors.
     pub authors: Vec<User>,
 
-    /// A list of User IDs representing authors for this package.
+    /// A list of User IDs representing authors for this project.
     pub author_ids: Vec<i32>,
 
-    /// A list of loaders this package supports (all versions).
+    /// A list of loaders this project supports (all versions).
     pub loaders: Vec<String>,
 
-    /// A list of game versions this package supports (all versions).
+    /// A list of game versions this project supports (all versions).
     pub game_versions: Vec<String>,
 
-    /// A list of tags for this package.
+    /// A list of tags for this project.
     pub tags: Vec<String>,
 }
 
@@ -89,12 +89,12 @@ pub struct SearchResults {
     pub total: usize,
 
     /// The returned items.
-    pub results: Vec<PackageData>,
+    pub results: Vec<ProjectData>,
 }
 
-impl MeiliPackage {
-    /// Create a [`MeiliPackage`] from data from the database.
-    pub fn from_data(pkg: Package, authors: Vec<User>, versions: Vec<PackageVersion>) -> Self {
+impl MeiliProject {
+    /// Create a [`MeiliProject`] from data from the database.
+    pub fn from_data(pkg: Project, authors: Vec<User>, versions: Vec<ProjectVersion>) -> Self {
         Self {
             id: pkg.id,
             name: pkg.name,
@@ -131,9 +131,9 @@ impl MeiliPackage {
         }
     }
 
-    /// Turn this into [`PackageData`].
-    pub fn into_data(self) -> PackageData {
-        PackageData {
+    /// Turn this into [`ProjectData`].
+    pub fn into_data(self) -> ProjectData {
+        ProjectData {
             id: self.id,
             name: self.name,
             slug: self.slug,

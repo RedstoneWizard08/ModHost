@@ -2,10 +2,11 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { getPackage, updatePackage } from "$api";
-    import { currentPackage, editSaving } from "$lib/stores";
+    import { currentProject, editSaving } from "$lib/state";
     import Icon from "@iconify/svelte";
     import { Carta, MarkdownEditor } from "carta-md";
+    import { client } from "$lib/api";
+    import { unwrap } from "@modhost/api";
 
     const id = $derived($page.params.id);
     const editor = new Carta();
@@ -13,27 +14,31 @@
     let readme = $state("");
 
     onMount(() => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        readme = $currentPackage.readme;
+        readme = $currentProject.readme;
     });
 
     const save = async () => {
         $editSaving = true;
 
-        await updatePackage(id, {
-            readme,
-        });
+        const api = client.project(id);
 
-        $currentPackage = await getPackage(id);
+        unwrap(
+            await api.update({
+                readme,
+            }),
+        );
 
-        readme = $currentPackage?.readme ?? readme;
+        $currentProject = unwrap(await api.get());
+
+        readme = $currentProject.readme;
 
         $editSaving = false;
     };
 </script>
 
-<p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+<p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
     <Icon icon="tabler:file-description" height="24" class="mr-2" />
     Edit Description
 </p>

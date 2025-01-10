@@ -1,17 +1,17 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
-    import type { PackageData, PackageVersion } from "$lib/types";
-    import { fixLoaderName, markdown } from "$lib/utils";
+    import { fixLoaderName, markdown, downloadFile, copyText } from "$lib/util";
     import { onMount } from "svelte";
-    import { getPackageVersion } from "$api";
-    import { currentPackage, user } from "$lib/stores";
+    import { currentProject } from "$lib/state";
     import { siteConfig } from "$lib/config";
     import Icon from "@iconify/svelte";
-    import { downloadFile } from "$lib/download";
-    import { copyText } from "$lib/clipboard";
     import { getToastStore } from "@skeletonlabs/skeleton";
     import { tryAggregateVersions } from "$lib/vers";
+    import { unwrapOrNull, type ProjectVersion } from "@modhost/api";
+    import { user } from "$lib/user";
+    import { client } from "$lib/api";
+    import VersionFile from "$components/ui/VersionFile.svelte";
 
     const maxVersions = 10;
     const id = $derived($page.params.id);
@@ -20,25 +20,23 @@
 
     let done = $state(false);
     let downloading = $state(false);
-    let version: PackageVersion | undefined = $state(undefined);
+    let version = $state<ProjectVersion | null>(null);
     let name = $state("");
     let changelog = $state<string | undefined>(undefined);
 
-    const loaders = $derived((version as PackageVersion | undefined)?.loaders ?? []);
-    const gameVersions = $derived((version as PackageVersion | undefined)?.game_versions ?? []);
+    const loaders = $derived((version as ProjectVersion | undefined)?.loaders ?? []);
+    const gameVersions = $derived((version as ProjectVersion | undefined)?.game_versions ?? []);
     const aggVersions = $derived(tryAggregateVersions(gameVersions));
 
     const canEdit = $derived(
-        ($currentPackage &&
-            $user &&
-            !!($currentPackage as PackageData).authors.find((v) => v.id == $user.id)) ||
+        ($currentProject && $user && !!$currentProject.authors.find((v) => v.id == $user.id)) ||
             ($user && $user.admin),
     );
 
     onMount(async () => {
-        version = await getPackageVersion(id, ver);
+        version = unwrapOrNull(await client.project(id).versions().version(ver).get());
 
-        if (!$currentPackage || !version) return;
+        if (!$currentProject || !version) return;
 
         name = version.name;
         changelog = version.changelog;
@@ -50,15 +48,15 @@
         ev.preventDefault();
         ev.stopPropagation();
 
-        if (!version || !$currentPackage) return;
+        if (!version || !$currentProject) return;
 
         downloading = true;
 
-        const fileName = `${$currentPackage.slug}_${version.version_number}.mhpkg`;
+        const file = version.files[0];
 
         await downloadFile(
-            `/api/v1/packages/${$currentPackage}/versions/${version.id}/download`,
-            fileName,
+            `/api/v1/projects/${$currentProject}/versions/${version.id}/download/${file.id}`,
+            file.file_name,
         );
 
         downloading = false;
@@ -91,25 +89,11 @@
                 <a
                     aria-label="Edit"
                     href="/p/{id}/edit/versions/edit/{ver}"
-                    class="flex flex-row items-center justify-center rounded-full p-2 transition-all hover:variant-filled-primary"
+                    class="hover:variant-filled-primary flex flex-row items-center justify-center rounded-full p-2 transition-all"
                 >
                     <Icon icon="tabler:pencil" height="24" />
                 </a>
             {/if}
-
-            <button
-                type="button"
-                class="btn p-2 transition-all hover:variant-filled-primary"
-                onclick={directDownload}
-            >
-                {#if done}
-                    <Icon icon="tabler:check" height="24" />
-                {:else if downloading}
-                    <Icon icon="tabler:loader-2" height="24" class="animate-spin" />
-                {:else}
-                    <Icon icon="tabler:download" height="24" />
-                {/if}
-            </button>
         </div>
     </div>
 
@@ -187,5 +171,19 @@
 
     <dd class="style-markdown flex select-text flex-col items-start *:select-text">
         {@html markdown(changelog ?? "")}
+    </dd>
+</section>
+
+<section class="card h-fit w-full p-4">
+    <dt class="mb-2 text-sm opacity-50">
+        {$_("package.version.files")}
+    </dt>
+
+    <dd class="flex w-full gap-1">
+        <dl class="list-dl w-full">
+            {#each version?.files ?? [] as file}
+                <VersionFile {file} pkg={id} version={version!} />
+            {/each}
+        </dl>
     </dd>
 </section>

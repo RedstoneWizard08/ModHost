@@ -19,9 +19,9 @@ pub struct MeilisearchConfig {
     /// Defaults to `"CHANGE_ME"`
     pub key: String,
 
-    /// The index name for packages.
-    /// Defaults to `"packages"`
-    pub pkg_index: String,
+    /// The index name for projects.
+    /// Defaults to `"projects"`
+    pub project_index: String,
 }
 
 impl MeilisearchConfig {
@@ -38,7 +38,7 @@ impl Default for MeilisearchConfig {
             port: 7700,
             protocol: "http".into(),
             key: "CHANGE_ME".into(),
-            pkg_index: "packages".into(),
+            project_index: "projects".into(),
         }
     }
 }

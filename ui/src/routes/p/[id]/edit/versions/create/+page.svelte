@@ -1,11 +1,9 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
     import { onDestroy, onMount } from "svelte";
-    import { createVersion, getPackage } from "$api";
-    import { currentPackage, editSaving } from "$lib/stores";
+    import { currentProject, editSaving } from "$lib/state";
     import Icon from "@iconify/svelte";
-    import type { PackageVersion } from "$lib/types";
     import {
         Autocomplete,
         FileDropzone,
@@ -15,14 +13,15 @@
         type PopupSettings,
     } from "@skeletonlabs/skeleton";
     import { siteConfig } from "$lib/config";
-    import { modLoaders } from "$lib/loaders";
-    import { gameVersions as allGameVersions } from "$lib/versions";
     import { elementPopup, type PopupControls } from "$lib/ui/popups";
     import { Carta, MarkdownEditor } from "carta-md";
     import { goto } from "$app/navigation";
-    import { formatBytes } from "$lib/utils";
+    import { formatBytes } from "$lib/util";
+    import { gameVersions as allGameVersions, loaders as allLoaders } from "$lib/meta";
+    import { ErrorResponse, unwrap } from "@modhost/api";
+    import { client } from "$lib/api";
 
-    const id = $derived($page.params.id);
+    const id = $derived(page.params.id);
     const editor = new Carta();
     const toasts = getToastStore();
 
@@ -63,7 +62,7 @@
     };
 
     onMount(async () => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
         const el = document.querySelector("[data-ref=versionInputChip]") as HTMLElement | null;
 
@@ -95,21 +94,19 @@
 
         $editSaving = true;
 
-        const res = await createVersion(
-            id,
-            {
-                changelog,
-                game_versions: gameVersions,
-                loaders,
-                name,
-                version_number: versionNumber,
-            },
-            files[0],
-        );
+        const res = await client.project(id).versions().upload({
+            changelog,
+            game_versions: gameVersions,
+            loaders,
+            name,
+            version_number: versionNumber,
+            file: files[0],
+            file_name: files[0].name,
+        });
 
-        if (!res) {
+        if (res instanceof ErrorResponse) {
             toasts.trigger({
-                message: `Error uploading your version!`,
+                message: `Error uploading your version: ${res}`,
                 hideDismiss: true,
                 timeout: 5000,
                 background: "variant-filled-error",
@@ -119,7 +116,7 @@
             return;
         }
 
-        $currentPackage = await getPackage(id);
+        $currentProject = unwrap(await client.project(id).get());
         $editSaving = false;
 
         goto(`/p/${id}/edit/versions/edit/${res.id}`);
@@ -140,14 +137,14 @@
     };
 </script>
 
-<p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+<p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
     <Icon icon="tabler:upload" height="24" class="mr-2" />
     Upload Version
 </p>
 
 <div class="card variant-glass-surface w-full p-4">
     <div class="flex w-full flex-row items-center justify-between">
-        <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+        <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:hash" height="24" class="mr-2" />
             Version Number
         </p>
@@ -156,11 +153,11 @@
             <Icon
                 icon="tabler:info-circle"
                 height="24"
-                class="pointer-events-none mr-2 text-success-500"
+                class="text-success-500 pointer-events-none mr-2"
             />
         </div>
 
-        <div class="z-20 rounded-lg bg-secondary-700 p-4" data-popup="versionNumberInfoPopup">
+        <div class="bg-secondary-700 z-20 rounded-lg p-4" data-popup="versionNumberInfoPopup">
             This must be in
             <a href="https://semver.org/" class="anchor">SemVer</a>
             format.
@@ -176,7 +173,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:eye" height="24" class="mr-2" />
         Display Name
     </p>
@@ -190,13 +187,13 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:file-power" height="24" class="mr-2" />
         Mod Loaders
     </p>
 
     <div class="flex flex-row items-center lg:m-2 lg:mt-4">
-        {#each $modLoaders ?? [] as loader}
+        {#each $allLoaders ?? [] as loader}
             <button
                 type="button"
                 class="chip mx-1 text-base !outline-none {lowerLoaders.includes(
@@ -211,7 +208,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:versions" height="24" class="mr-2" />
         Game versions
     </p>
@@ -229,7 +226,7 @@
 
         <button
             type="button"
-            class="variant-form-material ml-1 flex max-h-[calc(24px+1rem)] items-center justify-between border-surface-500 px-4 !outline-none"
+            class="variant-form-material border-surface-500 ml-1 flex max-h-[calc(24px+1rem)] items-center justify-between px-4 !outline-none"
             onclick={() =>
                 (
                     document.querySelector("[data-ref=versionInputChip]") as HTMLElement | null
@@ -281,7 +278,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:file-description" height="24" class="mr-2" />
         Edit Changelog
     </p>
@@ -290,7 +287,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:upload" height="24" class="mr-2" />
         Upload File
     </p>
@@ -326,7 +323,7 @@
 <div class="flex flex-row items-center justify-start gap-2">
     <button
         type="button"
-        class="variant-filled-primary btn mt-2 flex flex-row items-center justify-center rounded-lg transition-all hover:variant-ghost-primary hover:text-token"
+        class="variant-filled-primary btn hover:variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
         onclick={save}
     >
         <Icon icon="tabler:upload" height="24" class="mr-2" />
@@ -335,7 +332,7 @@
 
     <a
         href="/p/{id}/edit/versions"
-        class="variant-filled-secondary btn mt-2 flex flex-row items-center justify-center rounded-lg transition-all hover:variant-ghost-secondary"
+        class="variant-filled-secondary btn hover:variant-ghost-secondary mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
     >
         <Icon icon="tabler:arrow-left" height="24" class="mr-2" />
         Back

@@ -1,14 +1,14 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
     import { base } from "$app/paths";
-    import { page } from "$app/stores";
-    import type { PackageData } from "$lib/types";
-    import { formatDate } from "$lib/utils";
+    import { page } from "$app/state";
+    import { formatDate } from "$lib/util";
     import { onMount } from "svelte";
-    import { getPackageGallery } from "$api";
+    import { unwrapOrNull, type FullProject } from "@modhost/api";
+    import { client } from "$lib/api";
 
     interface Props {
-        pkg: PackageData;
+        pkg: FullProject;
         customHeight?: number;
         compact?: boolean;
         showAvatar?: boolean;
@@ -23,7 +23,7 @@
     let img = $state<string | undefined>(undefined);
 
     onMount(async () => {
-        const gallery = await getPackageGallery(pkg.id);
+        const gallery = unwrapOrNull(await client.project(pkg.id).gallery().list());
 
         if (gallery && gallery.length > 0) img = gallery[0].url;
     });
@@ -31,10 +31,10 @@
 
 <a
     href={`${base}/p/${pkg.slug}`}
-    class="card flex p-4 hover:variant-soft-primary"
+    class="card hover:variant-soft-primary flex p-4"
     class:flex-col={compact}
     onclick={() => select?.(pkg.id)}
-    class:!variant-filled-primary={$page.url.searchParams.get("id") == pkg.name}
+    class:!variant-filled-primary={page.url.searchParams.get("id") == pkg.name}
     style={customHeight != null ? `height: ${customHeight}rem` : ""}
 >
     {#if showAvatar && !compact}
@@ -44,13 +44,13 @@
             <img
                 src="/modhost.png"
                 alt="author's profile avatar"
-                class="my-auto mr-4 aspect-square h-8 rounded-token"
+                class="rounded-token my-auto mr-4 aspect-square h-8"
             />
         {:else}
             <img
                 src={`https://avatars.githubusercontent.com/u/${pkg.authors[0].github_id}`}
                 alt="author's profile avatar"
-                class="my-auto mr-4 aspect-square h-8 rounded-token"
+                class="rounded-token my-auto mr-4 aspect-square h-8"
             />
         {/if}
     {/if}

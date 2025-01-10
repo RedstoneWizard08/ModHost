@@ -53,6 +53,7 @@
     "user.mods": "Mods",
     "user.you": "You",
     "user.admin": "Admin",
+    "user.moderator": "Moderator",
 
     "action.cancel": "Cancel",
     "action.add": "Add",
@@ -121,6 +122,7 @@
     "package.version.updated": "Updated on",
     "package.version.prefix": "Version Number:",
     "package.version.all": "All Versions",
+    "package.version.files": "Files",
 
     "modal.add_author.trigger": "Add People",
     "modal.add_author.title": "Add Author",

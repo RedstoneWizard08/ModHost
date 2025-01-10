@@ -1,6 +1,8 @@
-//! Routes concerning package versions.
+//! Routes concerning project versions.
 
-use crate::{auth::get_user_from_req, state::AppState, util::versions::get_latest_version, Result};
+use crate::{
+    auth::get_user_from_req, state::AppState, util::versions::get_latest_full_version, Result,
+};
 use anyhow::anyhow;
 use app_core::AppError;
 use axum::{
@@ -13,20 +15,21 @@ use axum::{
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
 use db::{
-    get_full_package, get_package, get_version, package_authors, package_versions, packages,
-    NewPackageVersion, Package, PackageAuthor, PackageVersion, PackageVersionInit,
-    PackageVisibility,
+    get_full_project, get_project, get_version, project_authors, project_versions, projects,
+    version_files, NewProjectFile, NewProjectVersion, Project, ProjectAuthor, ProjectFile,
+    ProjectVersion, ProjectVersionData, ProjectVersionInit, ProjectVisibility,
 };
+use db_util::vers::{get_full_version, get_version_file, get_versions};
 use diesel::{delete, insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use semver::Version;
 use sha1::{Digest, Sha1};
 
-/// Information for updaing a package version.
+/// Information for updaing a project version.
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, ToSchema, ToResponse, Serialize, Deserialize,
 )]
-pub struct PartialPackageVersion {
+pub struct PartialProjectVersion {
     /// The display name of the version.
     #[serde(default)]
     pub name: Option<String>,
@@ -49,32 +52,32 @@ pub struct PartialPackageVersion {
     pub game_versions: Option<Vec<String>>,
 }
 
-/// List Package Versions
+/// List Project Versions
 ///
-/// List available versions for a specific package.
+/// List available versions for a specific project.
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/{id}/versions",
+    path = "/api/v1/projects/{id}/versions",
     tag = "Versions",
     responses(
-        (status = 200, description = "Found package versions!", body = Vec<PackageVersion>),
+        (status = 200, description = "Found project versions!", body = Vec<ProjectVersionData>),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package ID whose versions we are looking for."),
+        ("id" = String, Path, description = "The project ID whose versions we are looking for."),
     ),
 )]
 #[debug_handler]
-pub async fn list_handler(
+pub async fn list_versions_handler(
     jar: CookieJar,
     headers: HeaderMap,
     Path(id): Path<String>,
     State(state): State<AppState>,
-) -> Result<Response> {
+) -> Result<Json<Vec<ProjectVersionData>>> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_full_package(id, &mut conn).await?;
+    let pkg = get_full_project(id, &mut conn).await?;
 
-    if pkg.visibility == PackageVisibility::Private {
+    if pkg.visibility == ProjectVisibility::Private {
         match get_user_from_req(&jar, &headers, &mut conn).await {
             Ok(user) => {
                 if !pkg.authors.iter().any(|v| v.github_id == user.github_id) && !user.admin {
@@ -86,44 +89,36 @@ pub async fn list_handler(
         }
     }
 
-    let versions = package_versions::table
-        .filter(package_versions::package.eq(pkg.id))
-        .select(PackageVersion::as_select())
-        .load(&mut conn)
-        .await?;
-
-    Ok(Response::builder()
-        .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(&versions)?))?)
+    Ok(Json(get_versions(pkg.id, &mut conn).await?))
 }
 
-/// Get Package Version
+/// Get Project Version
 ///
-/// Get information about a specific package version
+/// Get information about a specific project version
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/{id}/versions/{version}",
+    path = "/api/v1/projects/{id}/versions/{version}",
     tag = "Versions",
     responses(
-        (status = 200, description = "Found package version!", body = PackageVersion),
+        (status = 200, description = "Found project version!", body = ProjectVersion),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this version is for."),
+        ("id" = String, Path, description = "The project that this version is for."),
         ("version" = String, Path, description = "The version ID/name/number."),
     ),
 )]
 #[debug_handler]
-pub async fn info_handler(
+pub async fn version_info_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path((package, version)): Path<(String, String)>,
+    Path((project, version)): Path<(String, String)>,
     State(state): State<AppState>,
-) -> Result<Response> {
+) -> Result<Json<ProjectVersionData>> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_full_package(package, &mut conn).await?;
+    let pkg = get_full_project(project, &mut conn).await?;
 
-    if pkg.visibility == PackageVisibility::Private {
+    if pkg.visibility == ProjectVisibility::Private {
         match get_user_from_req(&jar, &headers, &mut conn).await {
             Ok(user) => {
                 if !pkg.authors.iter().any(|v| v.github_id == user.github_id) && !user.admin {
@@ -135,39 +130,35 @@ pub async fn info_handler(
         }
     }
 
-    let ver = get_version(pkg.id, version, &mut conn).await?;
-
-    Ok(Response::builder()
-        .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(&ver)?))?)
+    Ok(Json(get_full_version(pkg.id, version, &mut conn).await?))
 }
 
-/// Get Latest Package Version
+/// Get Latest Project Version
 ///
-/// Get information about the latest package version
+/// Get information about the latest project version
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/{id}/versions/latest",
+    path = "/api/v1/projects/{id}/versions/latest",
     tag = "Versions",
     responses(
-        (status = 200, description = "Found latest version!", body = PackageVersion),
+        (status = 200, description = "Found latest version!", body = ProjectVersion),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this version is for."),
+        ("id" = String, Path, description = "The project that this version is for."),
     ),
 )]
 #[debug_handler]
-pub async fn latest_handler(
+pub async fn latest_version_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path(package): Path<String>,
+    Path(project): Path<String>,
     State(state): State<AppState>,
-) -> Result<Response> {
+) -> Result<Json<ProjectVersionData>> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_full_package(package, &mut conn).await?;
+    let pkg = get_full_project(project, &mut conn).await?;
 
-    if pkg.visibility == PackageVisibility::Private {
+    if pkg.visibility == ProjectVisibility::Private {
         match get_user_from_req(&jar, &headers, &mut conn).await {
             Ok(user) => {
                 if !pkg.authors.iter().any(|v| v.github_id == user.github_id) && !user.admin {
@@ -179,40 +170,37 @@ pub async fn latest_handler(
         }
     }
 
-    let ver = get_latest_version(pkg.id, &mut conn).await?;
-
-    Ok(Response::builder()
-        .header("Content-Type", "application/json")
-        .body(Body::new(serde_json::to_string(&ver)?))?)
+    Ok(Json(get_latest_full_version(pkg.id, &mut conn).await?))
 }
 
-/// Download Package Version
+/// Download Project Version
 ///
-/// Download a specific package version
+/// Download a specific project version
 #[utoipa::path(
     get,
-    path = "/api/v1/packages/{id}/versions/{version}/download",
+    path = "/api/v1/projects/{id}/versions/{version}/download/{file}",
     tag = "Versions",
     responses(
         (status = 307, description = "Redirecting to download"),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this version is for."),
+        ("id" = String, Path, description = "The project that this version is for."),
         ("version" = String, Path, description = "The version ID/name/number."),
+        ("file" = String, Path, description = "The file ID/name."),
     ),
 )]
 #[debug_handler]
-pub async fn download_handler(
+pub async fn download_version_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path((package, version)): Path<(String, String)>,
+    Path((project, version, file)): Path<(String, String, String)>,
     State(state): State<AppState>,
 ) -> Result<Vec<u8>> {
     let mut conn = state.pool.get().await?;
-    let pkg = get_full_package(package, &mut conn).await?;
+    let pkg = get_full_project(project, &mut conn).await?;
 
-    if pkg.visibility == PackageVisibility::Private {
+    if pkg.visibility == ProjectVisibility::Private {
         match get_user_from_req(&jar, &headers, &mut conn).await {
             Ok(user) => {
                 if !pkg.authors.iter().any(|v| v.github_id == user.github_id) && !user.admin {
@@ -225,33 +213,34 @@ pub async fn download_handler(
     }
 
     let ver = get_version(pkg.id, version, &mut conn).await?;
+    let file = get_version_file(ver.id, file, &mut conn).await?;
 
-    update(packages::table)
-        .filter(packages::id.eq(pkg.id))
+    update(projects::table)
+        .filter(projects::id.eq(pkg.id))
         .set((
-            packages::downloads.eq(pkg.downloads + 1),
-            packages::updated_at.eq(pkg.updated_at),
+            projects::downloads.eq(pkg.downloads + 1),
+            projects::updated_at.eq(pkg.updated_at),
         ))
-        .returning(Package::as_returning())
+        .returning(Project::as_returning())
         .get_result(&mut conn)
         .await?;
 
-    let ver = update(package_versions::table)
-        .filter(package_versions::id.eq(ver.id))
+    update(project_versions::table)
+        .filter(project_versions::id.eq(ver.id))
         .set((
-            package_versions::downloads.eq(ver.downloads + 1),
-            package_versions::updated_at.eq(ver.updated_at),
+            project_versions::downloads.eq(ver.downloads + 1),
+            project_versions::updated_at.eq(ver.updated_at),
         ))
-        .returning(PackageVersion::as_returning())
+        .returning(ProjectVersion::as_returning())
         .get_result(&mut conn)
         .await?;
 
-    state.search.update_package(pkg.id, &mut conn).await?;
+    state.search.update_project(pkg.id, &mut conn).await?;
 
     let bytes = state
         .buckets
-        .packages
-        .get_object(format!("/{}.tgz", ver.file_id))
+        .projects
+        .get_object(format!("/{}", file.s3_id))
         .await?
         .into_bytes()
         .to_vec();
@@ -259,27 +248,27 @@ pub async fn download_handler(
     Ok(bytes)
 }
 
-/// Upload Package Version
+/// Upload Project Version
 ///
-/// Upload a new package version
+/// Upload a new project version
 #[utoipa::path(
     put,
-    path = "/api/v1/packages/{id}/versions",
+    path = "/api/v1/projects/{id}/versions",
     tag = "Versions",
     responses(
-        (status = 200, description = "Created package version!", body = PackageVersion),
+        (status = 200, description = "Created project version!", body = ProjectVersion),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this version is for."),
+        ("id" = String, Path, description = "The project that this version is for."),
     ),
-    request_body(content = PackageVersionInit, description = "The version data"),
+    request_body(content = ProjectVersionInit, description = "The version data"),
     security(
         ("api_auth_token" = []),
     ),
 )]
 #[debug_handler]
-pub async fn create_handler(
+pub async fn create_version_handler(
     jar: CookieJar,
     headers: HeaderMap,
     Path(id): Path<String>,
@@ -288,11 +277,11 @@ pub async fn create_handler(
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
-    let pkg = get_package(id, &mut conn).await?;
+    let pkg = get_project(id, &mut conn).await?;
 
-    let authors = package_authors::table
-        .filter(package_authors::package.eq(pkg.id))
-        .select(PackageAuthor::as_select())
+    let authors = project_authors::table
+        .filter(project_authors::project.eq(pkg.id))
+        .select(ProjectAuthor::as_select())
         .load(&mut conn)
         .await?;
 
@@ -308,6 +297,7 @@ pub async fn create_handler(
     let mut loaders = None;
     let mut game_versions = None;
     let mut file = None;
+    let mut file_name = None;
 
     while let Ok(Some(field)) = data.next_field().await {
         match field
@@ -338,6 +328,7 @@ pub async fn create_handler(
                 )
             }
             "file" => file = Some(field.bytes().await?),
+            "file_name" => file_name = Some(field.text().await?),
             _ => {}
         }
     }
@@ -362,16 +353,21 @@ pub async fn create_handler(
         Err(anyhow!("Missing field: 'file'"))?;
     }
 
+    if file_name.is_none() {
+        Err(anyhow!("Missing field: 'file_name'"))?;
+    }
+
     let name = name.unwrap();
     let version_number = version_number.unwrap();
     let loaders = loaders.unwrap();
     let game_versions = game_versions.unwrap();
     let file = file.unwrap();
+    let file_name = file_name.unwrap();
 
     Version::parse(&version_number)?;
 
     if !(state.verifier)(file.clone()) {
-        Err(anyhow!("Invalid package!"))?;
+        Err(anyhow!("Invalid project!"))?;
     }
 
     let mut hasher = Sha1::new();
@@ -379,82 +375,94 @@ pub async fn create_handler(
     hasher.update(&file);
 
     let file_id = format!("{:x}", hasher.finalize());
-    let file_name = format!("{}", file_id);
 
     state
         .buckets
-        .packages
-        .put_object(format!("/{}", file_name), &file)
+        .projects
+        .put_object(format!("/{}", file_id), &file)
         .await?;
 
-    let data = NewPackageVersion {
-        package: pkg.id,
+    let data = NewProjectVersion {
+        project: pkg.id,
         name,
         version_number,
-        file_id,
         changelog,
         loaders,
         game_versions,
         downloads: 0,
     };
 
-    update(packages::table)
-        .filter(packages::id.eq(pkg.id))
-        .set(packages::updated_at.eq(Utc::now().naive_utc()))
-        .returning(Package::as_returning())
+    update(projects::table)
+        .filter(projects::id.eq(pkg.id))
+        .set(projects::updated_at.eq(Utc::now().naive_utc()))
+        .returning(Project::as_returning())
         .get_result(&mut conn)
         .await
         .unwrap();
 
-    let ver = insert_into(package_versions::table)
+    let ver = insert_into(project_versions::table)
         .values(&data)
-        .returning(PackageVersion::as_returning())
+        .returning(ProjectVersion::as_returning())
         .get_result(&mut conn)
         .await?;
 
-    state.search.update_package(pkg.id, &mut conn).await?;
+    let file = NewProjectFile {
+        file_name,
+        sha1: file_id.clone(),
+        s3_id: file_id,
+        version_id: ver.id,
+        size: file.len() as i64,
+    };
+
+    insert_into(version_files::table)
+        .values(&file)
+        .returning(ProjectFile::as_returning())
+        .get_result(&mut conn)
+        .await?;
+
+    state.search.update_project(pkg.id, &mut conn).await?;
 
     Ok(Response::builder()
         .header("Content-Type", "application/json")
         .body(Body::new(serde_json::to_string(&ver)?))?)
 }
 
-/// Update Package Version
+/// Update Project Version
 ///
-/// Update information about package version
+/// Update information about project version
 #[utoipa::path(
     patch,
-    path = "/api/v1/packages/{id}/versions/{version}",
+    path = "/api/v1/projects/{id}/versions/{version}",
     tag = "Versions",
     responses(
-        (status = 200, description = "Updated package version!", body = PackageVersion),
+        (status = 200, description = "Updated project version!", body = ProjectVersion),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this version is for."),
+        ("id" = String, Path, description = "The project that this version is for."),
         ("version" = String, Path, description = "The version ID/name/number."),
     ),
-    request_body(content = PartialPackageVersion, description = "The information to update"),
+    request_body(content = PartialProjectVersion, description = "The information to update"),
     security(
         ("api_auth_token" = []),
     ),
 )]
 #[debug_handler]
-pub async fn update_handler(
+pub async fn update_version_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path((package, version)): Path<(String, String)>,
+    Path((project, version)): Path<(String, String)>,
     State(state): State<AppState>,
-    Json(data): Json<PartialPackageVersion>,
+    Json(data): Json<PartialProjectVersion>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
-    let pkg = get_package(package, &mut conn).await?;
+    let pkg = get_project(project, &mut conn).await?;
     let ver = get_version(pkg.id, version, &mut conn).await?;
 
-    let authors = package_authors::table
-        .filter(package_authors::package.eq(pkg.id))
-        .select(PackageAuthor::as_select())
+    let authors = project_authors::table
+        .filter(project_authors::project.eq(pkg.id))
+        .select(ProjectAuthor::as_select())
         .load(&mut conn)
         .await?;
 
@@ -468,47 +476,47 @@ pub async fn update_handler(
         Version::parse(ver_num)?;
     }
 
-    let ver = update(package_versions::table)
-        .filter(package_versions::id.eq(ver.id))
+    let ver = update(project_versions::table)
+        .filter(project_versions::id.eq(ver.id))
         .set((
-            package_versions::name.eq(data.name.unwrap_or(ver.name)),
-            package_versions::version_number.eq(data.version_number.unwrap_or(ver.version_number)),
-            package_versions::changelog
+            project_versions::name.eq(data.name.unwrap_or(ver.name)),
+            project_versions::version_number.eq(data.version_number.unwrap_or(ver.version_number)),
+            project_versions::changelog
                 .eq(data.changelog.map(|v| Some(v)).unwrap_or(ver.changelog)),
-            package_versions::loaders.eq(data
+            project_versions::loaders.eq(data
                 .loaders
                 .map(|v| v.iter().map(|v| Some(v.clone())).collect::<Vec<_>>())
                 .unwrap_or(ver.loaders)),
-            package_versions::game_versions.eq(data
+            project_versions::game_versions.eq(data
                 .game_versions
                 .map(|v| v.iter().map(|v| Some(v.clone())).collect::<Vec<_>>())
                 .unwrap_or(ver.game_versions)),
-            package_versions::updated_at.eq(Utc::now().naive_utc()),
+            project_versions::updated_at.eq(Utc::now().naive_utc()),
         ))
-        .returning(PackageVersion::as_select())
+        .returning(ProjectVersion::as_select())
         .get_result(&mut conn)
         .await?;
 
-    state.search.update_package(pkg.id, &mut conn).await?;
+    state.search.update_project(pkg.id, &mut conn).await?;
 
     Ok(Response::builder()
         .header("Content-Type", "application/json")
         .body(Body::new(serde_json::to_string(&ver)?))?)
 }
 
-/// Delete Package Version
+/// Delete Project Version
 ///
-/// Delete a package version
+/// Delete a project version
 #[utoipa::path(
     delete,
-    path = "/api/v1/packages/{id}/versions/{version}",
+    path = "/api/v1/projects/{id}/versions/{version}",
     tag = "Versions",
     responses(
-        (status = 200, description = "Deleted package version!", body = String),
+        (status = 200, description = "Deleted project version!", body = String),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     params(
-        ("id" = String, Path, description = "The package that this version is for."),
+        ("id" = String, Path, description = "The project that this version is for."),
         ("version" = String, Path, description = "The version ID/name/number."),
     ),
     security(
@@ -516,20 +524,20 @@ pub async fn update_handler(
     ),
 )]
 #[debug_handler]
-pub async fn delete_handler(
+pub async fn delete_version_handler(
     jar: CookieJar,
     headers: HeaderMap,
-    Path((package, version)): Path<(String, String)>,
+    Path((project, version)): Path<(String, String)>,
     State(state): State<AppState>,
 ) -> Result<Response> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
-    let pkg = get_package(package, &mut conn).await?;
-    let ver = get_version(pkg.id, version, &mut conn).await?;
+    let pkg = get_project(project, &mut conn).await?;
+    let ver = get_full_version(pkg.id, version, &mut conn).await?;
 
-    let authors = package_authors::table
-        .filter(package_authors::package.eq(pkg.id))
-        .select(PackageAuthor::as_select())
+    let authors = project_authors::table
+        .filter(project_authors::project.eq(pkg.id))
+        .select(ProjectAuthor::as_select())
         .load(&mut conn)
         .await?;
 
@@ -539,28 +547,30 @@ pub async fn delete_handler(
             .body(Body::empty())?);
     }
 
-    let all_referencing = package_versions::table
-        .filter(package_versions::file_id.eq(ver.file_id.clone()))
-        .select(PackageVersion::as_select())
-        .load(&mut conn)
-        .await?;
-
-    if all_referencing.len() <= 1 {
-        state
-            .buckets
-            .packages
-            .delete_object(format!("/{}", ver.file_id))
+    for file in ver.files {
+        let all_referencing = version_files::table
+            .filter(version_files::s3_id.eq(file.s3_id.clone()))
+            .select(ProjectFile::as_select())
+            .load(&mut conn)
             .await?;
+
+        if all_referencing.len() <= 1 {
+            state
+                .buckets
+                .projects
+                .delete_object(format!("/{}", file.s3_id))
+                .await?;
+        }
     }
 
-    delete(package_versions::table)
-        .filter(package_versions::id.eq(ver.id))
+    delete(project_versions::table)
+        .filter(project_versions::id.eq(ver.id))
         .execute(&mut conn)
         .await?;
 
-    state.search.update_package(pkg.id, &mut conn).await?;
+    state.search.update_project(pkg.id, &mut conn).await?;
 
     Ok(Response::builder().body(Body::new(
-        "Deleted package version successfully!".to_string(),
+        "Deleted project version successfully!".to_string(),
     ))?)
 }

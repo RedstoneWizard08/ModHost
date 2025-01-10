@@ -2,21 +2,21 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { getPackageGallery } from "$api";
-    import { currentPackage } from "$lib/stores";
-    import type { PublicGalleryImage } from "$lib/types/gallery";
+    import { currentProject } from "$lib/state";
+    import { client } from "$lib/api";
+    import { unwrapOrNull, type GalleryImage as GalleryImageInfo } from "@modhost/api";
     import GalleryImage from "$components/ui/GalleryImage.svelte";
 
     const id = $derived($page.params.id);
 
-    let images: PublicGalleryImage[] = $state([]);
+    let images: GalleryImageInfo[] = $state([]);
 
     const sortedImages = $derived([...images].sort((a, b) => a.ordering - b.ordering).reverse());
 
     onMount(async () => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        images = (await getPackageGallery(id)) ?? [];
+        images = unwrapOrNull(await client.project(id).gallery().list()) ?? [];
     });
 </script>
 

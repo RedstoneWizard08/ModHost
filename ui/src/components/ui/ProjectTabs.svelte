@@ -26,7 +26,7 @@
             <div class="grid">
                 {#if tab.routes.includes($page.route.id ?? "")}
                     <span
-                        class="col-start-1 row-start-1 rounded-full bg-primary-800 transition-all"
+                        class="bg-primary-800 col-start-1 row-start-1 rounded-full transition-all"
                         in:send={{ key: "activetab" }}
                         out:receive={{ key: "activetab" }}
                     ></span>

@@ -13,9 +13,6 @@ extern crate axum;
 #[macro_use]
 extern crate utoipa;
 
-#[macro_use]
-extern crate lazy_static;
-
 pub mod api;
 pub mod auth;
 pub mod bun;

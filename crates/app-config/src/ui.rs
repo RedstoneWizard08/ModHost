@@ -17,9 +17,9 @@ pub struct UIConfig {
     /// Defaults to `true`
     pub show_beta: bool,
 
-    /// The type of package to use in translations (Mods or Packages).
-    /// Defaults to [`PackageKind::Mods`]
-    pub package_kind: PackageKind,
+    /// The type of projects to use in translations (Mods or Packages).
+    /// Defaults to [`ProjectKind::Mods`]
+    pub project_kind: ProjectKind,
 
     /// The default theme to apply if the user hasn't changed it.
     /// Defaults to `"modhost"`
@@ -27,7 +27,7 @@ pub struct UIConfig {
 
     /// The file extensions the frontend allows you to upload.
     /// Defaults to `[".pak", ".jar", ".zip", ".tgz", ".tar.gz"]`
-    pub package_file_formats: Vec<String>,
+    pub project_file_formats: Vec<String>,
 
     /// The name for game beta versions (Beta or Snapshot).
     /// Defaults to [`BetaName::Beta`]
@@ -56,11 +56,11 @@ pub struct UIConfig {
     pub badge_secondary: String,
 }
 
-/// The type of package to use in translations (Mods or Packages).
+/// The type of project to use in translations (Mods or Packages).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
-pub enum PackageKind {
+pub enum ProjectKind {
     /// Will show "mod" instead of "packages", etc.
     #[default]
     Mods,
@@ -82,7 +82,7 @@ pub enum BetaName {
     Snapshot,
 }
 
-impl PackageKind {
+impl ProjectKind {
     /// Get the string form for translations.
     pub fn stringify(&self) -> &'static str {
         match self {
@@ -113,14 +113,14 @@ impl UIConfig {
 
         map.insert(
             "PUBLIC_PKG_TYPE".into(),
-            self.package_kind.stringify().into(),
+            self.project_kind.stringify().into(),
         );
 
         map.insert("PUBLIC_DEFAULT_THEME".into(), self.default_theme.clone());
 
         map.insert(
             "PUBLIC_PKG_FILE_FORMATS".into(),
-            self.package_file_formats.join(","),
+            self.project_file_formats.join(","),
         );
 
         map.insert(
@@ -140,9 +140,9 @@ impl Default for UIConfig {
             app: "ModHost".into(),
             tagline: "Your home for game mods".into(),
             show_beta: true,
-            package_kind: PackageKind::Mods,
+            project_kind: ProjectKind::Mods,
             default_theme: "modhost".into(),
-            package_file_formats: vec![
+            project_file_formats: vec![
                 ".pak".into(),
                 ".jar".into(),
                 ".zip".into(),

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { PublicGalleryImage } from "$lib/types/gallery";
+    import type { GalleryImage } from "@modhost/api";
     import { getModalStore } from "@skeletonlabs/skeleton";
 
-    const { img }: { img: PublicGalleryImage } = $props();
+    const { img }: { img: GalleryImage } = $props();
     const modals = getModalStore();
 
     const openViewModal = () => {
@@ -17,7 +17,7 @@
 <button
     type="button"
     onclick={openViewModal}
-    class="card flex h-full w-full cursor-pointer flex-col items-center justify-start gap-y-4 p-2 transition-all hover:variant-soft-primary"
+    class="card hover:variant-soft-primary flex h-full w-full cursor-pointer flex-col items-center justify-start gap-y-4 p-2 transition-all"
 >
     <p class="w-[90%] overflow-clip text-ellipsis text-left text-lg font-bold">{img.name}</p>
 

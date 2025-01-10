@@ -1,10 +1,6 @@
 <script lang="ts">
-    import { _ } from "svelte-i18n";
-    import { base } from "$app/paths";
-    import { page } from "$app/stores";
-    import { formatDate } from "$lib/utils";
-    import type { SearchResults } from "$lib/types/search";
     import PackageCard from "./PackageCard.svelte";
+    import type { SearchResults } from "@modhost/api";
 
     interface Props {
         customHeight?: number;

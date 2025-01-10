@@ -18,7 +18,7 @@
                 <img
                     src="/favicon.png"
                     alt="logo"
-                    class="aspect-square w-8 min-w-8 rounded-token"
+                    class="rounded-token aspect-square w-8 min-w-8"
                 />
 
                 <span>{siteConfig.siteName}</span>
@@ -31,7 +31,7 @@
             <div class="mt-4 flex flex-col space-y-4">
                 <a
                     href="/"
-                    class="btn-primary transition-duration-300 variant-soft-primary btn mr-4 flex flex-row items-center justify-start outline-none transition-all hover:variant-filled-secondary"
+                    class="btn-primary transition-duration-300 variant-soft-primary btn hover:variant-filled-secondary mr-4 flex flex-row items-center justify-start outline-none transition-all"
                     onclick={closeDrawer}
                 >
                     <Icon icon="tabler:home" height="24" />
@@ -40,7 +40,7 @@
 
                 <a
                     href="/s"
-                    class="btn-primary transition-duration-300 variant-soft-primary btn mr-4 flex flex-row items-center justify-start outline-none transition-all hover:variant-filled-secondary"
+                    class="btn-primary transition-duration-300 variant-soft-primary btn hover:variant-filled-secondary mr-4 flex flex-row items-center justify-start outline-none transition-all"
                     onclick={closeDrawer}
                 >
                     <Icon icon="tabler:search" height="24" />

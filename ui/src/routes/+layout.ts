@@ -2,7 +2,7 @@ import "$lib/i18n";
 import { browser } from "$app/environment";
 import { locale, waitLocale } from "svelte-i18n";
 import type { LayoutLoad } from "./$types";
-import { userPreferencesStore } from "$lib/stores";
+import { userPreferencesStore } from "$lib/user";
 import { get } from "svelte/store";
 
 export const load: LayoutLoad = async () => {

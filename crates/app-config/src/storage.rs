@@ -18,11 +18,11 @@ pub struct StorageConfig {
     /// The S3 secret key.
     pub s3_secret_key: String,
 
-    /// The bucket name for packages.
-    /// Defaults to `"packages"`
-    pub packages_bucket: String,
+    /// The bucket name for projects.
+    /// Defaults to `"projects"`
+    pub projects_bucket: String,
 
-    /// The bucket name for package galleries.
+    /// The bucket name for project galleries.
     /// Defaults to `"gallery"`
     pub gallery_bucket: String,
 }
@@ -34,7 +34,7 @@ impl Default for StorageConfig {
             s3_endpoint: String::new(),
             s3_access_key: String::new(),
             s3_secret_key: String::new(),
-            packages_bucket: "packages".into(),
+            projects_bucket: "projects".into(),
             gallery_bucket: "gallery".into(),
         }
     }
@@ -60,15 +60,15 @@ impl StorageConfig {
         }
     }
 
-    /// Get the S3 [`Bucket`] for packages.
-    pub fn packages(&self) -> Result<Box<Bucket>> {
+    /// Get the S3 [`Bucket`] for projects.
+    pub fn projects(&self) -> Result<Box<Bucket>> {
         Ok(
-            Bucket::new(&self.packages_bucket, self.region(), self.credentials()?)?
+            Bucket::new(&self.projects_bucket, self.region(), self.credentials()?)?
                 .with_path_style(),
         )
     }
 
-    /// Get the S3 [`Bucket`] for package galleries.
+    /// Get the S3 [`Bucket`] for project galleries.
     pub fn gallery(&self) -> Result<Box<Bucket>> {
         Ok(
             Bucket::new(&self.gallery_bucket, self.region(), self.credentials()?)?

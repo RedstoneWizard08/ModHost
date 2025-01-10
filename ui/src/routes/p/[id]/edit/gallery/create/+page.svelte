@@ -2,13 +2,14 @@
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
     import { onMount } from "svelte";
-    import { createGalleryImage, getPackage } from "$api";
-    import { currentPackage, editSaving } from "$lib/stores";
+    import { currentProject, editSaving } from "$lib/state";
     import Icon from "@iconify/svelte";
     import { FileDropzone, getToastStore, popup, type PopupSettings } from "@skeletonlabs/skeleton";
     import { Carta, MarkdownEditor } from "carta-md";
     import { goto } from "$app/navigation";
-    import { formatBytes } from "$lib/utils";
+    import { formatBytes } from "$lib/util";
+    import { client } from "$lib/api";
+    import { unwrap } from "@modhost/api";
 
     const id = $derived($page.params.id);
     const editor = new Carta();
@@ -35,10 +36,6 @@
         }
     };
 
-    onMount(async () => {
-        if (!$currentPackage) return;
-    });
-
     const save = async () => {
         if (files.length < 1) {
             toasts.trigger({
@@ -53,15 +50,15 @@
 
         $editSaving = true;
 
-        const res = await createGalleryImage(
-            id,
-            {
+        const res = await client
+            .project(id)
+            .gallery()
+            .upload({
                 name,
                 description: description == "" ? undefined : description,
                 ordering,
-            },
-            files[0],
-        );
+                file: files[0],
+            });
 
         if (!res) {
             toasts.trigger({
@@ -75,7 +72,7 @@
             return;
         }
 
-        $currentPackage = await getPackage(id);
+        $currentProject = unwrap(await client.project(id).get());
         $editSaving = false;
 
         goto(`/p/${id}/edit/gallery`);
@@ -88,13 +85,13 @@
     };
 </script>
 
-<p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+<p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
     <Icon icon="tabler:upload" height="24" class="mr-2" />
     Upload Image
 </p>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:label" height="24" class="mr-2" />
         Name
     </p>
@@ -104,7 +101,7 @@
 
 <div class="card variant-glass-surface w-full p-4">
     <div class="flex w-full flex-row items-center justify-between">
-        <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+        <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:arrows-sort" height="24" class="mr-2" />
             Ordering
         </p>
@@ -113,11 +110,11 @@
             <Icon
                 icon="tabler:info-circle"
                 height="24"
-                class="pointer-events-none mr-2 text-success-500"
+                class="text-success-500 pointer-events-none mr-2"
             />
         </div>
 
-        <div class="z-20 rounded-lg bg-secondary-700 p-4" data-popup="orderingInfoPopup">
+        <div class="bg-secondary-700 z-20 rounded-lg p-4" data-popup="orderingInfoPopup">
             A higher number will be displayed first, and a lower number last.
         </div>
     </div>
@@ -126,7 +123,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:file-description" height="24" class="mr-2" />
         Edit Description (Optional)
     </p>
@@ -135,7 +132,7 @@
 </div>
 
 <div class="card variant-glass-surface w-full p-4">
-    <p class="mb-2 flex flex-row items-center justify-start text-primary-500">
+    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
         <Icon icon="tabler:upload" height="24" class="mr-2" />
         Upload Image
     </p>
@@ -171,7 +168,7 @@
 <div class="flex flex-row items-center justify-start gap-2">
     <button
         type="button"
-        class="variant-filled-primary btn mt-2 flex flex-row items-center justify-center rounded-lg transition-all hover:variant-ghost-primary hover:text-token"
+        class="variant-filled-primary btn hover:variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
         onclick={save}
     >
         <Icon icon="tabler:upload" height="24" class="mr-2" />
@@ -180,7 +177,7 @@
 
     <a
         href="/p/{id}/edit/gallery"
-        class="variant-filled-secondary btn mt-2 flex flex-row items-center justify-center rounded-lg transition-all hover:variant-ghost-secondary"
+        class="variant-filled-secondary btn hover:variant-ghost-secondary mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
     >
         <Icon icon="tabler:arrow-left" height="24" class="mr-2" />
         Back

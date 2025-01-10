@@ -21,7 +21,7 @@ app: ModHost.AppConfig = new {
         key = "change me!"
 
         indexes {
-            packages = "packages"
+            projects = "projects"
         }
     }
 
@@ -41,7 +41,7 @@ app: ModHost.AppConfig = new {
         }
 
         buckets {
-            packages = "packages"
+            projects = "projects"
             gallery = "gallery"
         }
     }
@@ -64,7 +64,7 @@ app: ModHost.AppConfig = new {
             beta_name = "Beta"
         }
 
-        packages {
+        projects {
             kind = "Mods"
 
             file_formats = List(

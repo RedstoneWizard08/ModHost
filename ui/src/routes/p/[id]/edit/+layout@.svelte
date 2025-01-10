@@ -2,18 +2,20 @@
     import EditContainer from "$components/ui/edit/EditContainer.svelte";
     import { onMount, type Snippet } from "svelte";
     import { page } from "$app/stores";
-    import { currentPackage, editLoadingState, user } from "$lib/stores";
-    import { getPackage } from "$api";
+    import { currentProject, editLoadingState } from "$lib/state";
     import { beforeNavigate, goto } from "$app/navigation";
     import { editRoutes } from "$lib/routes";
+    import { client } from "$lib/api";
+    import { unwrapOrNull } from "@modhost/api";
+    import { user } from "$lib/user";
 
     const id = $derived($page.params.id);
-    const ok = $derived(!!$currentPackage?.authors.find((v) => v.id == $user?.id) || $user?.admin);
+    const ok = $derived(!!$currentProject?.authors.find((v) => v.id == $user?.id) || $user?.admin);
 
     onMount(async () => {
-        $currentPackage = await getPackage(id);
+        $currentProject = unwrapOrNull(await client.project(id).get());
 
-        if ($currentPackage) {
+        if ($currentProject) {
             $editLoadingState = "ready";
         } else {
             $editLoadingState = "failed";
@@ -28,7 +30,7 @@
 
     beforeNavigate(({ to }) => {
         if (!editRoutes.includes(to?.route.id ?? "")) {
-            $currentPackage = undefined;
+            $currentProject = null;
             $editLoadingState = "loading";
         }
     });

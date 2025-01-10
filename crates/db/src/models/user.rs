@@ -35,6 +35,9 @@ pub struct User {
 
     /// Are they an admin?
     pub admin: bool,
+
+    /// Are they a moderator?
+    pub moderator: bool,
 }
 
 /// A model for creating a new user in the database.

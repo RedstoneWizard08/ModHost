@@ -15,7 +15,7 @@ use app_config::{get_config, AppConfig};
 use axum::{body::Bytes, extract::connect_info::IntoMakeServiceWithConnectInfo, serve, Router};
 use db::{create_connection, run_migrations, DbPool};
 use jsglue::{glue::Glue, util::is_debug};
-use search::MeiliPackage;
+use search::MeiliProject;
 use std::net::{IpAddr, SocketAddr};
 use tokio::{join, net::TcpListener};
 
@@ -62,10 +62,10 @@ impl ModHost {
         run_migrations(&pool).await?;
         state.search.ensure_setup().await?;
 
-        let index = state.search.packages();
+        let index = state.search.projects();
 
-        if index.get_documents::<MeiliPackage>().await?.total == 0 {
-            state.search.index_packages(&mut pool.get().await?).await?;
+        if index.get_documents::<MeiliProject>().await?.total == 0 {
+            state.search.index_projects(&mut pool.get().await?).await?;
         }
 
         info!("Creating glue...");

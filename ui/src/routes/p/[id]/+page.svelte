@@ -1,16 +1,15 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
-    import { markdown } from "$lib/utils";
-    import { fly } from "svelte/transition";
+    import { markdown } from "$lib/util";
     import { onMount } from "svelte";
-    import { currentPackage } from "$lib/stores";
+    import { currentProject } from "$lib/state";
 
     let readme = $state("");
 
     onMount(async () => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        readme = $currentPackage.readme;
+        readme = $currentProject.readme;
     });
 </script>
 

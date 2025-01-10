@@ -1,0 +1,11 @@
+ALTER TABLE package_versions DROP COLUMN IF EXISTS file_id;
+
+CREATE TABLE IF NOT EXISTS version_files (
+    id SERIAL PRIMARY KEY,
+    file_name TEXT NOT NULL,
+    sha1 TEXT NOT NULL,
+    s3_id TEXT NOT NULL,
+    size BIGINT NOT NULL,
+    version_id INTEGER NOT NULL REFERENCES package_versions(id) ON DELETE CASCADE,
+    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

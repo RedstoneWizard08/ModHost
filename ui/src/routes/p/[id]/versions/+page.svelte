@@ -1,16 +1,16 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
     import { page } from "$app/stores";
-    import type { PackageVersion } from "$lib/types";
     import { fly } from "svelte/transition";
     import { onMount } from "svelte";
-    import { getPackageVersions } from "$api";
     import Version from "$components/ui/Version.svelte";
-    import { currentPackage } from "$lib/stores";
+    import { currentProject } from "$lib/state";
+    import { unwrapOrNull, type ProjectVersion } from "@modhost/api";
+    import { client } from "$lib/api";
 
     const id = $derived($page.params.id);
 
-    let versions: PackageVersion[] = $state([]);
+    let versions: ProjectVersion[] = $state([]);
 
     const sortedVersions = $derived(
         [...versions]
@@ -19,9 +19,9 @@
     );
 
     onMount(async () => {
-        if (!$currentPackage) return;
+        if (!$currentProject) return;
 
-        versions = (await getPackageVersions(id)) ?? [];
+        versions = unwrapOrNull(await client.project(id).versions().list()) ?? [];
     });
 </script>
 
@@ -32,7 +32,7 @@
         <dd class="flex w-full gap-1">
             <dl class="list-dl w-full">
                 {#each sortedVersions as version}
-                    <Version {version} pkg={$currentPackage!.slug} />
+                    <Version {version} pkg={$currentProject!.slug} />
                 {/each}
             </dl>
         </dd>

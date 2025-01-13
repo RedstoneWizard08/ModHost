@@ -2029,6 +2029,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "kjspkg-migrator"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "diesel",
+ "diesel-async",
+ "http-body-util",
+ "indicatif",
+ "itertools",
+ "lenient_semver",
+ "modhost",
+ "modhost-config",
+ "modhost-db",
+ "modhost-search",
+ "octocrab",
+ "reqwest 0.12.12",
+ "ron",
+ "rust-s3",
+ "semver",
+ "serde",
+ "serde-this-or-that",
+ "serde_json",
+ "sha-1",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

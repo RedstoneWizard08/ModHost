@@ -1,0 +1,58 @@
+[package]
+name = "modhost-core"
+version = "0.1.0"
+description = "A common core module for ModHost."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme.workspace = true
+
+[features]
+anyhow = ["dep:anyhow"]
+axum = ["dep:axum"]
+chrono = ["dep:chrono"]
+config = ["dep:config"]
+diesel = ["dep:diesel"]
+diesel-async = ["dep:diesel-async"]
+dotenvy = ["dep:dotenvy"]
+glue = ["dep:jsglue"]
+logging = ["dep:tracing-subscriber", "dep:log"]
+meilisearch = ["dep:meilisearch-sdk"]
+octocrab = ["dep:octocrab"]
+reqwest = ["dep:reqwest"]
+s3 = ["dep:rust-s3"]
+semver = ["dep:semver"]
+serde-json = ["dep:serde_json"]
+serde-yaml = ["dep:serde_yaml"]
+tempfile = ["dep:tempfile"]
+tokio = ["dep:tokio"]
+toml = ["dep:toml"]
+url = ["dep:url"]
+zip = ["dep:zip"]
+
+[dependencies]
+anyhow = { workspace = true, optional = true }
+axum = { workspace = true, optional = true }
+chrono = { workspace = true, optional = true }
+config = { workspace = true, optional = true }
+diesel = { workspace = true, optional = true }
+diesel-async = { workspace = true, optional = true }
+dotenvy = { workspace = true, optional = true }
+jsglue = { workspace = true, optional = true }
+log = { workspace = true, optional = true }
+meilisearch-sdk = { workspace = true, optional = true }
+octocrab = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+rust-s3 = { workspace = true, optional = true }
+semver = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+serde_yaml = { workspace = true, optional = true }
+tempfile = { workspace = true, optional = true }
+thiserror.workspace = true
+tokio = { workspace = true, features = [], optional = true }
+tracing-subscriber = { workspace = true, optional = true }
+toml = { workspace = true, optional = true }
+url = { workspace = true, optional = true }
+zip = { workspace = true, optional = true }

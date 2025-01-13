@@ -1,0 +1,20 @@
+[package]
+name = "modhost-ui"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme.workspace = true
+
+[dependencies]
+ctrlc.workspace = true
+include_dir.workspace = true
+modhost-core.workspace = true
+modhost-config.workspace = true
+reqwest.workspace = true
+tempfile.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+zip.workspace = true

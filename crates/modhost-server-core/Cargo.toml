@@ -1,0 +1,30 @@
+[package]
+name = "modhost-server-core"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme.workspace = true
+
+[dependencies]
+axum.workspace = true
+base64.workspace = true
+chrono.workspace = true
+diesel.workspace = true
+diesel-async.workspace = true
+jsglue.workspace = true
+modhost-core.workspace = true
+modhost-config.workspace = true
+modhost-db.workspace = true
+modhost-search.workspace = true
+modhost-ui.workspace = true
+oauth2.workspace = true
+octocrab.workspace = true
+reqwest.workspace = true
+rust-s3.workspace = true
+serde.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+utoipa.workspace = true

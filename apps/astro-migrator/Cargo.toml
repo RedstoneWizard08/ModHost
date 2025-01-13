@@ -10,19 +10,19 @@ readme.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-app-config.workspace = true
 chrono.workspace = true
-db.workspace = true
 diesel.workspace = true
 diesel-async.workspace = true
 indicatif.workspace = true
 itertools.workspace = true
 lenient_semver.workspace = true
 modhost.workspace = true
+modhost-config.workspace = true
+modhost-db.workspace = true
+modhost-search.workspace = true
 reqwest.workspace = true
 ron.workspace = true
 rust-s3.workspace = true
-search.workspace = true
 semver.workspace = true
 serde.workspace = true
 serde_json.workspace = true

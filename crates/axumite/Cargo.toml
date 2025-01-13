@@ -10,13 +10,12 @@ authors.workspace = true
 
 [dependencies]
 axum-core.workspace = true
+bytes.workspace = true
+base64.workspace = true
 futures-util.workspace = true
 http.workspace = true
 hyper-util.workspace = true
 hyper.workspace = true
-tokio-tungstenite.workspace = true
-async-trait.workspace = true
 sha-1.workspace = true
-bytes.workspace = true
-base64.workspace = true
 tokio.workspace = true
+tokio-tungstenite.workspace = true

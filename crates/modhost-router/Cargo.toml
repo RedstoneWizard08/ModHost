@@ -1,0 +1,37 @@
+[package]
+name = "modhost-router"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+axum-extra.workspace = true
+chrono.workspace = true
+diesel.workspace = true
+diesel-async.workspace = true
+imghdr.workspace = true
+jsglue.workspace = true
+modhost-auth.workspace = true
+modhost-core = { workspace = true, features = ["octocrab", "semver", "serde-json", "serde-yaml"] }
+modhost-db.workspace = true
+modhost-db-util.workspace = true
+modhost-middleware.workspace = true
+modhost-search.workspace = true
+modhost-server-core.workspace = true
+oauth2.workspace = true
+semver.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha-1.workspace = true
+url.workspace = true
+utoipa.workspace = true
+utoipa-rapidoc.workspace = true
+utoipa-redoc.workspace = true
+utoipa-scalar.workspace = true
+utoipa-swagger-ui.workspace = true

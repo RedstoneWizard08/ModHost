@@ -2,7 +2,7 @@ use axum::body::Bytes;
 use clap::{Command, CommandFactory, Parser};
 use clap_complete::{generate, Generator, Shell};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
-use db::ProjectManifest;
+use modhost_db::ProjectManifest;
 use flate2::read::GzDecoder;
 use modhost::{from_log_level, init_logger, loaders, GameVersion, ModHost, Result};
 use serde::{Deserialize, Serialize};

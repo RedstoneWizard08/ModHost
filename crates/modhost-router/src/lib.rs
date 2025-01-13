@@ -1,0 +1,34 @@
+#![warn(missing_docs)]
+//! ModHost's routes & handlers.
+
+#[macro_use]
+extern crate axum;
+
+#[macro_use]
+extern crate serde;
+
+#[macro_use]
+extern crate utoipa;
+
+pub mod api;
+pub mod auth;
+pub mod meta;
+pub mod openapi;
+pub mod pkg;
+pub mod users;
+
+use axum::{middleware::from_fn, Router};
+use jsglue::{glue::Glue, util::is_debug};
+use modhost_middleware::logger::logging_middleware;
+use modhost_server_core::state::AppState;
+
+/// Create the router for ModHost.
+pub fn create_router(state: AppState, glue: Glue) -> Router {
+    api::register(glue.register(Router::new(), is_debug()))
+        .nest("/api/v1/auth", auth::router(state.clone()))
+        .nest("/api/v1/users", users::router(state.clone()))
+        .nest("/api/v1/projects", pkg::router(state.clone()))
+        .nest("/api/v1/meta", meta::router(state.clone()))
+        .layer(from_fn(logging_middleware))
+        .with_state(state)
+}

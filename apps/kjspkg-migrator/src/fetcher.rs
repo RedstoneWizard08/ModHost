@@ -5,9 +5,9 @@ use http_body_util::BodyExt;
 use octocrab::Octocrab;
 use std::{
     collections::HashMap,
-    io::{Cursor, Read, Write},
+    io::{Cursor, Read},
 };
-use tar::{Archive, Builder as TarBuilder, Header};
+use tar::{Archive, Builder as TarBuilder};
 
 pub const PKGS_JSON: &str =
     "https://raw.githubusercontent.com/Modern-Modpacks/kjspkg/refs/heads/main/pkgs.json";
@@ -187,7 +187,6 @@ pub async fn get_package_tarball(
         .to_vec();
 
     let mut archive = Archive::new(GzDecoder::new(Cursor::new(tarball.clone())));
-    let mut out_archive = TarBuilder::new(Cursor::new(Vec::new()));
     let mut entry_iter = archive.entries()?;
 
     let dir_suffix = match dir {
@@ -203,29 +202,34 @@ pub async fn get_package_tarball(
         None => String::new(),
     };
 
-    let root_path = format!("{}-{}-{}/{}", owner, repo, commit, dir_suffix);
-
-    while let Some(Ok(mut entry)) = entry_iter.next() {
-        let path = entry.path()?.into_owned();
-
-        if path.starts_with(&root_path) {
-            let path = path.strip_prefix(&root_path)?;
-            let size = entry.size();
-            let mut bytes = Vec::new();
-            let mut header = Header::new_gnu();
-
-            entry.read_to_end(&mut bytes)?;
-            header.set_path(path)?;
-            header.set_size(size);
-            header.set_cksum();
-            out_archive.append(&header, Cursor::new(bytes))?;
-        }
-    }
-
-    let data = out_archive.into_inner()?;
+    let root_path = format!("{}-{}-{}/{}", owner, repo, &commit[0..7], dir_suffix);
     let mut gzip = GzEncoder::new(Vec::new(), Compression::default());
 
-    gzip.write_all(data.into_inner().as_slice())?;
+    {
+        let mut out_archive = TarBuilder::new(&mut gzip);
+
+        while let Some(Ok(mut entry)) = entry_iter.next() {
+            let path = entry.path()?.into_owned();
+
+            if path.starts_with(&root_path) {
+                let path = path.strip_prefix(&root_path)?;
+
+                if path.as_os_str() == "" {
+                    continue;
+                }
+
+                let size = entry.size();
+                let mut bytes = Vec::new();
+                let mut header = entry.header().clone();
+
+                entry.read_to_end(&mut bytes)?;
+                header.set_path(path)?;
+                header.set_size(size);
+                header.set_cksum();
+                out_archive.append(&header, Cursor::new(bytes))?;
+            }
+        }
+    }
 
     let tarball = gzip.finish()?;
 

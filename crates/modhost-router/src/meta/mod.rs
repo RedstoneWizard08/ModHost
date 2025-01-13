@@ -11,9 +11,9 @@ use modhost_server_core::state::AppState;
 /// Register meta-related endpoints.
 pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
-        .route("/badge/version/:version", get(badge::version_handler))
+        .route("/badge/version/{version}", get(badge::version_handler))
         .route(
-            "/badge/latest/:project",
+            "/badge/latest/{project}",
             get(badge::latest_version_badge_handler),
         )
         .route("/loaders", get(loaders::loaders_handler))

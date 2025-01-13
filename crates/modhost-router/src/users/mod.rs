@@ -11,7 +11,7 @@ use modhost_server_core::state::AppState;
 pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/me", get(me::me_handler))
-        .route("/:id", get(info::info_handler))
-        .route("/:id/projects", get(pkg::list_handler))
+        .route("/{id}", get(info::info_handler))
+        .route("/{id}/projects", get(pkg::list_handler))
         .with_state(state)
 }

@@ -139,8 +139,8 @@ pub async fn run() -> Result<()> {
             pkgs.put_object(format!("/{}", &file_id), &tarball).await?;
 
             let version = NewProjectVersion {
-                name: commit.clone(),
-                version_number: format!("0.0.0+{}", commit),
+                name: (&commit[0..7]).into(),
+                version_number: format!("0.0.0+{}", &commit[0..7]),
                 changelog: Some("Migrated from the old KJSPKG.".into()),
                 downloads: 0,
                 loaders: manifest.modloaders.into_iter().map(|v| Some(v)).collect(),
@@ -161,7 +161,7 @@ pub async fn run() -> Result<()> {
 
             let file = NewProjectFile {
                 version_id: version.id,
-                file_name: format!("{}-{}.tar.gz", id, commit),
+                file_name: format!("{}-{}.tar.gz", id, &commit[0..7]),
                 s3_id: file_id.clone(),
                 sha1: file_id,
                 size: tarball.len() as i64,

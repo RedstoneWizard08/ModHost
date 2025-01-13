@@ -1,7 +1,7 @@
 //! OpenAPI routes.
 
-use modhost_core::Result;
 use axum::{extract::Query, routing::get, Router};
+use modhost_core::Result;
 use modhost_server_core::state::AppState;
 use utoipa::OpenApi;
 use utoipa_rapidoc::RapiDoc;

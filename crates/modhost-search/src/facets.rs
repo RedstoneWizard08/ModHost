@@ -1,8 +1,8 @@
 //! The front-facing facet filter system.
 
 use anyhow::anyhow;
-use modhost_core::Result;
 use chrono::NaiveDateTime;
+use modhost_core::Result;
 use modhost_db::ProjectVisibility;
 
 /// A facet/filter.

@@ -1,8 +1,8 @@
 //! Models for Meilisearch.
 
 use chrono::NaiveDateTime;
-use modhost_db::{Project, ProjectData, ProjectVersion, ProjectVisibility, User};
 use itertools::Itertools;
+use modhost_db::{Project, ProjectData, ProjectVersion, ProjectVisibility, User};
 
 /// A project for search indexing.
 #[derive(

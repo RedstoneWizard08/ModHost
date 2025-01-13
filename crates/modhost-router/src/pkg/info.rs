@@ -1,7 +1,5 @@
 //! Routes concerning project information.
 
-use modhost_core::AppError;
-use modhost_core::Result;
 use axum::{
     body::Body,
     extract::{Path, State},
@@ -10,15 +8,17 @@ use axum::{
     Json,
 };
 use axum_extra::extract::CookieJar;
-use modhost_db::{
-    get_full_project, get_project, project_authors, projects, NewProject, Project, ProjectAuthor,
-    ProjectData, ProjectVisibility,
-};
 use diesel::{
     delete, insert_into, update, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
 };
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
+use modhost_core::AppError;
+use modhost_core::Result;
+use modhost_db::{
+    get_full_project, get_project, project_authors, projects, NewProject, Project, ProjectAuthor,
+    ProjectData, ProjectVisibility,
+};
 use modhost_server_core::state::AppState;
 
 /// A partial project for updating a project.

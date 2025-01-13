@@ -1,14 +1,14 @@
 use anyhow::Result;
-use modhost_config::get_config;
 use astro_migrator::models::{Mod, ModsDump};
-use modhost_db::{create_connection, run_migrations, users, NewUser, User};
 use diesel::{insert_into, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use indicatif::ProgressIterator;
 use itertools::Itertools;
 use modhost::init_logger;
-use ron::ser::PrettyConfig;
+use modhost_config::get_config;
+use modhost_db::{create_connection, run_migrations, users, NewUser, User};
 use modhost_search::MeilisearchService;
+use ron::ser::PrettyConfig;
 use std::{fs, path::PathBuf};
 use tracing::level_filters::LevelFilter;
 

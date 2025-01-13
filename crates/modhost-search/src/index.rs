@@ -2,14 +2,14 @@
 
 use crate::{MeiliProject, MeilisearchService};
 use anyhow::anyhow;
-use modhost_core::Result;
-use modhost_db::{
-    project_authors, project_versions, projects, users, DbConn, Project, ProjectVersion, User,
-};
 use diesel::{ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use itertools::Itertools;
 use meilisearch_sdk::documents::DocumentDeletionQuery;
+use modhost_core::Result;
+use modhost_db::{
+    project_authors, project_versions, projects, users, DbConn, Project, ProjectVersion, User,
+};
 
 impl MeilisearchService {
     /// Index all project present in the database.

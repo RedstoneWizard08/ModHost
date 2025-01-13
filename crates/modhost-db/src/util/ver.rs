@@ -1,11 +1,11 @@
 //! Utilities for project versions.
 
 use crate::{schema::project_versions, DbConn, ProjectVersion};
-use modhost_core::Result;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
 };
 use diesel_async::RunQueryDsl;
+use modhost_core::Result;
 
 /// Get a version by its ID, name, or version number.
 pub async fn get_version(

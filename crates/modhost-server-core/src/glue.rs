@@ -1,8 +1,8 @@
 //! ModHost's setup for [`jsglue`].
 
+use jsglue::{config::GlueConfig, framework::Framework, glue::Glue};
 use modhost_config::AppConfig;
 use modhost_core::Result;
-use jsglue::{config::GlueConfig, framework::Framework, glue::Glue};
 
 /// Create a new [`Glue`] instance.
 /// This will build the UI (see [`modhost_ui::build_ui`]).

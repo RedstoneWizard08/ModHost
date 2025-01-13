@@ -1,10 +1,10 @@
 //! Utilities for tokens.
 
 use crate::{user_tokens, users, DbConn, DbPool, NewUserToken, User, UserToken};
-use modhost_core::Result;
 use chrono::{DateTime, Utc};
 use diesel::{insert_into, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
+use modhost_core::Result;
 use random_string::{charsets::ALPHANUMERIC, generate};
 
 /// The time until a token expires in milliseconds.

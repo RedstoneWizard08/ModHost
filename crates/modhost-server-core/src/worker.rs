@@ -1,11 +1,11 @@
 //! ModHost's worker, providing token invalidation.
 
-use modhost_core::Result;
 use chrono::Utc;
-use modhost_db::{user_tokens, DbPool, UserToken};
 use diesel::{delete, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use jsglue::abort::ABORT_HANDLES;
+use modhost_core::Result;
+use modhost_db::{user_tokens, DbPool, UserToken};
 use tokio::task::JoinHandle;
 
 /// Start the worker service and get a handle to its thread.

@@ -1,10 +1,10 @@
 //! Meta endpoints for badges.
 
-use modhost_core::Result;
 use axum::{
     extract::{Path, State},
     response::Response,
 };
+use modhost_core::Result;
 use modhost_db::get_project;
 use modhost_db_util::vers::get_latest_version;
 use modhost_server_core::state::AppState;

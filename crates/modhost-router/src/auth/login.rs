@@ -3,7 +3,6 @@
 use std::collections::HashMap;
 
 use super::CALLBACK_URL;
-use modhost_core::Result;
 use axum::{
     body::Body,
     extract::State,
@@ -11,6 +10,7 @@ use axum::{
     response::Response,
 };
 use axum_extra::extract::Host;
+use modhost_core::Result;
 use modhost_middleware::scheme::Scheme;
 use modhost_server_core::state::AppState;
 use oauth2::{CsrfToken, RedirectUrl, Scope};

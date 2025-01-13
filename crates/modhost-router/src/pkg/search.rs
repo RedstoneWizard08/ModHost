@@ -1,16 +1,16 @@
 //! The project search route.
 
-use modhost_core::Result;
 use axum::{
     extract::{Query, State},
     http::HeaderMap,
     Json,
 };
 use axum_extra::extract::CookieJar;
-use modhost_db::ProjectVisibility;
 use modhost_auth::get_user_from_req;
-use modhost_server_core::state::AppState;
+use modhost_core::Result;
+use modhost_db::ProjectVisibility;
 use modhost_search::{Facet, SearchResults, Sort, SortMode};
+use modhost_server_core::state::AppState;
 
 /// The absolute maximum items per-page for pagination.
 /// The value from a query will be clamped with this.

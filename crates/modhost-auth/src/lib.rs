@@ -1,9 +1,9 @@
 #![warn(missing_docs)]
 //! ModHost's utilities for authentication.
 
-use modhost_core::{AppError, Result};
 use axum::http::HeaderMap;
 use axum_extra::extract::CookieJar;
+use modhost_core::{AppError, Result};
 use modhost_db::{get_user_for_token, DbConn, User};
 
 /// Get a user from a request if the token is present.

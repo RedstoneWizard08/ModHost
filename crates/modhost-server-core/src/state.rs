@@ -1,14 +1,14 @@
 //! Structs for the server's shared state.
 
-use modhost_config::AppConfig;
-use modhost_core::Result;
 use axum::body::Bytes;
 use base64::{prelude::BASE64_STANDARD, Engine};
+use modhost_config::AppConfig;
+use modhost_core::Result;
 use modhost_db::DbPool;
+use modhost_search::MeilisearchService;
 use modhost_ui::DEFAULT_FAVICON_PNG;
 use oauth2::basic::BasicClient;
 use s3::Bucket;
-use modhost_search::MeilisearchService;
 use std::{fs, sync::Arc};
 
 use crate::models::{GameVersion, ModLoader, Tag};

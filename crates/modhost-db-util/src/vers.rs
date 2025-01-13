@@ -1,11 +1,11 @@
 use anyhow::anyhow;
+use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel_async::RunQueryDsl;
+use itertools::Itertools;
 use modhost_core::Result;
 use modhost_db::{
     project_versions, version_files, DbConn, ProjectFile, ProjectVersion, ProjectVersionData,
 };
-use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper};
-use diesel_async::RunQueryDsl;
-use itertools::Itertools;
 use semver::Version;
 
 pub async fn get_versions(project: i32, conn: &mut DbConn) -> Result<Vec<ProjectVersionData>> {

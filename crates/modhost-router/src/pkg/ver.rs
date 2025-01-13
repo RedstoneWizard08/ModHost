@@ -1,8 +1,6 @@
 //! Routes concerning project versions.
 
 use anyhow::anyhow;
-use modhost_core::AppError;
-use modhost_core::Result;
 use axum::{
     body::Body,
     extract::{Multipart, Path, State},
@@ -12,15 +10,19 @@ use axum::{
 };
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
+use diesel::{delete, insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel_async::RunQueryDsl;
+use modhost_auth::get_user_from_req;
+use modhost_core::AppError;
+use modhost_core::Result;
 use modhost_db::{
     get_full_project, get_project, get_version, project_authors, project_versions, projects,
     version_files, NewProjectFile, NewProjectVersion, Project, ProjectAuthor, ProjectFile,
     ProjectVersion, ProjectVersionData, ProjectVersionInit, ProjectVisibility,
 };
-use modhost_db_util::vers::{get_full_version, get_latest_full_version, get_version_file, get_versions};
-use diesel::{delete, insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
-use diesel_async::RunQueryDsl;
-use modhost_auth::get_user_from_req;
+use modhost_db_util::vers::{
+    get_full_version, get_latest_full_version, get_version_file, get_versions,
+};
 use modhost_server_core::state::AppState;
 use semver::Version;
 use sha1::{Digest, Sha1};

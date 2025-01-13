@@ -1,10 +1,10 @@
 //! Routes concerning the current user.
 
-use modhost_core::Result;
 use axum::{body::Body, extract::State, http::HeaderMap, response::Response};
 use axum_extra::extract::CookieJar;
-use modhost_db::User;
 use modhost_auth::get_user_from_req;
+use modhost_core::Result;
+use modhost_db::User;
 use modhost_server_core::state::AppState;
 
 /// Current User

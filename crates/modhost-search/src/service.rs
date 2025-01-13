@@ -1,9 +1,9 @@
 //! The main Meilisearch service.
 
-use modhost_config::AppConfig;
-use modhost_core::Result;
 use meilisearch_sdk::client::Client;
 use meilisearch_sdk::indexes::Index;
+use modhost_config::AppConfig;
+use modhost_core::Result;
 
 /// The main Meilisearch service.
 /// 99% of this crate's usage is through this struct.

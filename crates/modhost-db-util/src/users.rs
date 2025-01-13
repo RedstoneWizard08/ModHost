@@ -1,8 +1,10 @@
-use modhost_core::Result;
-use modhost_db::{project_authors, projects, users, DbConn, Project, ProjectData, ProjectVisibility, User};
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use itertools::Itertools;
+use modhost_core::Result;
+use modhost_db::{
+    project_authors, projects, users, DbConn, Project, ProjectData, ProjectVisibility, User,
+};
 
 pub async fn get_user_projects(
     authed_user: Option<User>,

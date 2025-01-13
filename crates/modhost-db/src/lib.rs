@@ -18,7 +18,6 @@ pub use models::*;
 pub use schema::*;
 pub use util::*;
 
-use modhost_core::Result;
 use diesel::{
     r2d2::{ConnectionManager, Pool as SyncPool, PooledConnection},
     PgConnection,
@@ -31,6 +30,7 @@ use diesel_async::{
     AsyncPgConnection,
 };
 use diesel_async_migrations::{embed_migrations, EmbeddedMigrations};
+use modhost_core::Result;
 use std::env;
 
 /// The embedded SQL database migrations.

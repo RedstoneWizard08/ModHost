@@ -1,8 +1,8 @@
 //! The actual search functionality.
 
 use crate::{Facet, MeiliProject, MeilisearchService, SearchResults, Sort, SortMode};
-use modhost_core::Result;
 use itertools::Itertools;
+use modhost_core::Result;
 
 impl MeilisearchService {
     /// Perform a search query.

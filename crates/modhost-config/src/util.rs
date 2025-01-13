@@ -1,8 +1,8 @@
 //! ModHost configuration utilites.
 
 use crate::AppConfig;
-use modhost_core::Result;
 use config::{Config, Environment, File, FileFormat};
+use modhost_core::Result;
 
 /// Get the raw [`Config`] from the [`config`] crate.
 pub fn get_raw_config() -> Result<Config> {

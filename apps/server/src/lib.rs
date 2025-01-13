@@ -7,13 +7,13 @@ extern crate tracing;
 pub use modhost_core::{logger::*, Result};
 pub use modhost_server_core::{loader, loaders, models::*, tag, tags};
 
-use modhost_config::{get_config, AppConfig};
 use axum::{body::Bytes, extract::connect_info::IntoMakeServiceWithConnectInfo, serve, Router};
-use modhost_db::{create_connection, run_migrations, DbPool};
 use jsglue::{glue::Glue, util::is_debug};
+use modhost_config::{get_config, AppConfig};
+use modhost_db::{create_connection, run_migrations, DbPool};
 use modhost_router::create_router;
-use modhost_server_core::{glue::make_glue, state::AppState, worker::run_worker};
 use modhost_search::MeiliProject;
+use modhost_server_core::{glue::make_glue, state::AppState, worker::run_worker};
 use std::net::{IpAddr, SocketAddr};
 use tokio::{join, net::TcpListener};
 

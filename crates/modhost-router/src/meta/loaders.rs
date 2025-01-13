@@ -1,7 +1,7 @@
 //! The meta endpoint for getting a list of mod loaders.
 
-use modhost_core::Result;
 use axum::{extract::State, Json};
+use modhost_core::Result;
 use modhost_server_core::{models::ModLoader, state::AppState};
 
 /// Get Mod Loaders

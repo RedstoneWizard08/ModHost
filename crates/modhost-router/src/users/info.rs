@@ -1,11 +1,11 @@
 //! Routes concerning user info.
 
-use modhost_core::Result;
 use axum::{
     body::Body,
     extract::{Path, State},
     response::Response,
 };
+use modhost_core::Result;
 use modhost_db::{get_user, User};
 use modhost_server_core::state::AppState;
 

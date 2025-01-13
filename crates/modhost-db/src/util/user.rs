@@ -1,11 +1,11 @@
 //! Utilities for users.
 
 use crate::{schema::users, DbConn, User};
-use modhost_core::Result;
 use diesel::{
     ExpressionMethods, OptionalExtension, PgTextExpressionMethods, QueryDsl, SelectableHelper,
 };
 use diesel_async::RunQueryDsl;
+use modhost_core::Result;
 
 /// Get a user by their ID, GitHub ID, or their username.
 pub async fn get_user(id: impl AsRef<str>, conn: &mut DbConn) -> Result<User> {

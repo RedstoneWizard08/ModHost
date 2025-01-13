@@ -1,6 +1,5 @@
 //! The route for the GitHub authentication callback.
 
-use modhost_core::Result;
 use axum::{
     body::Body,
     extract::State,
@@ -11,11 +10,12 @@ use axum::{
     response::Response,
 };
 use axum_extra::extract::Host;
-use modhost_db::{create_token, users, NewUser, User};
 use diesel::{
     dsl::insert_into, update, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
 };
 use diesel_async::RunQueryDsl;
+use modhost_core::Result;
+use modhost_db::{create_token, users, NewUser, User};
 use modhost_middleware::scheme::Scheme;
 use modhost_server_core::{github::create_github_client, state::AppState};
 use oauth2::{RedirectUrl, TokenResponse};

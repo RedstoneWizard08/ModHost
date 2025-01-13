@@ -1,7 +1,5 @@
 //! Routes concerning project authors.
 
-use modhost_core::AppError;
-use modhost_core::Result;
 use axum::{
     body::Body,
     extract::{Path, State},
@@ -9,15 +7,17 @@ use axum::{
     response::Response,
 };
 use axum_extra::extract::CookieJar;
-use modhost_db::{
-    get_full_project, get_project, get_user, project_authors, ProjectAuthor, ProjectData,
-    ProjectVisibility, User,
-};
 use diesel::{
     dsl::delete, insert_into, BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper,
 };
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
+use modhost_core::AppError;
+use modhost_core::Result;
+use modhost_db::{
+    get_full_project, get_project, get_user, project_authors, ProjectAuthor, ProjectData,
+    ProjectVisibility, User,
+};
 use modhost_server_core::state::AppState;
 
 /// Get Project Authors

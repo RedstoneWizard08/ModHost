@@ -14,7 +14,7 @@ use zip::ZipArchive;
 pub const BUN_REPO: &str = "https://github.com/oven-sh/bun";
 
 /// The Bun version to download.
-pub const BUN_VERSION: &str = "bun-v1.1.36";
+pub const BUN_VERSION: &str = "bun-v1.1.43";
 
 /// Get the base release URL for the download.
 pub fn get_base_url() -> String {

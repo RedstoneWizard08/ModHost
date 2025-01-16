@@ -19,7 +19,7 @@
 {/snippet}
 
 <BetterStep {header}>
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:file-description" height="24" class="mr-2" />
             Description

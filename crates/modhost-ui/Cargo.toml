@@ -11,9 +11,11 @@ readme.workspace = true
 [dependencies]
 ctrlc.workspace = true
 include_dir.workspace = true
-modhost-core.workspace = true
+jsglue.workspace = true
+modhost-core = { workspace = true, features = ["tempfile", "zip"] }
 modhost-config.workspace = true
 reqwest.workspace = true
+serde_json.workspace = true
 tempfile.workspace = true
 tokio.workspace = true
 tracing.workspace = true

@@ -2508,9 +2508,11 @@ version = "0.1.0"
 dependencies = [
  "ctrlc",
  "include_dir",
+ "jsglue",
  "modhost-config",
  "modhost-core",
  "reqwest 0.12.12",
+ "serde_json",
  "tempfile",
  "tokio",
  "tracing",

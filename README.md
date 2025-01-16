@@ -1,9 +1,9 @@
 # ModHost
 
 ![Contributions](./assets/contributions.svg)
-![Crates.io Version](https://img.shields.io/crates/v/modhost-api?style=for-the-badge)
-![Deployment Status](https://img.shields.io/github/actions/workflow/status/RedstoneWizard08/ModHost/deploy.yml?branch=main&style=for-the-badge&label=Deployment)
-![CLI Build Status](https://img.shields.io/github/actions/workflow/status/RedstoneWizard08/ModHost/cli-build.yml?branch=main&style=for-the-badge&label=CLI%20Build)
+![Crates.io Version](https://img.shields.io/crates/v/modhost-api?style=for-the-badge&labelColor=191d28)
+![Deployment Status](https://img.shields.io/github/actions/workflow/status/RedstoneWizard08/ModHost/deploy.yml?branch=main&style=for-the-badge&label=Deployment&labelColor=191d28)
+![CLI Build Status](https://img.shields.io/github/actions/workflow/status/RedstoneWizard08/ModHost/cli-build.yml?branch=main&style=for-the-badge&label=CLI%20Build&labelColor=191d28)
 ![Lines of Code](https://tokei.rs/b1/github/RedstoneWizard08/ModHost?style=for-the-badge&label=Lines+Of+Code)
 
 A simple, open-source, and self-hostable place to host mods for any game!

@@ -19,7 +19,7 @@
 {/snippet}
 
 <BetterStep {header}>
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:code" height="24" class="mr-2" />
             Source Code
@@ -33,7 +33,7 @@
         />
     </div>
 
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:exclamation-circle" height="24" class="mr-2" />
             Issue Tracker
@@ -47,7 +47,7 @@
         />
     </div>
 
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:world" height="24" class="mr-2" />
             Wiki

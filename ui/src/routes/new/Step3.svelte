@@ -40,7 +40,7 @@
 {/snippet}
 
 <BetterStep {header}>
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:license" height="24" class="mr-2" />
             License
@@ -56,7 +56,7 @@
         />
     </div>
 
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:eye" height="24" class="mr-2" />
             Visibility
@@ -75,7 +75,7 @@
 
 <div
     data-popup="licensesAutocomplete"
-    class="bg-secondary-700 h-[50%] w-[50%] overflow-scroll rounded-lg p-2"
+    class="bg-primary-800 h-[50%] w-[50%] overflow-scroll rounded-lg p-2"
 >
     <Autocomplete bind:input={license} bind:options={allLicenses} on:selection={onLicenseSelect} />
 </div>

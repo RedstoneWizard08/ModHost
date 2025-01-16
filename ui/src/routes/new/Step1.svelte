@@ -29,9 +29,9 @@
 {/snippet}
 
 <BetterStep {header}>
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-            <Icon icon="tabler:eye" height="24" class="mr-2" />
+            <Icon icon="tabler:tag" height="24" class="mr-2" />
             Display Name
         </p>
 
@@ -44,7 +44,7 @@
         />
     </div>
 
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
             <Icon icon="tabler:link" height="24" class="mr-2" />
             Slug
@@ -62,9 +62,9 @@
         {/if}
     </div>
 
-    <div class="card variant-soft-secondary w-full p-4">
+    <div class="card variant-soft-primary w-full p-4">
         <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-            <Icon icon="tabler:info-circle-filled" height="24" class="mr-2" />
+            <Icon icon="tabler:info-circle" height="24" class="mr-2" />
             Summary
         </p>
 

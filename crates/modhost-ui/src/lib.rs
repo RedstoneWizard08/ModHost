@@ -26,6 +26,12 @@ pub const DEFAULT_FAVICON_PNG: &[u8] = include_bytes!("./assets/modhost.png");
 pub const UI_SOURCE: include_dir::Dir<'static> =
     include_dir::include_dir!("$CARGO_MANIFEST_DIR/../../ui");
 
+/// The embedded source for the API client.
+/// Yes, the entire source code is embedded in the binary.
+#[cfg(not(debug_assertions))]
+pub const API_SOURCE: include_dir::Dir<'static> =
+    include_dir::include_dir!("$CARGO_MANIFEST_DIR/../../packages/modhost-api");
+
 /// Build the frontend.
 /// In debug builds, this uses the config and a root path to the source
 /// to write the favicon files.
@@ -87,6 +93,7 @@ pub async fn build_ui(config: &AppConfig, dir: &PathBuf) -> Result<()> {
 /// path to the built UI. In debug builds this will return `()`.
 #[cfg(not(debug_assertions))]
 pub async fn build_ui(config: &AppConfig) -> Result<PathBuf> {
+    use serde_json::Value;
     use tempfile::TempDir;
     use tokio::process::Command;
 
@@ -100,9 +107,32 @@ pub async fn build_ui(config: &AppConfig) -> Result<PathBuf> {
         fs::create_dir_all(&dir)?;
     }
 
-    info!("Extracting to: {:?}", dir);
+    let api_dir = dir.join("api");
+
+    if !api_dir.exists() {
+        fs::create_dir_all(&api_dir)?;
+    }
+
+    info!("Extracting to: {:?}...", dir);
 
     UI_SOURCE.extract(&dir)?;
+    API_SOURCE.extract(&api_dir)?;
+
+    info!("Fixing package.json...");
+
+    let pkg_json_path = dir.join("package.json");
+    let mut pkg_json = serde_json::from_str::<Value>(&fs::read_to_string(&pkg_json_path)?)?;
+    let pkg_json_obj = pkg_json.as_object_mut().unwrap();
+
+    // We need to add the workspaces key to fix dependency resolution issues
+    pkg_json_obj.insert(
+        "workspaces".into(),
+        Value::Array(vec![Value::String("./api".into())]),
+    );
+
+    fs::write(pkg_json_path, serde_json::to_string_pretty(&pkg_json)?)?;
+
+    info!("Checking icons...");
 
     if config.ui.favicon_ico == "default" {
         info!("Downloading favicon.ico...");
@@ -159,7 +189,7 @@ pub async fn build_ui(config: &AppConfig) -> Result<PathBuf> {
         .wait()
         .await?;
 
-    info!("Running `bun run build`...");
+    info!("Running `bun run dist`...");
 
     Command::new(&bun_exe)
         .arg("--bun")

@@ -56,6 +56,8 @@
     "search.matching": "по запросу",
     "search.made_by": "от",
     "search.detailed": "детально",
+    "search.versions.checkbox.beta": "Show betas",
+    "search.versions.checkbox.snapshot": "Show snapshots",
     "search.placeholder.packages": "Search packages...",
     "search.singular.packages": "package",
     "search.plural.packages": "packages",

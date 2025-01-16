@@ -56,6 +56,8 @@
     "search.matching": "符合",
     "search.made_by": "作者：",
     "search.detailed": "詳細資訊",
+    "search.versions.checkbox.beta": "Show betas",
+    "search.versions.checkbox.snapshot": "Show snapshots",
     "search.placeholder.packages": "Search packages...",
     "search.singular.packages": "package",
     "search.plural.packages": "packages",

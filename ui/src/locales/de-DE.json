@@ -56,6 +56,8 @@
     "search.matching": "mit",
     "search.made_by": "von",
     "search.detailed": "detailliert",
+    "search.versions.checkbox.beta": "Show betas",
+    "search.versions.checkbox.snapshot": "Show snapshots",
     "search.placeholder.packages": "Search packages...",
     "search.singular.packages": "package",
     "search.plural.packages": "packages",

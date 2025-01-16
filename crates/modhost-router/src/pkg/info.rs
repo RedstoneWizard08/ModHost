@@ -90,6 +90,12 @@ pub async fn create_project_handler(
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
 
+    if body.slug.is_empty() {
+        return Ok(Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::new("Slug must not be empty!".to_string()))?);
+    }
+
     if let Some(_) = projects::table
         .filter(projects::slug.eq(body.slug.clone()))
         .select(Project::as_select())

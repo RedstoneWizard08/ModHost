@@ -3,20 +3,18 @@
     import { onMount } from "svelte";
     import { currentProject, editSaving, updateSearchResults } from "$lib/state";
     import Icon from "@iconify/svelte";
-    import {
-        Autocomplete,
-        getToastStore,
-        popup,
-        type AutocompleteOption,
-        type PopupSettings,
-    } from "@skeletonlabs/skeleton";
+    import { getToastStore, type AutocompleteOption } from "@skeletonlabs/skeleton";
     import { goto } from "$app/navigation";
-    import { createSlug } from "$lib/util";
-    import { Carta, MarkdownEditor } from "carta-md";
+    import { Carta } from "carta-md";
     import { siteConfig } from "$lib/config";
-    import { ErrorResponse, unwrapOrNull, type ProjectVisibility } from "@modhost/api";
+    import { ErrorResponse, type ProjectVisibility } from "@modhost/api";
     import { licenses } from "$lib/meta";
     import { client } from "$lib/api";
+    import Step1 from "./Step1.svelte";
+    import Step2 from "./Step2.svelte";
+    import Step3 from "./Step3.svelte";
+    import Step4 from "./Step4.svelte";
+    import BetterStepper from "$components/ui/stepper/BetterStepper.svelte";
 
     let name = $state("");
     let slug = $state("");
@@ -28,7 +26,6 @@
     let license = $state("");
     let visibility = $state<ProjectVisibility>("Public");
     let allLicenses = $state<AutocompleteOption<string, string>[]>([]);
-    let slugError = $state(false);
 
     const editor = new Carta();
     const toasts = getToastStore();
@@ -62,7 +59,7 @@
             $editSaving = false;
 
             toasts.trigger({
-                message: `Error creating your project: ${data}`,
+                message: `Error creating your project: ${data} (${data.cause})`,
                 hideDismiss: true,
                 timeout: 5000,
                 background: "variant-filled-error",
@@ -74,23 +71,7 @@
         await updateSearchResults(true);
 
         $editSaving = false;
-        goto(`/p/${data.id}`);
-    };
-
-    const licensesPopup: PopupSettings = {
-        event: "focus-click",
-        target: "licensesAutocomplete",
-        placement: "bottom",
-    };
-
-    const onLicenseSelect = (ev: CustomEvent<AutocompleteOption<string, string>>) => {
-        license = ev.detail.value;
-    };
-
-    const updateSlug = async () => {
-        slugError = false;
-        slug = createSlug(name);
-        slugError = !!unwrapOrNull(await client.project(slug).get());
+        goto(`/p/${data.slug}`);
     };
 </script>
 
@@ -103,161 +84,92 @@
     Create Package
 </p>
 
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:eye" height="24" class="mr-2" />
-        Display Name
-    </p>
+{#snippet buttonComplete(locked: boolean, clickHandler: () => void)}
+    <div class="flex flex-row items-center justify-start gap-2">
+        <button
+            type="button"
+            class="variant-filled-primary btn hover:variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
+            onclick={clickHandler}
+        >
+            <Icon icon="tabler:plus" height="24" class="mr-2" />
+            Create
+        </button>
+    </div>
+{/snippet}
 
-    <input
-        type="text"
-        placeholder="Example: My Package"
-        class="input rounded-md"
-        oninput={updateSlug}
-        bind:value={name}
-    />
-</div>
+{#snippet buttonBack(locked: boolean, clickHandler: () => void)}
+    <div class="flex flex-row items-center justify-start gap-2">
+        <button
+            type="button"
+            class="variant-filled-secondary btn hover:variant-ghost-primary disabled:!variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all disabled:!text-white"
+            onclick={clickHandler}
+            disabled={locked}
+        >
+            <Icon icon="tabler:arrow-left" height="24" class="mr-2" />
+            Back
+        </button>
+    </div>
+{/snippet}
 
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:link" height="24" class="mr-2" />
-        Slug
-    </p>
+{#snippet buttonNext(locked: boolean, clickHandler: () => void)}
+    <div class="flex flex-row items-center justify-start gap-2">
+        <button
+            type="button"
+            class="variant-filled-secondary btn hover:variant-ghost-primary disabled:!variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all disabled:!text-white"
+            onclick={clickHandler}
+            disabled={locked}
+        >
+            Next
+            <Icon icon="tabler:arrow-right" height="24" class="ml-2" />
+        </button>
+    </div>
+{/snippet}
 
-    <input
-        type="text"
-        placeholder="Example: my-package"
-        class="input rounded-md"
-        bind:value={slug}
-    />
-
-    {#if slugError}
-        <p class="text-error-500 ml-1 mt-2">Project already exists!</p>
-    {/if}
-</div>
-
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:info-circle-filled" height="24" class="mr-2" />
-        Summary
-    </p>
-
-    <input
-        type="text"
-        placeholder="A short description of your project"
-        class="input rounded-md"
-        bind:value={description}
-    />
-</div>
-
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:code" height="24" class="mr-2" />
-        Source Code
-    </p>
-
-    <input
-        type="text"
-        placeholder="Example: https://github.com/example/example"
-        class="input rounded-md"
-        bind:value={repo}
-    />
-</div>
-
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:exclamation-circle" height="24" class="mr-2" />
-        Issue Tracker
-    </p>
-
-    <input
-        type="text"
-        placeholder="Example: https://github.com/example/example/issues"
-        class="input rounded-md"
-        bind:value={issues}
-    />
-</div>
-
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:world" height="24" class="mr-2" />
-        Wiki
-    </p>
-
-    <input
-        type="text"
-        placeholder="Example: https://github.com/example/example/wiki"
-        class="input rounded-md"
-        bind:value={wiki}
-    />
-</div>
-
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:license" height="24" class="mr-2" />
-        License
-    </p>
-
-    <input
-        type="text"
-        name="autocomplete-license"
-        placeholder="Choose a license (or type your own)"
-        class="autocomplete input rounded-md"
-        bind:value={license}
-        use:popup={licensesPopup}
-    />
-
+<div class="flex h-full w-full flex-row items-start justify-start">
     <div
-        data-popup="licensesAutocomplete"
-        class="bg-secondary-700 h-[50%] w-[40%] overflow-scroll rounded-lg p-2"
+        class="bg-surface-600 mr-4 flex h-full w-[40%] max-w-[40%] flex-col items-start justify-start overflow-scroll rounded-xl p-2 px-3"
     >
-        <Autocomplete bind:input={license} options={allLicenses} on:selection={onLicenseSelect} />
+        <p class="border-b-primary-700 mb-1 w-full border-b py-1 text-lg font-bold">
+            Package Overview
+        </p>
+        <p>
+            <span class="font-bold">Display Name:</span>
+            <span>{name == "" ? "Unset" : name}</span>
+        </p>
+        <p>
+            <span class="font-bold">Slug:</span>
+            <span>{slug == "" ? "Unset" : slug}</span>
+        </p>
+        <p>
+            <span class="font-bold">Description:</span>
+            <span>{description == "" ? "Unset" : description}</span>
+        </p>
+        <p>
+            <span class="font-bold">Repository:</span>
+            <span>{repo == "" ? "Unset" : repo}</span>
+        </p>
+        <p>
+            <span class="font-bold">Issues:</span>
+            <span>{issues == "" ? "Unset" : issues}</span>
+        </p>
+        <p>
+            <span class="font-bold">Wiki:</span>
+            <span>{wiki == "" ? "Unset" : wiki}</span>
+        </p>
+        <p>
+            <span class="font-bold">License:</span>
+            <span>{license == "" ? "Unset" : license}</span>
+        </p>
+        <p>
+            <span class="font-bold">Visibility:</span>
+            <span>{visibility}</span>
+        </p>
     </div>
-</div>
 
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:eye" height="24" class="mr-2" />
-        Visibility
-    </p>
-
-    <select
-        class="select variant-ghost-primary cursor-pointer !outline-none"
-        bind:value={visibility}
-    >
-        <option value="Public">Public</option>
-        <option value="Private">Private</option>
-        <option value="Unlisted">Unlisted</option>
-    </select>
-</div>
-
-<div class="card variant-soft-secondary w-full p-4">
-    <p class="text-primary-500 mb-2 flex flex-row items-center justify-start">
-        <Icon icon="tabler:file-description" height="24" class="mr-2" />
-        Description
-    </p>
-
-    <div class="card variant-soft-secondary w-full p-4">
-        <MarkdownEditor carta={editor} bind:value={readme} mode="tabs" />
-    </div>
-</div>
-
-<div class="flex flex-row items-center justify-start gap-2">
-    <button
-        type="button"
-        class="variant-filled-primary btn hover:variant-ghost-primary hover:text-token mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
-        onclick={save}
-    >
-        <Icon icon="tabler:plus" height="24" class="mr-2" />
-        Create
-    </button>
-
-    <button
-        type="button"
-        class="variant-ghost-secondary btn hover:variant-filled-secondary mt-2 flex flex-row items-center justify-center rounded-lg transition-all"
-        onclick={() => goto("/")}
-    >
-        <Icon icon="tabler:trash" height="24" class="mr-2" />
-        Cancel
-    </button>
+    <BetterStepper complete={save} {buttonBack} {buttonNext} {buttonComplete} class="w-full">
+        <Step1 bind:name bind:slug bind:description />
+        <Step2 bind:repo bind:issues bind:wiki />
+        <Step3 bind:license bind:visibility bind:allLicenses />
+        <Step4 {editor} bind:readme />
+    </BetterStepper>
 </div>

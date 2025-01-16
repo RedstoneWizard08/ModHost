@@ -30,6 +30,7 @@
     import { setToken } from "$lib/api";
     import { updateUser, userPreferencesStore } from "$lib/user";
     import { initMeta } from "$lib/meta";
+    import Popups from "$components/ui/Popups.svelte";
 
     const { data, children }: { data: any; children: Snippet } = $props();
     let navigating = $state(false);
@@ -108,6 +109,7 @@
 <ContextMenu />
 <Drawers />
 <Modal components={modalRegistry} />
+<Popups />
 
 {#if navigating}
     <div

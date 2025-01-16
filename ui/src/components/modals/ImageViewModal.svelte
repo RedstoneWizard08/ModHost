@@ -27,7 +27,7 @@
 </script>
 
 {#if $modals[0] && img}
-    <div class="bg-surface-500 relative rounded-lg p-8 shadow-xl overflow-scroll max-h-[95vh]">
+    <div class="bg-surface-500 relative max-h-[95vh] overflow-scroll rounded-lg p-8 shadow-xl">
         <header class="text-2xl font-bold">{img.name}</header>
 
         <img src={img.url} alt={img.name} class="my-4" />

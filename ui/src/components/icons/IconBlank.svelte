@@ -8,9 +8,4 @@
     const { size = 24, class: klass, ...rest }: Props = $props();
 </script>
 
-<svg
-    {...rest}
-    width={size}
-    height={size}
-    class={`tabler-icon tabler-icon-${name} ${klass ?? ""}`}
-/>
+<svg {...rest} width={size} height={size} class={klass ?? ""} />

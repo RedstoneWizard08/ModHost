@@ -32,11 +32,16 @@
     let tagFilters = $state<string[]>([]);
     let versionSearch = $state("");
     let tagsSearch = $state("");
+    let showBetas = $state(false);
 
     const searchedVersions = $derived(
         ($gameVersions || []).filter((v) =>
             v.id.toLowerCase().includes(versionSearch.toLowerCase()),
         ),
+    );
+
+    const availableSearchedVersions = $derived(
+        searchedVersions.filter((v) => (v.beta ? showBetas : true)),
     );
 
     const searchedTags = $derived(
@@ -252,7 +257,7 @@
         <div
             class="flex max-h-36 w-full flex-col items-start justify-start space-y-2 overflow-scroll md:max-h-60"
         >
-            {#each searchedVersions as version}
+            {#each availableSearchedVersions as version}
                 <button
                     type="button"
                     class="variant-glass-primary btn w-full justify-start rounded-xl"
@@ -260,6 +265,11 @@
                     onclick={toggleVersionFilter(version.id)}>{version.id}</button
                 >
             {/each}
+        </div>
+
+        <div class="flex flex-row items-center justify-start space-x-2">
+            <input type="checkbox" bind:checked={showBetas} class="input checkbox" />
+            <p>{$_(`search.versions.checkbox.${siteConfig.betaName}`)}</p>
         </div>
 
         {#if $tags.length > 0}

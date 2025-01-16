@@ -53,27 +53,31 @@ impl MeilisearchService {
     pub async fn update_project(&self, project: i32, conn: &mut DbConn) -> Result<()> {
         // Abomination #2! It's so beautiful! I make Rust programmers worldwide upset!
         let data: MeiliProject = projects::table
+            .filter(projects::id.eq(project))
             .inner_join(project_authors::table.inner_join(users::table))
-            .inner_join(project_versions::table)
+            .left_join(project_versions::table)
             .select((
                 Project::as_select(),
                 User::as_select(),
-                ProjectVersion::as_select(),
+                Option::<ProjectVersion>::as_select(),
             ))
-            .filter(projects::id.eq(project))
-            .load::<(Project, User, ProjectVersion)>(conn)
+            .load::<(Project, User, Option<ProjectVersion>)>(conn)
             .await?
             .into_iter()
-            .into_group_map_by(|v: &(Project, User, ProjectVersion)| v.0.clone())
+            .into_group_map_by(|v: &(Project, User, Option<ProjectVersion>)| v.0.clone())
             .into_iter()
-            .map(|v: (Project, Vec<(Project, User, ProjectVersion)>)| {
-                (
-                    v.0,
-                    v.1.into_iter()
+            .map(
+                |v: (Project, Vec<(Project, User, Option<ProjectVersion>)>)| {
+                    let user_and_ver = v.1.into_iter()
                         .map(|v| (v.1, v.2))
-                        .unzip::<User, ProjectVersion, Vec<User>, Vec<ProjectVersion>>(),
-                )
-            })
+                        .unzip::<User, Option<ProjectVersion>, Vec<User>, Vec<Option<ProjectVersion>>>();
+
+                    (
+                        v.0,
+                        (user_and_ver.0, user_and_ver.1.into_iter().filter_map(|v| v).collect()),
+                    )
+                },
+            )
             .map(|v| MeiliProject::from_data(v.0, v.1 .0, v.1 .1))
             .find(|v| v.id == project)
             .ok_or(anyhow!("Could not find project with ID {}!", project))?;

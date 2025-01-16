@@ -15,7 +15,9 @@
 
 <section class="card h-fit w-full p-4">
     <dt class="mb-2 text-sm opacity-50">Description</dt>
-    <dd class="style-markdown flex select-text flex-col items-start *:select-text">
+    <dd
+        class="style-markdown flex select-text flex-col items-start overflow-x-scroll *:select-text"
+    >
         {@html markdown(readme)}
     </dd>
 </section>

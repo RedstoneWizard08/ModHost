@@ -56,6 +56,8 @@
     "search.matching": "con",
     "search.made_by": "creato da",
     "search.detailed": "dettagliato",
+    "search.versions.checkbox.beta": "Show betas",
+    "search.versions.checkbox.snapshot": "Show snapshots",
     "search.placeholder.packages": "Search packages...",
     "search.singular.packages": "package",
     "search.plural.packages": "packages",

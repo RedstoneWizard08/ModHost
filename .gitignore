@@ -38,6 +38,7 @@ config.astro.pkl
 .pgdump
 .minio
 .meili
+.otel-lgtm
 
 # Dev
 docker-compose.yml

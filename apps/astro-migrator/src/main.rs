@@ -14,7 +14,7 @@ use tracing::level_filters::LevelFilter;
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
-    init_logger(LevelFilter::INFO);
+    let _guard = init_logger("modhost-migrator-astro", LevelFilter::INFO)?;
 
     let config = get_config()?;
     let pool = create_connection(Some(config.postgres.uri())).await?;

@@ -2,7 +2,7 @@ use crate::util::{get_crate_map, get_root_cargo_toml};
 use anyhow::{anyhow, Result};
 use crates_io_api::AsyncClient;
 use std::{fs, time::Duration};
-use toml_edit::{array, table, value, DocumentMut};
+use toml_edit::{array, value, DocumentMut, InlineTable};
 
 pub async fn add_crate(
     name: String,
@@ -62,10 +62,10 @@ pub async fn add_crate(
         .as_inline_table_mut()
         .map(|table| table.fmt());
 
-    pkg_toml["dependencies"][&item_name] = table();
+    pkg_toml["dependencies"][&item_name] = value(InlineTable::new());
     pkg_toml["dependencies"][&item_name]["workspace"] = value(true);
 
-    pkg_toml["dependencies"][&item_name]
+    pkg_toml["dependencies"]
         .as_inline_table_mut()
         .map(|table| table.fmt());
 

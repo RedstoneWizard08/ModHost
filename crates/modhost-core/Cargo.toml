@@ -19,7 +19,7 @@ diesel = ["dep:diesel"]
 diesel-async = ["dep:diesel-async"]
 dotenvy = ["dep:dotenvy"]
 glue = ["dep:jsglue"]
-logging = ["dep:tracing-subscriber", "dep:log"]
+logging = ["dep:tracing-subscriber", "dep:log", "dep:opentelemetry-appender-tracing", "dep:opentelemetry_sdk", "dep:opentelemetry", "dep:opentelemetry-otlp", "dep:tracing-opentelemetry"]
 meilisearch = ["dep:meilisearch-sdk"]
 octocrab = ["dep:octocrab"]
 reqwest = ["dep:reqwest"]
@@ -61,3 +61,8 @@ toml = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 zip = { workspace = true, optional = true }
+opentelemetry-appender-tracing = { workspace = true, optional = true }
+opentelemetry_sdk = { workspace = true, optional = true }
+opentelemetry = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
+tracing-opentelemetry = { workspace = true, optional = true }

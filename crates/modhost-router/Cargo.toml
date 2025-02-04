@@ -37,3 +37,4 @@ utoipa-rapidoc.workspace = true
 utoipa-redoc.workspace = true
 utoipa-scalar.workspace = true
 utoipa-swagger-ui.workspace = true
+axum-tracing-opentelemetry.workspace = true

@@ -170,6 +170,31 @@ pub enum AppError {
     #[cfg(feature = "rsbadges")]
     Badge(#[from] rsbadges::BadgeError),
 
+    /// An error with OpenTelemetry logging.
+    #[error(transparent)]
+    #[cfg(feature = "logging")]
+    OpenTelemetryLog(#[from] opentelemetry_sdk::logs::LogError),
+
+    /// An error with OpenTelemetry.
+    #[error(transparent)]
+    #[cfg(feature = "logging")]
+    OpenTelemetry(#[from] opentelemetry_sdk::error::Error),
+
+    /// An error with OpenTelemetry metrics.
+    #[error(transparent)]
+    #[cfg(feature = "logging")]
+    OpenTelemetryMetrics(#[from] opentelemetry_sdk::metrics::MetricError),
+
+    /// An error with the OpenTelemetry exporter.
+    #[error(transparent)]
+    #[cfg(feature = "logging")]
+    OpenTelemetryExporter(#[from] opentelemetry_otlp::Error),
+
+    /// An error with OpenTelemetry tracing.
+    #[error(transparent)]
+    #[cfg(feature = "logging")]
+    OpenTelemetryTrace(#[from] opentelemetry::trace::TraceError),
+
     /// A token was missing.
     #[error("Missing required token header or cookie!")]
     MissingToken,

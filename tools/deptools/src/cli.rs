@@ -1,4 +1,4 @@
-use crate::add::add_crate;
+use crate::{add::add_crate, rm::remove_crate};
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use itertools::Itertools;
@@ -14,17 +14,23 @@ pub struct Cli {
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Add(AddCommand),
+    Remove(RemoveCommand),
 }
 
 #[derive(Debug, Clone, Parser)]
 pub struct AddCommand {
     pub crate_name: String,
 
-    #[arg(short = 'V', long)]
-    pub crate_version: Option<String>,
-
     #[arg(short = 'F', long)]
     pub features: Vec<String>,
+
+    #[arg(short = 'p', long)]
+    pub pkg: String,
+}
+
+#[derive(Debug, Clone, Parser)]
+pub struct RemoveCommand {
+    pub crate_name: String,
 
     #[arg(short = 'p', long)]
     pub pkg: String,
@@ -34,7 +40,7 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         match self.cmd {
             Commands::Add(add) => {
-                if add.crate_name.contains("@") && add.crate_version.is_none() {
+                if add.crate_name.contains("@") {
                     let (name, ver) = add
                         .crate_name
                         .split("@")
@@ -44,10 +50,12 @@ impl Cli {
 
                     add_crate(name, Some(ver), add.features, add.pkg).await?;
                 } else {
-                    let name = add.crate_name.split("@").next().unwrap().to_string();
-
-                    add_crate(name, add.crate_version, add.features, add.pkg).await?;
+                    add_crate(add.crate_name, None, add.features, add.pkg).await?;
                 }
+            }
+
+            Commands::Remove(rm) => {
+                remove_crate(rm.crate_name, rm.pkg)?;
             }
         }
 

@@ -72,7 +72,7 @@ macro_rules! quickhost {
 
                     let _ = dotenv();
 
-                    init_logger(from_log_level(self.verbose.log_level_filter()));
+                    let _guard = init_logger("modhost-server", from_log_level(self.verbose.log_level_filter()))?;
 
                     ModHost::new(Box::new($($verifier)*))
                         .await?

@@ -21,8 +21,7 @@ use tracing::level_filters::LevelFilter;
 
 pub async fn run() -> Result<()> {
     let _ = dotenvy::dotenv();
-
-    init_logger(LevelFilter::INFO);
+    let _guard = init_logger("modhost-migrator-kjspkg", LevelFilter::INFO)?;
 
     let token = env::var("MIGRATOR_TOKEN")
         .expect("Could not find a GitHub token! Is the MIGRATOR_TOKEN environment variable unset?");

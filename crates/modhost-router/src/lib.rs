@@ -19,6 +19,7 @@ pub mod projects;
 pub mod users;
 
 use axum::{middleware::from_fn, Router};
+use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer};
 use jsglue::{glue::Glue, util::is_debug};
 use modhost_config::AppConfig;
 use modhost_middleware::logger::logging_middleware;
@@ -39,6 +40,8 @@ pub fn create_router(spec: &OpenApi, state: AppState, glue: Glue) -> Router {
         .nest("/api/v1/meta", meta::router(state.clone()))
         .nest("/api/v1/moderation", moderation::router(state.clone()))
         .layer(from_fn(logging_middleware))
+        .layer(OtelInResponseLayer::default())
+        .layer(OtelAxumLayer::default())
         .with_state(state)
 }
 

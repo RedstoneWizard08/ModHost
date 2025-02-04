@@ -14,7 +14,7 @@ use modhost_server_core::state::AppState;
 /// Get information about a user.
 #[utoipa::path(
     get,
-    path = "/api/v1/users/{id}",
+    path = "/{id}",
     tag = "Users",
     params(
         ("id" = i32, description = "The user ID."),

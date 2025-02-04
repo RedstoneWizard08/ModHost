@@ -20,7 +20,7 @@ use oauth2::{CsrfToken, RedirectUrl, Scope};
 /// Initiate the GitHub login flow.
 #[utoipa::path(
     get,
-    path = "/api/v1/auth/github/login",
+    path = "/github/login",
     tag = "Auth",
     params(
         ("redirect_uri" = Option<String>, Query, description = "An optional custom URL to redirect to."),

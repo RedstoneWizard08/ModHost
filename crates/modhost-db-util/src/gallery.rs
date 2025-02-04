@@ -1,3 +1,5 @@
+//! Utilities for working with gallery images.
+
 use modhost_core::Result;
 use modhost_db::{GalleryImage, PublicGalleryImage};
 use s3::Bucket;

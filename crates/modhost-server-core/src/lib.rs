@@ -16,3 +16,5 @@ pub mod macros;
 pub mod models;
 pub mod state;
 pub mod worker;
+
+modhost_core::utoipa_types![models::GameVersion, models::ModLoader, models::Tag,];

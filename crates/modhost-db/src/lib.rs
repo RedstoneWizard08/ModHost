@@ -30,7 +30,7 @@ use diesel_async::{
     AsyncPgConnection,
 };
 use diesel_async_migrations::{embed_migrations, EmbeddedMigrations};
-use modhost_core::Result;
+use modhost_core::{utoipa_types, Result};
 use std::env;
 
 /// The embedded SQL database migrations.
@@ -88,3 +88,31 @@ pub async fn run_migrations(pool: &DbPool) -> Result<()> {
 
     Ok(())
 }
+
+utoipa_types![
+    User,
+    UserToken,
+    NewUser,
+    NewUserToken,
+    ProjectManifest,
+    Project,
+    ProjectAuthor,
+    ProjectRelation,
+    ProjectVersion,
+    ProjectVersionRef,
+    ProjectVersionInit,
+    NewProject,
+    NewProjectVersion,
+    RelationKind,
+    ProjectData,
+    ProjectVisibility,
+    GalleryImage,
+    NewGalleryImage,
+    PublicGalleryImage,
+    ProjectFile,
+    NewProjectFile,
+    ProjectVersionData,
+    ModerationComment,
+    ModerationQueueItem,
+    ModerationQueueStatus,
+];

@@ -1,10 +1,14 @@
+<p align="center">
+    <img src="./media/modhost/homepage.png" />
+</p>
+
 # ModHost
 
-![Contributions](./assets/contributions.svg)
-![Crates.io Version](https://img.shields.io/crates/v/modhost-api?style=for-the-badge&labelColor=191d28)
-![Deployment Status](https://img.shields.io/github/actions/workflow/status/RedstoneWizard08/ModHost/deploy.yml?branch=main&style=for-the-badge&label=Deployment&labelColor=191d28)
-![CLI Build Status](https://img.shields.io/github/actions/workflow/status/RedstoneWizard08/ModHost/cli-build.yml?branch=main&style=for-the-badge&label=CLI%20Build&labelColor=191d28)
-![Lines of Code](https://tokei.rs/b1/github/RedstoneWizard08/ModHost?style=for-the-badge&label=Lines+Of+Code)
+![Contributions](https://img.shields.io/badge/Contributions-Welcome-black?style=for-the-badge&logo=github&labelColor=%23191d28&color=%23068099)
+![Built with Rust](https://img.shields.io/badge/Built%20With-Rust-black?style=for-the-badge&logo=rust&labelColor=%23191d28&color=%23ce422b)
+![Powered by Svelte](https://img.shields.io/badge/Powered%20By-Svelte-black?style=for-the-badge&logo=svelte&labelColor=%23191d28&color=%23ff3e00)
+![Lines of Code](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftokei.rs%2Fb1%2Fgithub%2FRedstoneWizard08%2FModHost&query=%24.code&style=for-the-badge&label=Lines%20of%20Code&labelColor=%23191d28)
+![GitHub License](https://img.shields.io/github/license/RedstoneWizard08/ModHost?style=for-the-badge&labelColor=%23191d28)
 
 A simple, open-source, and self-hostable place to host mods for any game!
 

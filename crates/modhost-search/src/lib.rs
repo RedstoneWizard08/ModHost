@@ -18,3 +18,5 @@ pub use facets::*;
 pub use models::*;
 pub use search::*;
 pub use service::*;
+
+modhost_core::utoipa_types![Sort, SortMode, SearchResults, Facet,];

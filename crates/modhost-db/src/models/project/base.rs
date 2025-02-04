@@ -241,3 +241,25 @@ impl ProjectVisibility {
         }
     }
 }
+
+impl ProjectData {
+    /// Turn this into a [`Project`].
+    pub fn into_project(self) -> Project {
+        Project {
+            id: self.id,
+            name: self.name,
+            slug: self.slug,
+            readme: self.readme,
+            description: self.description,
+            source: self.source,
+            issues: self.issues,
+            wiki: self.wiki,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            downloads: self.downloads,
+            visibility: self.visibility,
+            license: self.license.clone(),
+            tags: self.tags.into_iter().map(|v| Some(v)).collect_vec(),
+        }
+    }
+}

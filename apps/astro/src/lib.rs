@@ -1,4 +1,3 @@
-pub mod cli;
 pub mod models;
 pub mod tags;
 pub mod vers;

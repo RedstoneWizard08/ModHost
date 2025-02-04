@@ -17,7 +17,7 @@ use modhost_server_core::state::AppState;
 /// Get a user's projects.
 #[utoipa::path(
     get,
-    path = "/api/v1/users/{id}/projects",
+    path = "/{id}/projects",
     tag = "Users",
     params(
         ("id" = i32, description = "The user ID."),

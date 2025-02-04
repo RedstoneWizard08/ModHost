@@ -1,8 +1,5 @@
-use anyhow::Result;
-use astro::cli::Cli;
-use clap::Parser;
-
-#[tokio::main]
-pub async fn main() -> Result<()> {
-    Cli::parse().run().await
+quickhost::quickhost! {
+    versions = [astro::vers::get_astro_versions().await?];
+    loaders = [modhost::loaders!["AstroModIntegrator", "UE4SS"]];
+    tags = [astro::tags::tags()];
 }

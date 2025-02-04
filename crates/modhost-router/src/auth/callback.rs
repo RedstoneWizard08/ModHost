@@ -28,7 +28,7 @@ use super::CALLBACK_URL;
 /// Complete the GitHub login flow.
 #[utoipa::path(
     get,
-    path = "/api/v1/auth/github/callback",
+    path = "/github/callback",
     tag = "Auth",
     responses(
         (status = 307, description = "Success, redirecting to user info."),
@@ -58,7 +58,7 @@ pub async fn callback_handler(
 
     match client
         .exchange_code(oauth2::AuthorizationCode::new(code.to_owned()))
-        .request_async(oauth2::reqwest::async_http_client)
+        .request_async(&oauth2::reqwest::Client::new())
         .await
     {
         Ok(token) => {

@@ -15,7 +15,7 @@ diesel-async.workspace = true
 diesel_async_migrations.workspace = true
 diesel-derive-enum.workspace = true
 itertools.workspace = true
-modhost-core = { workspace = true, features = ["diesel", "diesel-async"] }
+modhost-core = { workspace = true, features = ["diesel", "diesel-async", "utoipa"] }
 random-string.workspace = true
 serde.workspace = true
 utoipa.workspace = true

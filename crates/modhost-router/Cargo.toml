@@ -18,7 +18,9 @@ diesel-async.workspace = true
 imghdr.workspace = true
 jsglue.workspace = true
 modhost-auth.workspace = true
-modhost-core = { workspace = true, features = ["octocrab", "semver", "serde-json", "serde-yaml"] }
+modhost-badges.workspace = true
+modhost-config.workspace = true
+modhost-core = { workspace = true, features = ["axum", "reqwest", "octocrab", "semver", "serde-json", "serde-yaml", "utoipa"] }
 modhost-db.workspace = true
 modhost-db-util.workspace = true
 modhost-middleware.workspace = true

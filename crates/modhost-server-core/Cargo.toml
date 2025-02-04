@@ -15,7 +15,7 @@ chrono.workspace = true
 diesel.workspace = true
 diesel-async.workspace = true
 jsglue.workspace = true
-modhost-core.workspace = true
+modhost-core = { workspace = true, features = ["glue", "utoipa"] }
 modhost-config.workspace = true
 modhost-db.workspace = true
 modhost-search.workspace = true

@@ -9,7 +9,7 @@ use modhost_server_core::{models::GameVersion, state::AppState};
 /// Get a list of game versions.
 #[utoipa::path(
     get,
-    path = "/api/v1/meta/game_versions",
+    path = "/game_versions",
     tag = "Meta",
     responses(
         (status = 200, description = "Got game versions!", body = Vec<GameVersion>),

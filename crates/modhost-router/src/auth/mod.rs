@@ -7,17 +7,22 @@ pub mod callback;
 pub mod login;
 
 use axum::{routing::get, Router};
-use callback::callback_handler;
-use login::login_handler;
 use modhost_server_core::state::AppState;
 
 /// The relative URL for the GitHub auth callback.
 pub const CALLBACK_URL: &str = "/api/v1/auth/github/callback";
 
-/// Register auth-related routes
+/// Register auth-related routes.
+/// Should be nested at `/api/v1/auth`.
 pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
-        .route("/github/login", get(login_handler))
-        .route("/github/callback", get(callback_handler))
+        .route("/github/login", get(login::login_handler))
+        .route("/github/callback", get(callback::callback_handler))
         .with_state(state)
 }
+
+/// The spec for the auth API.
+/// Should be nested at `/api/v1/auth`.
+#[derive(OpenApi)]
+#[openapi(paths(login::login_handler, callback::callback_handler,))]
+pub struct AuthApi;

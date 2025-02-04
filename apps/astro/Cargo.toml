@@ -23,6 +23,7 @@ modhost.workspace = true
 modhost-db.workspace = true
 once_cell.workspace = true
 parse-wiki-text-2.workspace = true
+quickhost.workspace = true
 regex.workspace = true
 reqwest.workspace = true
 ron.workspace = true

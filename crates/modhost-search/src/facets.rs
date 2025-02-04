@@ -34,15 +34,18 @@ pub enum Facet {
 
     /// Filter by project visibility.
     /// This is used internally, and is not accepted in the front-facing search API.
+    #[serde(skip)]
     Visibility(ProjectVisibility),
 
     /// Filter by authors. This will match if one of the project's authors
     /// has the ID provided.
     /// This is used internally, and is not accepted in the front-facing search API.
+    #[serde(skip)]
     Author(i32),
 
     /// Provide a manual Meilisearch filter string.
     /// This is used internally, and is not accepted in the front-facing search API.
+    #[serde(skip)]
     Manual(String),
 }
 

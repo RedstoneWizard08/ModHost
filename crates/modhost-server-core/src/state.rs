@@ -7,9 +7,10 @@ use modhost_core::Result;
 use modhost_db::DbPool;
 use modhost_search::MeilisearchService;
 use modhost_ui::DEFAULT_FAVICON_PNG;
-use oauth2::basic::BasicClient;
+use oauth2::{basic::BasicClient, EndpointNotSet, EndpointSet};
 use s3::Bucket;
 use std::{fs, sync::Arc};
+use utoipa::openapi::OpenApi;
 
 use crate::models::{GameVersion, ModLoader, Tag};
 
@@ -30,7 +31,7 @@ pub struct AppState {
     pub pool: DbPool,
 
     /// The [`BasicClient`] for GitHub OAuth2 calls.
-    pub auth: BasicClient,
+    pub auth: BasicClient<EndpointSet, EndpointNotSet, EndpointNotSet, EndpointNotSet, EndpointSet>,
 
     /// References to buckets used by the server.
     pub buckets: BucketState,
@@ -60,6 +61,9 @@ pub struct AppState {
 
     /// The data URL of the icon PNG file (`data:image/png;base64,...`).
     pub icon_png_data_url: String,
+
+    /// The app's OpenAPI spec.
+    pub api_spec: OpenApi,
 }
 
 impl AppState {
@@ -68,6 +72,7 @@ impl AppState {
         pool: DbPool,
         config: &AppConfig,
         verifier: Box<dyn Fn(Bytes) -> bool + Send + Sync>,
+        api_spec: OpenApi,
     ) -> Result<Self> {
         let icon_data = if config.ui.favicon_png == "default" {
             DEFAULT_FAVICON_PNG.to_vec()
@@ -97,6 +102,7 @@ impl AppState {
             verifier: Arc::new(verifier),
             search: MeilisearchService::new(config)?,
             icon_png_data_url: format!("data:image/png;base64,{}", icon_b64),
+            api_spec,
         })
     }
 }

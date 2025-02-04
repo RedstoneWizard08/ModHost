@@ -1,57 +1,18 @@
 use axum::body::Bytes;
-use clap::{Command, CommandFactory, Parser};
-use clap_complete::{generate, Generator, Shell};
-use clap_verbosity_flag::{InfoLevel, Verbosity};
 use flate2::read::GzDecoder;
-use modhost::{from_log_level, init_logger, loaders, GameVersion, ModHost, Result};
+use modhost::{GameVersion, Result};
 use modhost_db::ProjectManifest;
 use serde::{Deserialize, Serialize};
-use std::io::stdout;
 use std::io::{Cursor, Read};
 use tar::Archive;
 
 pub const PISTON_META_ENDPOINT: &str =
     "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
-#[derive(Debug, Clone, Parser)]
-#[command(version, about, long_about = None)]
-pub struct Cli {
-    #[command(flatten)]
-    pub verbose: Verbosity<InfoLevel>,
-
-    #[arg(short = 'C', long)]
-    pub complete: Option<Shell>,
-}
-
-impl Cli {
-    fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
-        generate(gen, cmd, cmd.get_name().to_string(), &mut stdout());
-    }
-
-    pub async fn run(self) -> Result<()> {
-        if let Some(shell) = self.complete {
-            Self::print_completions(shell, &mut Cli::command());
-            return Ok(());
-        }
-
-        let _ = dotenvy::dotenv();
-        init_logger(from_log_level(self.verbose.log_level_filter()));
-
-        ModHost::new(Box::new(verify_project))
-            .await?
-            .versions(get_minecraft_versions().await?)
-            .loaders(loaders!["Forge", "Fabric", "Quilt", "NeoForge",])
-            .router()
-            .run()
-            .await?;
-
-        Ok(())
-    }
-}
-
-#[tokio::main]
-pub async fn main() -> Result<()> {
-    Cli::parse().run().await
+quickhost::quickhost! {
+    versions = [crate::get_minecraft_versions().await?];
+    loaders = [modhost::loaders!["Forge", "Fabric", "Quilt", "NeoForge"]];
+    verifier = [crate::verify_project];
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

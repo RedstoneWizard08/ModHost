@@ -1,3 +1,5 @@
+//! Utilities for working with project versions.
+
 use anyhow::anyhow;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
@@ -8,6 +10,7 @@ use modhost_db::{
 };
 use semver::Version;
 
+/// Get a list of versions for a project.
 pub async fn get_versions(project: i32, conn: &mut DbConn) -> Result<Vec<ProjectVersionData>> {
     Ok((project_versions::table
         .inner_join(version_files::table)
@@ -22,6 +25,7 @@ pub async fn get_versions(project: i32, conn: &mut DbConn) -> Result<Vec<Project
         .collect_vec())
 }
 
+/// Get the full version data for a project.
 pub async fn get_full_version(
     project: i32,
     ver: impl AsRef<str>,
@@ -58,6 +62,7 @@ pub async fn get_full_version(
         .ok_or(anyhow!("Could not find project version!").into())
 }
 
+/// Get a version file.
 pub async fn get_version_file(
     ver: i32,
     file: impl AsRef<str>,

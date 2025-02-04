@@ -8,6 +8,7 @@ use axum::{routing::get, Router};
 use modhost_server_core::state::AppState;
 
 /// Register user-related endpoints.
+/// Should be nested at `/api/v1/users`.
 pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/me", get(me::me_handler))
@@ -15,3 +16,9 @@ pub fn router(state: AppState) -> Router<AppState> {
         .route("/{id}/projects", get(pkg::list_handler))
         .with_state(state)
 }
+
+/// The spec for the users API.
+/// Should be nested at `/api/v1/users`.
+#[derive(OpenApi)]
+#[openapi(paths(me::me_handler, info::info_handler, pkg::list_handler,))]
+pub struct UsersApi;

@@ -17,7 +17,7 @@ futures.workspace = true
 itertools.workspace = true
 meilisearch-sdk.workspace = true
 modhost-config.workspace = true
-modhost-core = { workspace = true, features = ["anyhow", "chrono", "meilisearch"] }
+modhost-core = { workspace = true, features = ["anyhow", "chrono", "meilisearch", "utoipa"] }
 modhost-db.workspace = true
 reqwest.workspace = true
 serde.workspace = true

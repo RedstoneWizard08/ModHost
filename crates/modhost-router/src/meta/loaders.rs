@@ -9,7 +9,7 @@ use modhost_server_core::{models::ModLoader, state::AppState};
 /// Get a list of mod loaders.
 #[utoipa::path(
     get,
-    path = "/api/v1/meta/loaders",
+    path = "/loaders",
     tag = "Meta",
     responses(
         (status = 200, description = "Got mod loaders!", body = Vec<ModLoader>),

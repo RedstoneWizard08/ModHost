@@ -9,7 +9,7 @@ use modhost_server_core::{models::Tag, state::AppState};
 /// Get a list of available tags.
 #[utoipa::path(
     get,
-    path = "/api/v1/meta/tags",
+    path = "/tags",
     tag = "Meta",
     responses(
         (status = 200, description = "Got tags!", body = Vec<Tag>),

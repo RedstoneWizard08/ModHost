@@ -9,17 +9,12 @@ authors.workspace = true
 readme.workspace = true
 
 [dependencies]
-anyhow.workspace = true
 axum.workspace = true
-clap.workspace = true
-clap-verbosity-flag.workspace = true
-clap_complete.workspace = true
-dotenvy.workspace = true
 flate2.workspace = true
 modhost.workspace = true
 modhost-db.workspace = true
+quickhost.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tar.workspace = true
-tokio.workspace = true

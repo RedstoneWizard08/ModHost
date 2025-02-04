@@ -12,7 +12,7 @@ a great example of how to set up a proper ModHost-based server. It's pretty simp
 documentation of all the values!!).
 
 The entire executable (compiled on Linux/aarch64), at the time of writing, weighs in at
-39 megabytes, and includes the entire UI source code as well as all the normal binary
-stuff. Yeah, it's a big one. But all that... girth... allows you to customize the server
-on the fly with only needing to restart the server, not recompile it. It compiles the UI
-(only in release mode) on startup for you, everything handled, automatically.
+39 megabytes (at the time of writing), and includes the entire UI source code as well as
+all the normal binary stuff. Yeah, it's a big one. But all that... girth... allows you to
+customize the server on the fly with only needing to restart the server, not recompile it.
+It compiles the UI (only in release mode) on startup for you, everything handled, automatically.

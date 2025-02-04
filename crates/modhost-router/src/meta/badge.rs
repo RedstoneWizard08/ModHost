@@ -5,8 +5,7 @@ use axum::{
     response::Response,
 };
 use modhost_core::Result;
-use modhost_db::get_project;
-use modhost_db_util::vers::get_latest_version;
+use modhost_db_util::{projects::get_project, vers::get_latest_version};
 use modhost_server_core::state::AppState;
 
 /// Version Badge
@@ -14,7 +13,7 @@ use modhost_server_core::state::AppState;
 /// Get a badge for a specific version of a project.
 #[utoipa::path(
     get,
-    path = "/api/v1/meta/badge/version/{version}",
+    path = "/badge/version/{version}",
     tag = "Meta",
     params(
         ("version" = String, description = "The version."),
@@ -48,7 +47,7 @@ pub async fn version_handler(
 /// Get a badge for the latest version of a project.
 #[utoipa::path(
     get,
-    path = "/api/v1/meta/badge/latest/{project}",
+    path = "/badge/latest/{project}",
     tag = "Meta",
     params(
         ("project" = String, description = "The project."),

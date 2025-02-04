@@ -1,147 +1,18 @@
 //! ModHost's OpenAPI system using [`utoipa`].
 
-use utoipa::{
-    openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
-    Modify,
+use crate::{
+    auth::AuthApi, meta::MetadataApi, moderation::ModerationApi, projects::ProjectsApi,
+    users::UsersApi,
 };
-
-/// The struct for the generated OpenAPI spec using [`utoipa`].
-#[derive(OpenApi)]
-#[openapi(
-    info(
-        title = "ModHost API",
-        description = "The ModHost REST API.",
-
-        license(
-            name = "MIT",
-            url = "https://opensource.org/license/mit/",
-        ),
-    ),
-    paths(
-        crate::api::yaml_api,
-        crate::api::json_api,
-        crate::users::me::me_handler,
-        crate::users::info::info_handler,
-        crate::users::pkg::list_handler,
-        crate::auth::login::login_handler,
-        crate::auth::callback::callback_handler,
-        crate::pkg::info::project_info_handler,
-        crate::pkg::info::update_project_handler,
-        crate::pkg::info::delete_project_handler,
-        crate::pkg::info::create_project_handler,
-        crate::pkg::ver::list_versions_handler,
-        crate::pkg::ver::version_info_handler,
-        crate::pkg::ver::download_version_handler,
-        crate::pkg::ver::create_version_handler,
-        crate::pkg::ver::update_version_handler,
-        crate::pkg::ver::delete_version_handler,
-        crate::pkg::ver::latest_version_handler,
-        crate::pkg::author::list_authors_handler,
-        crate::pkg::author::add_author_handler,
-        crate::pkg::author::remove_author_handler,
-        crate::pkg::search::search_projects_handler,
-        crate::pkg::gallery::list_gallery_handler,
-        crate::pkg::gallery::upload_gallery_handler,
-        crate::pkg::gallery::update_gallery_handler,
-        crate::pkg::gallery::delete_gallery_handler,
-        crate::pkg::gallery::s3_image_handler,
-        crate::pkg::gallery::gallery_info_handler,
-        crate::meta::badge::version_handler,
-        crate::meta::badge::latest_version_badge_handler,
-        crate::meta::vers::game_versions_handler,
-        crate::meta::loaders::loaders_handler,
-        crate::meta::tags::tags_handler,
-    ),
-    components(
-        schemas(
-            modhost_db::User,
-            modhost_db::UserToken,
-            modhost_db::NewUser,
-            modhost_db::NewUserToken,
-            modhost_db::ProjectManifest,
-            modhost_db::Project,
-            modhost_db::ProjectAuthor,
-            modhost_db::ProjectRelation,
-            modhost_db::ProjectVersion,
-            modhost_db::ProjectVersionRef,
-            modhost_db::ProjectVersionInit,
-            modhost_db::NewProject,
-            modhost_db::NewProjectVersion,
-            modhost_db::RelationKind,
-            modhost_db::ProjectData,
-            modhost_db::ProjectVisibility,
-            modhost_db::GalleryImage,
-            modhost_db::NewGalleryImage,
-            modhost_db::PublicGalleryImage,
-            modhost_db::ProjectFile,
-            modhost_db::NewProjectFile,
-            modhost_db::ProjectVersionData,
-            modhost_search::Sort,
-            modhost_search::SortMode,
-            modhost_search::SearchResults,
-            modhost_search::Facet,
-            crate::api::JsonQueryParams,
-            crate::pkg::info::PartialProject,
-            crate::pkg::ver::PartialProjectVersion,
-            crate::pkg::search::SearchQuery,
-            crate::pkg::gallery::PartialGalleryImage,
-            crate::pkg::gallery::GalleryImageUpload,
-            modhost_server_core::models::GameVersion,
-            modhost_server_core::models::ModLoader,
-            modhost_server_core::models::Tag,
-        ),
-        responses(
-            modhost_db::User,
-            modhost_db::UserToken,
-            modhost_db::NewUser,
-            modhost_db::NewUserToken,
-            modhost_db::ProjectManifest,
-            modhost_db::Project,
-            modhost_db::ProjectAuthor,
-            modhost_db::ProjectRelation,
-            modhost_db::ProjectVersion,
-            modhost_db::ProjectVersionRef,
-            modhost_db::ProjectVersionInit,
-            modhost_db::NewProject,
-            modhost_db::NewProjectVersion,
-            modhost_db::RelationKind,
-            modhost_db::ProjectData,
-            modhost_db::ProjectVisibility,
-            modhost_db::GalleryImage,
-            modhost_db::NewGalleryImage,
-            modhost_db::PublicGalleryImage,
-            modhost_db::ProjectFile,
-            modhost_db::NewProjectFile,
-            modhost_db::ProjectVersionData,
-            modhost_search::Sort,
-            modhost_search::SortMode,
-            modhost_search::SearchResults,
-            modhost_search::Facet,
-            crate::api::JsonQueryParams,
-            crate::pkg::info::PartialProject,
-            crate::pkg::ver::PartialProjectVersion,
-            crate::pkg::search::SearchQuery,
-            crate::pkg::gallery::PartialGalleryImage,
-            crate::pkg::gallery::GalleryImageUpload,
-            modhost_server_core::models::GameVersion,
-            modhost_server_core::models::ModLoader,
-            modhost_server_core::models::Tag,
-        ),
-    ),
-    tags(
-        (name = "Auth", description = "Authentication endpoints."),
-        (name = "Users", description = "User-related endpoints."),
-        (name = "Projects", description = "Project-related endpoints."),
-        (name = "Gallery", description = "Project gallery-related endpoints."),
-        (name = "Versions", description = "Project version-related endpoints."),
-        (name = "Misc", description = "Miscellaneous endpoints."),
-        (name = "Meta", description = "Metadata-related endpoints."),
-    ),
-    modifiers(
-        &TokenAuthAddon,
-    ),
-)]
-pub struct ApiDocs;
+use modhost_config::AppConfig;
+use utoipa::{
+    openapi::{
+        security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
+        tag::TagBuilder,
+        InfoBuilder, LicenseBuilder, OpenApi, OpenApiBuilder, Tag,
+    },
+    Modify, OpenApi as OpenApiTrait,
+};
 
 /// An addon for the OpenAPI spec to add token auth.
 #[derive(Debug, Clone, Copy)]
@@ -161,4 +32,74 @@ impl Modify for TokenAuthAddon {
             ),
         )
     }
+}
+
+/// A utility macro to apply types to a new [`utoipa::openapi::schema::ComponentBuilder`]
+/// from a bunch of crates.
+macro_rules! apply_types {
+    [$($parent: ident),* $(,)?] => {{
+        let mut components = utoipa::openapi::schema::ComponentsBuilder::new();
+
+        $(
+            components = $parent::add_types(components);
+        )*
+
+        components
+    }};
+}
+
+/// Shorthand helper for creating an OpenAPI [`Tag`] from a name and a description.
+pub fn make_tag(name: impl AsRef<str>, desc: impl AsRef<str>) -> Tag {
+    TagBuilder::new()
+        .name(name.as_ref())
+        .description(Some(desc.as_ref()))
+        .build()
+}
+
+/// Build the OpenAPI spec.
+pub fn build_openapi(_config: &AppConfig) -> OpenApi {
+    let tags = vec![
+        make_tag("Auth", "Authentication endpoints."),
+        make_tag("Users", "User-related endpoints."),
+        make_tag("Projects", "Project-related endpoints."),
+        make_tag("Gallery", "Project gallery-related endpoints."),
+        make_tag("Versions", "Project version-related endpoints."),
+        make_tag("Misc", "Miscellaneous endpoints."),
+        make_tag("Meta", "Metadata-related endpoints."),
+        make_tag("Moderation", "Moderation-related endpoints."),
+    ];
+
+    let components = apply_types![
+        crate,
+        modhost_db,
+        modhost_search,
+        modhost_server_core,
+        modhost_badges,
+    ]
+    .build();
+
+    let mut api = OpenApiBuilder::new()
+        .info(
+            InfoBuilder::new()
+                .title("ModHost API")
+                .description(Some("The ModHost REST API."))
+                .license(Some(
+                    LicenseBuilder::new()
+                        .name("MIT")
+                        .url(Some("https://opensource.org/license/mit/"))
+                        .build(),
+                ))
+                .build(),
+        )
+        .tags(Some(tags))
+        .components(Some(components))
+        .build();
+
+    TokenAuthAddon.modify(&mut api);
+
+    api.nest("/api/v1/auth", AuthApi::openapi())
+        .nest("/api/v1/meta", MetadataApi::openapi())
+        .nest("/api/v1/projects", ProjectsApi::openapi())
+        .nest("/api/v1/users", UsersApi::openapi())
+        .nest("/api/v1/moderation", ModerationApi::openapi())
 }

@@ -12,7 +12,7 @@ use modhost_server_core::state::AppState;
 /// Get information about the current authenticated user.
 #[utoipa::path(
     get,
-    path = "/api/v1/users/me",
+    path = "/me",
     tag = "Users",
     responses(
         (status = 200, description = "Found user!", body = User),

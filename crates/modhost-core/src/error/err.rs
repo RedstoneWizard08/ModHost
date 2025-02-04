@@ -165,6 +165,11 @@ pub enum AppError {
     #[cfg(feature = "meilisearch")]
     Meilisearch(#[from] meilisearch_sdk::errors::Error),
 
+    /// An error with badge generation occured.
+    #[error(transparent)]
+    #[cfg(feature = "rsbadges")]
+    Badge(#[from] rsbadges::BadgeError),
+
     /// A token was missing.
     #[error("Missing required token header or cookie!")]
     MissingToken,

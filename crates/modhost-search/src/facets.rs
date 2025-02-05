@@ -1,8 +1,7 @@
 //! The front-facing facet filter system.
 
-use anyhow::anyhow;
 use chrono::NaiveDateTime;
-use modhost_core::Result;
+use modhost_core::{AppError, Result};
 use modhost_db::ProjectVisibility;
 
 /// A facet/filter.
@@ -157,10 +156,10 @@ impl Facet {
                 if it.1.len() == 2 {
                     Ok(Self::Published(it.1[0].parse()?, it.1[1].parse()?))
                 } else {
-                    Err(
-                        anyhow!("Invalid array length for 'published' facet: {}", it.1.len())
-                            .into(),
-                    )
+                    Err(AppError::InvalidFacetData(
+                        "published".into(),
+                        format!("[{}]", it.1.join(", ")),
+                    ))
                 }
             }
 
@@ -168,7 +167,10 @@ impl Facet {
                 if it.1.len() == 2 {
                     Ok(Self::Updated(it.1[0].parse()?, it.1[1].parse()?))
                 } else {
-                    Err(anyhow!("Invalid array length for 'updated' facet: {}", it.1.len()).into())
+                    Err(AppError::InvalidFacetData(
+                        "updated".into(),
+                        format!("[{}]", it.1.join(", ")),
+                    ))
                 }
             }
 
@@ -176,14 +178,14 @@ impl Facet {
                 if it.1.len() == 2 {
                     Ok(Self::Downloads(it.1[0].parse()?, it.1[1].parse()?))
                 } else {
-                    Err(
-                        anyhow!("Invalid array length for 'downloads' facet: {}", it.1.len())
-                            .into(),
-                    )
+                    Err(AppError::InvalidFacetData(
+                        "downloads".into(),
+                        format!("[{}]", it.1.join(", ")),
+                    ))
                 }
             }
 
-            other => Err(anyhow!("Unknown facet type: {}", other).into()),
+            other => Err(AppError::UnknownFacetType(other.into())),
         }
     }
 }

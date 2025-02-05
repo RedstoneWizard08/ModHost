@@ -1,6 +1,5 @@
 //! The version create route.
 
-use anyhow::anyhow;
 use axum::{
     body::Body,
     extract::{Multipart, Path, State},
@@ -12,7 +11,7 @@ use chrono::Utc;
 use diesel::{insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
-use modhost_core::Result;
+use modhost_core::{AppError, Result};
 use modhost_db::{
     project_authors, project_versions, projects, version_files, NewProjectFile, NewProjectVersion,
     Project, ProjectAuthor, ProjectFile, ProjectVersion, ProjectVersionInit,
@@ -71,10 +70,7 @@ pub async fn create_handler(
     let mut file_name = None;
 
     while let Ok(Some(field)) = data.next_field().await {
-        match field
-            .name()
-            .ok_or(anyhow!("Could not find a name for a field!"))?
-        {
+        match field.name().ok_or(AppError::MissingFieldName)? {
             "name" => name = Some(field.text().await?),
             "version_number" => version_number = Some(field.text().await?),
             "changelog" => changelog = Some(field.text().await?),
@@ -105,27 +101,27 @@ pub async fn create_handler(
     }
 
     if name.is_none() {
-        Err(anyhow!("Missing field: 'name'"))?;
+        Err(AppError::MissingField("name".into()))?;
     }
 
     if version_number.is_none() {
-        Err(anyhow!("Missing field: 'version_number'"))?;
+        Err(AppError::MissingField("version_number".into()))?;
     }
 
     if loaders.is_none() {
-        Err(anyhow!("Missing field: 'loaders'"))?;
+        Err(AppError::MissingField("loaders".into()))?;
     }
 
     if game_versions.is_none() {
-        Err(anyhow!("Missing field: 'game_versions'"))?;
+        Err(AppError::MissingField("game_versions".into()))?;
     }
 
     if file.is_none() {
-        Err(anyhow!("Missing field: 'file'"))?;
+        Err(AppError::MissingField("file".into()))?;
     }
 
     if file_name.is_none() {
-        Err(anyhow!("Missing field: 'file_name'"))?;
+        Err(AppError::MissingField("file_name".into()))?;
     }
 
     let name = name.unwrap();
@@ -138,7 +134,7 @@ pub async fn create_handler(
     Version::parse(&version_number)?;
 
     if !(state.verifier)(file.clone()) {
-        Err(anyhow!("Invalid project!"))?;
+        Err(AppError::NotFound)?;
     }
 
     let mut hasher = Sha1::new();

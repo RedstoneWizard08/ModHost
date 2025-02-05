@@ -206,15 +206,60 @@ pub enum AppError {
     /// A resource could not be found.
     #[error("Resource not found!")]
     NotFound,
+
+    /// The name of a form data field could not be found!
+    #[error("Missing field name!")]
+    MissingFieldName,
+
+    /// A user doesn't have access to a resource.
+    #[error("You do not have access to that resource!")]
+    NoAccess,
+
+    /// Invalid facet data.
+    #[error("Invalid facet data for type {0}: {1}")]
+    InvalidFacetData(String, String),
+
+    /// Unknown facet type.
+    #[error("Unknown facet type: {0}")]
+    UnknownFacetType(String),
+
+    /// Invalid image file
+    #[error("Invalid image file!")]
+    InvalidImageFile,
+
+    /// A required field was missing!
+    #[error("Missing field: {0}")]
+    MissingField(String),
+
+    /// How did we get here?
+    #[error("An unknown error occured.")]
+    Unknown,
+
+    /// No versions published.
+    #[error("The project doesn't have any versions published!")]
+    NoVersions,
+
+    /// Couldn't find the right logo for a badge.
+    #[error("Failed to find logo: {0}")]
+    NoLogo(String),
 }
 
 #[cfg(feature = "axum")]
 impl super::HasCode for AppError {
     fn code(&self) -> u16 {
         match self {
-            Self::Multipart(_) | Self::ParseInt(_) => 400,
+            Self::Multipart(_)
+            | Self::ParseInt(_)
+            | Self::MissingField(_)
+            | Self::MissingFieldName
+            | Self::InvalidFacetData(_, _)
+            | Self::UnknownFacetType(_)
+            | Self::InvalidImageFile
+            | Self::NoLogo(_) => 400,
+
             Self::MissingToken => 401,
-            Self::NotFound | Self::UnknownUser => 404,
+            Self::NoAccess => 403,
+            Self::NotFound | Self::UnknownUser | Self::NoVersions => 404,
             _ => 500,
         }
     }

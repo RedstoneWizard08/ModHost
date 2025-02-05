@@ -1,12 +1,11 @@
 //! Utilities for indexing projects.
 
 use crate::{MeiliProject, MeilisearchService};
-use anyhow::anyhow;
 use diesel::{ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use itertools::Itertools;
 use meilisearch_sdk::documents::DocumentDeletionQuery;
-use modhost_core::Result;
+use modhost_core::{AppError, Result};
 use modhost_db::{
     project_authors, project_versions, projects, users, DbConn, Project, ProjectVersion, User,
 };
@@ -80,7 +79,7 @@ impl MeilisearchService {
             )
             .map(|v| MeiliProject::from_data(v.0, v.1 .0, v.1 .1))
             .find(|v| v.id == project)
-            .ok_or(anyhow!("Could not find project with ID {}!", project))?;
+            .ok_or(AppError::NotFound)?;
 
         self.projects()
             .add_or_replace(&[data], Some("id"))

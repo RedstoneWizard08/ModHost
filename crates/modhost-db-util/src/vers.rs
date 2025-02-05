@@ -1,10 +1,9 @@
 //! Utilities for working with project versions.
 
-use anyhow::anyhow;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use itertools::Itertools;
-use modhost_core::Result;
+use modhost_core::{AppError, Result};
 use modhost_db::{
     project_versions, version_files, DbConn, ProjectFile, ProjectVersion, ProjectVersionData,
 };
@@ -59,7 +58,7 @@ pub async fn get_full_version(
         .into_iter()
         .map(|v| v.0.with_files(v.1))
         .next()
-        .ok_or(anyhow!("Could not find project version!").into())
+        .ok_or(AppError::NotFound)
 }
 
 /// Get a version file.
@@ -102,10 +101,7 @@ pub async fn get_latest_version(project: i32, conn: &mut DbConn) -> Result<Proje
             .cmp(&Version::parse(&b.version_number).unwrap())
     });
 
-    versions
-        .last()
-        .cloned()
-        .ok_or(anyhow!("Could not find latest version!").into())
+    versions.last().cloned().ok_or(AppError::NoVersions)
 }
 
 /// Get a project's latest version.
@@ -121,8 +117,5 @@ pub async fn get_latest_full_version(
             .cmp(&Version::parse(&b.version_number).unwrap())
     });
 
-    versions
-        .last()
-        .cloned()
-        .ok_or(anyhow!("Could not find latest version!").into())
+    versions.last().cloned().ok_or(AppError::NoVersions)
 }

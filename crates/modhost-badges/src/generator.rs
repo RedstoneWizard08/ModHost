@@ -4,8 +4,7 @@ use crate::{
     logo::resolve_simpleicons_logo,
     models::{BadgeOptions, BadgeStyle},
 };
-use anyhow::anyhow;
-use modhost_core::Result;
+use modhost_core::{AppError, Result};
 use rsbadges::{Badge, Style};
 
 /// The default blue color for the badge message.
@@ -19,7 +18,7 @@ pub async fn generate_badge(opts: BadgeOptions) -> Result<String> {
     let logo = if let Some(logo) = opts.logo {
         resolve_simpleicons_logo(&logo)
             .await
-            .ok_or(anyhow!("Failed to find logo {}!", logo))?
+            .ok_or(AppError::NoLogo(logo))?
     } else {
         Default::default()
     };

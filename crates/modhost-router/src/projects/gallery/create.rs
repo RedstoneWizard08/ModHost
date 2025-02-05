@@ -1,6 +1,5 @@
 //! The create gallery image route.
 
-use anyhow::anyhow;
 use axum::{
     body::Body,
     extract::{Multipart, Path, State},
@@ -12,7 +11,7 @@ use chrono::Utc;
 use diesel::{insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
-use modhost_core::Result;
+use modhost_core::{AppError, Result};
 use modhost_db::{
     gallery_images, project_authors, projects, GalleryImage, NewGalleryImage, Project,
     ProjectAuthor, PublicGalleryImage,
@@ -90,10 +89,7 @@ pub async fn create_handler(
     let mut file = None;
 
     while let Ok(Some(field)) = data.next_field().await {
-        match field
-            .name()
-            .ok_or(anyhow!("Could not find a name for a field!"))?
-        {
+        match field.name().ok_or(AppError::MissingFieldName)? {
             "name" => name = Some(field.text().await?),
             "description" => description = Some(field.text().await?),
             "ordering" => ordering = Some(field.text().await?),
@@ -103,17 +99,17 @@ pub async fn create_handler(
     }
 
     if name.is_none() {
-        Err(anyhow!("Missing field: 'name'"))?;
+        Err(AppError::MissingField("name".into()))?;
     }
 
     if file.is_none() {
-        Err(anyhow!("Missing field: 'file'"))?;
+        Err(AppError::MissingField("file".into()))?;
     }
 
     let name = name.unwrap();
     let ordering = ordering.unwrap_or("-1".into()).parse()?;
     let file = file.unwrap();
-    let file_format = imghdr::from_bytes(&file).ok_or(anyhow!("Invalid image file!"))?;
+    let file_format = imghdr::from_bytes(&file).ok_or(AppError::InvalidImageFile)?;
     let mut hasher = Sha1::new();
 
     hasher.update(&file);

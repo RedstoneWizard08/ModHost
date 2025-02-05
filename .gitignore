@@ -42,3 +42,4 @@ config.astro.pkl
 
 # Dev
 docker-compose.yml
+prometheus.yaml

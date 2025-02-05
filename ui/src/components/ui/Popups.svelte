@@ -26,6 +26,7 @@
         { type: "theme", name: "ModHost", id: "modhost" },
         { type: "theme", name: "KJSPKG", id: "kjspkg" },
         { type: "theme", name: "Astro", id: "astro" },
+        { type: "theme", name: "Murky", id: "murky" },
         { type: "divider" },
         { type: "theme", name: "Wintry", id: "wintry" },
         { type: "theme", name: "Crimson", id: "crimson" },

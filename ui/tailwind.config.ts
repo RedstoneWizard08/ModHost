@@ -9,6 +9,7 @@ import { lighterTheme } from "./src/themes/kjspkg-lighter";
 import { gcatTheme } from "./src/themes/kjspkg-gcat";
 import { serenityTheme } from "./src/themes/serenity";
 import { astroTheme } from "./src/themes/astro";
+import { murkyTheme } from "./src/themes/murky";
 
 const config = {
     darkMode: "class",
@@ -49,6 +50,7 @@ const config = {
                     modhostTheme,
                     kjspkgTheme,
                     astroTheme,
+                    murkyTheme,
                     lighterTheme,
                     gcatTheme,
                     serenityTheme,

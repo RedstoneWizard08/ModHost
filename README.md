@@ -10,6 +10,8 @@
 ![Lines of Code](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftokei.rs%2Fb1%2Fgithub%2FRedstoneWizard08%2FModHost&query=%24.code&style=for-the-badge&label=Lines%20of%20Code&labelColor=%23191d28)
 ![GitHub License](https://img.shields.io/github/license/RedstoneWizard08/ModHost?style=for-the-badge&labelColor=%23191d28)
 
+<a href="https://www.producthunt.com/posts/modhost?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-modhost" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=862853&theme=dark&t=1739219777777" alt="ModHost - A&#0032;simple&#0044;&#0032;open&#0045;source&#0044;&#0032;and&#0032;self&#0045;hostable&#0032;place&#0032;to&#0032;host&#0032;mods&#0033; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 A simple, open-source, and self-hostable place to host mods for any game!
 
 ## Why ModHost?

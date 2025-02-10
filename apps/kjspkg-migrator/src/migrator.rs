@@ -15,6 +15,7 @@ use modhost_db::{
     ProjectVisibility, User, create_connection, project_authors, project_versions, projects,
     run_migrations, users, version_files,
 };
+use object_store::{ObjectStore, PutPayload};
 use octocrab::Octocrab;
 use sha1::{Digest, Sha1};
 use tracing::level_filters::LevelFilter;
@@ -134,8 +135,13 @@ pub async fn run() -> Result<()> {
             hasher.update(&tarball);
 
             let file_id = format!("{:x}", hasher.finalize());
+            let file_size = tarball.len() as i64;
 
-            pkgs.put_object(format!("/{}", &file_id), &tarball).await?;
+            pkgs.put(
+                &format!("/{}", &file_id).into(),
+                PutPayload::from_bytes(tarball.into()),
+            )
+            .await?;
 
             let version = NewProjectVersion {
                 name: (&commit[0..7]).into(),
@@ -163,7 +169,7 @@ pub async fn run() -> Result<()> {
                 file_name: format!("{}-{}.tar.gz", id, &commit[0..7]),
                 s3_id: file_id.clone(),
                 sha1: file_id,
-                size: tarball.len() as i64,
+                size: file_size,
             };
 
             insert_into(version_files::table)

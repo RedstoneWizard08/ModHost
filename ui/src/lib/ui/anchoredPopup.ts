@@ -203,17 +203,32 @@ export function anchoredPopup(
         if (!triggerNode.contains(event.target as Node)) close();
     }
 
-    function onWindowClick(event: any): void {
+    function onWindowClick(event: MouseEvent & { target?: any }): void {
         // Return if the popup is not yet open
         if (popupState.open === false) return;
         // Return if click is the trigger element
         if (triggerNode.contains(event.target)) return;
+        // Check with absolute positioning if it's outside.
+        if (elemPopup) {
+            const size = elemPopup.getBoundingClientRect();
+
+            if (
+                event.clientX >= size.x &&
+                event.clientX <= size.x + size.width &&
+                event.clientY >= size.y &&
+                event.clientY <= size.y + size.height
+            ) {
+                return;
+            }
+        }
         // If click it outside the popup
-        if (elemPopup && elemPopup.contains(event.target) === false) {
+        if (elemPopup && !elemPopup.contains(event.target)) {
             const selection = window.getSelection();
+
             if (selection && selection.toString().length == 0) {
                 close();
             }
+
             return;
         }
         // Handle Close Query State

@@ -1,7 +1,5 @@
 //! Utilities for bootstrapping a logger.
 
-use std::time::Duration;
-
 use crate::Result;
 use opentelemetry::{KeyValue, global, trace::TracerProvider as OTracerProvider};
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
@@ -13,6 +11,7 @@ use opentelemetry_sdk::{
     runtime,
     trace::{RandomIdGenerator, Sampler, TracerProvider},
 };
+use std::time::Duration;
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
 use tracing_subscriber::{
     EnvFilter, Layer, filter::LevelFilter, fmt, layer::SubscriberExt, registry,
@@ -119,6 +118,8 @@ pub fn init_logger(service_name: impl AsRef<str>, verbosity: LevelFilter) -> Res
         .without_time();
 
     registry()
+        // Without this filter it takes up disk space incredibly quickly.
+        .with(LevelFilter::DEBUG)
         .with(otel_metrics_layer)
         .with(otel_trace_layer)
         .with(otel_log_layer)

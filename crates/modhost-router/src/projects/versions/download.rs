@@ -15,6 +15,7 @@ use modhost_db::{
 };
 use modhost_db_util::{projects::get_full_project, vers::get_version_file};
 use modhost_server_core::state::AppState;
+use object_store::ObjectStore;
 
 /// Download Project Version
 ///
@@ -82,9 +83,10 @@ pub async fn download_handler(
     let bytes = state
         .buckets
         .projects
-        .get_object(format!("/{}", file.s3_id))
+        .get(&format!("/{}", file.s3_id).into())
         .await?
-        .into_bytes()
+        .bytes()
+        .await?
         .to_vec();
 
     Ok(bytes)

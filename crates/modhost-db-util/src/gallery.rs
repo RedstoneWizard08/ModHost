@@ -2,12 +2,14 @@
 
 use modhost_core::Result;
 use modhost_db::{GalleryImage, PublicGalleryImage};
-use s3::Bucket;
+use object_store::{ObjectStore, aws::AmazonS3, path::Path};
 
 /// Get a gallery image's bytes from S3.
-pub async fn get_image(id: impl AsRef<str>, bucket: &Bucket) -> Result<Vec<u8>> {
+pub async fn get_image(id: impl AsRef<str>, bucket: &AmazonS3) -> Result<Vec<u8>> {
     Ok(bucket
-        .get_object(format!("/{}", id.as_ref()))
+        .get(&Path::from(format!("/{}", id.as_ref())))
+        .await?
+        .bytes()
         .await?
         .to_vec())
 }

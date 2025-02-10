@@ -103,7 +103,7 @@
             {version?.version_number}
         </span>
 
-        <span class="text-sm opacity-50">
+        <span class="flex flex-row items-center justify-end text-sm opacity-50">
             <span
                 >{version?.downloads}
                 {version?.downloads == 1
@@ -112,8 +112,11 @@
             >
             &bull;
             {$_("id.version")}&nbsp;
-            <button class="anchor select-text no-underline" onclick={copyVersionId}
-                >{version?.id}</button
+            <button
+                class="anchor flex select-text flex-row items-center justify-end no-underline"
+                onclick={copyVersionId}
+                >{version?.id}
+                <Icon icon="tabler:copy" class="ml-1" /></button
             >
         </span>
     </div>

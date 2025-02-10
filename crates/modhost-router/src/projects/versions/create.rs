@@ -18,6 +18,7 @@ use modhost_db::{
 };
 use modhost_db_util::projects::get_project;
 use modhost_server_core::state::AppState;
+use object_store::{ObjectStore, PutPayload};
 use semver::Version;
 use sha1::{Digest, Sha1};
 
@@ -142,11 +143,15 @@ pub async fn create_handler(
     hasher.update(&file);
 
     let file_id = format!("{:x}", hasher.finalize());
+    let file_size = file.len() as i64;
 
     state
         .buckets
         .projects
-        .put_object(format!("/{}", file_id), &file)
+        .put(
+            &format!("/{}", file_id).into(),
+            PutPayload::from_bytes(file),
+        )
         .await?;
 
     let data = NewProjectVersion {
@@ -178,7 +183,7 @@ pub async fn create_handler(
         sha1: file_id.clone(),
         s3_id: file_id,
         version_id: ver.id,
-        size: file.len() as i64,
+        size: file_size,
     };
 
     insert_into(version_files::table)

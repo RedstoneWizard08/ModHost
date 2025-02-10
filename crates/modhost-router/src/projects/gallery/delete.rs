@@ -14,6 +14,7 @@ use modhost_core::Result;
 use modhost_db::{GalleryImage, ProjectAuthor, gallery_images, get_gallery_image, project_authors};
 use modhost_db_util::projects::get_project;
 use modhost_server_core::state::AppState;
+use object_store::ObjectStore;
 
 /// Delete Gallery Image
 ///
@@ -67,7 +68,7 @@ pub async fn delete_handler(
         state
             .buckets
             .gallery
-            .delete_object(format!("/{}", img.s3_id))
+            .delete(&format!("/{}", img.s3_id).into())
             .await?;
     }
 

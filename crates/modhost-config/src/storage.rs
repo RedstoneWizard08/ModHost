@@ -1,7 +1,7 @@
 //! The S3 storage configuration.
 
 use modhost_core::Result;
-use s3::{Bucket, Region, creds::Credentials};
+use object_store::aws::{AmazonS3, AmazonS3Builder};
 
 /// The S3 storage configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,38 +41,25 @@ impl Default for StorageConfig {
 }
 
 impl StorageConfig {
-    /// Get the S3 [`Credentials`] for this config.
-    pub fn credentials(&self) -> Result<Credentials> {
-        Ok(Credentials::new(
-            Some(&self.s3_access_key),
-            Some(&self.s3_secret_key),
-            None,
-            None,
-            None,
-        )?)
+    /// Get the [`AmazonS3`] bucket for projects.
+    pub fn projects(&self) -> Result<AmazonS3> {
+        Ok(AmazonS3Builder::new()
+            .with_region(&self.s3_region)
+            .with_endpoint(&self.s3_endpoint)
+            .with_bucket_name(&self.projects_bucket)
+            .with_access_key_id(&self.s3_access_key)
+            .with_secret_access_key(&self.s3_secret_key)
+            .build()?)
     }
 
-    /// Get the S3 [`Region`] for this config.
-    pub fn region(&self) -> Region {
-        Region::Custom {
-            region: self.s3_region.clone(),
-            endpoint: self.s3_endpoint.clone(),
-        }
-    }
-
-    /// Get the S3 [`Bucket`] for projects.
-    pub fn projects(&self) -> Result<Box<Bucket>> {
-        Ok(
-            Bucket::new(&self.projects_bucket, self.region(), self.credentials()?)?
-                .with_path_style(),
-        )
-    }
-
-    /// Get the S3 [`Bucket`] for project galleries.
-    pub fn gallery(&self) -> Result<Box<Bucket>> {
-        Ok(
-            Bucket::new(&self.gallery_bucket, self.region(), self.credentials()?)?
-                .with_path_style(),
-        )
+    /// Get the [`AmazonS3`] bucket for project galleries.
+    pub fn gallery(&self) -> Result<AmazonS3> {
+        Ok(AmazonS3Builder::new()
+            .with_region(&self.s3_region)
+            .with_endpoint(&self.s3_endpoint)
+            .with_bucket_name(&self.gallery_bucket)
+            .with_access_key_id(&self.s3_access_key)
+            .with_secret_access_key(&self.s3_secret_key)
+            .build()?)
     }
 }

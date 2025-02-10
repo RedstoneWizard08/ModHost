@@ -8,7 +8,7 @@ use modhost_db::DbPool;
 use modhost_search::MeilisearchService;
 use modhost_ui::DEFAULT_FAVICON_PNG;
 use oauth2::{EndpointNotSet, EndpointSet, basic::BasicClient};
-use s3::Bucket;
+use object_store::aws::AmazonS3;
 use std::{fs, sync::Arc};
 use utoipa::openapi::OpenApi;
 
@@ -18,10 +18,10 @@ use crate::models::{GameVersion, ModLoader, Tag};
 #[derive(Clone)]
 pub struct BucketState {
     /// A reference to the bucket for projects.
-    pub projects: Box<Bucket>,
+    pub projects: AmazonS3,
 
     /// A reference to the bucket for gallery images.
-    pub gallery: Box<Bucket>,
+    pub gallery: AmazonS3,
 }
 
 /// The server's shared state.

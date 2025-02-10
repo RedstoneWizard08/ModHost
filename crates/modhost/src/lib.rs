@@ -48,6 +48,8 @@ pub struct ModHost {
 impl ModHost {
     /// Create a new server instance.
     pub async fn new(verifier: Box<dyn Fn(Bytes) -> bool + Send + Sync>) -> Result<Self> {
+        modhost_core::core_init();
+
         info!("Starting app...");
         info!("Getting config...");
 

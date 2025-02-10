@@ -14,6 +14,7 @@ use modhost_core::Result;
 use modhost_db::{ProjectAuthor, ProjectFile, project_authors, project_versions, version_files};
 use modhost_db_util::{projects::get_project, vers::get_full_version};
 use modhost_server_core::state::AppState;
+use object_store::ObjectStore;
 
 /// Delete Project Version
 ///
@@ -68,7 +69,7 @@ pub async fn delete_handler(
             state
                 .buckets
                 .projects
-                .delete_object(format!("/{}", file.s3_id))
+                .delete(&format!("/{}", file.s3_id).into())
                 .await?;
         }
     }

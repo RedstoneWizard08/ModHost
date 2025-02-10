@@ -11,7 +11,7 @@ readme.workspace = true
 [dependencies]
 axum.workspace = true
 jsglue.workspace = true
-modhost-core = { workspace = true, features = ["axum", "glue", "logging", "tokio"] }
+modhost-core = { workspace = true, features = ["axum", "chrono", "glue", "logging", "tokio"] }
 modhost-db.workspace = true
 modhost-config.workspace = true
 modhost-router.workspace = true

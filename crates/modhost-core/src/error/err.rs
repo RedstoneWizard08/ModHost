@@ -128,12 +128,7 @@ pub enum AppError {
     /// An error with S3 occured.
     #[error(transparent)]
     #[cfg(feature = "s3")]
-    S3(#[from] s3::error::S3Error),
-
-    /// An error creating S3 credentials occured.
-    #[error(transparent)]
-    #[cfg(feature = "s3")]
-    S3Creds(#[from] s3::creds::error::CredentialsError),
+    S3(#[from] object_store::Error),
 
     /// An error with zip files occured.
     #[error(transparent)]

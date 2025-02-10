@@ -24,7 +24,7 @@ meilisearch = ["dep:meilisearch-sdk"]
 octocrab = ["dep:octocrab"]
 reqwest = ["dep:reqwest"]
 rsbadges = ["dep:rsbadges"]
-s3 = ["dep:rust-s3"]
+s3 = ["dep:object_store"]
 semver = ["dep:semver"]
 serde-json = ["dep:serde_json"]
 serde-yaml = ["dep:serde_yaml"]
@@ -46,10 +46,10 @@ dotenvy = { workspace = true, optional = true }
 jsglue = { workspace = true, optional = true }
 log = { workspace = true, optional = true }
 meilisearch-sdk = { workspace = true, optional = true }
+object_store = { workspace = true, optional = true }
 octocrab = { workspace = true, optional = true }
 reqwest = { workspace = true, optional = true }
 rsbadges = { workspace = true, optional = true }
-rust-s3 = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 serde_yaml = { workspace = true, optional = true }

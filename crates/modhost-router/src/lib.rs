@@ -10,6 +10,7 @@ extern crate serde;
 #[macro_use]
 extern crate utoipa;
 
+pub mod admin;
 pub mod api;
 pub mod auth;
 pub mod meta;
@@ -39,6 +40,7 @@ pub fn create_router(spec: &OpenApi, state: AppState, glue: Glue) -> Router {
         .nest("/api/v1/projects", projects::router(state.clone()))
         .nest("/api/v1/meta", meta::router(state.clone()))
         .nest("/api/v1/moderation", moderation::router(state.clone()))
+        .nest("/api/v1/admin", admin::router(state.clone()))
         .layer(from_fn(logging_middleware))
         .layer(OtelInResponseLayer)
         .layer(OtelAxumLayer::default())
@@ -52,4 +54,5 @@ modhost_core::utoipa_types![
     projects::versions::update::PartialProjectVersion,
     projects::gallery::create::GalleryImageUpload,
     projects::gallery::update::PartialGalleryImage,
+    admin::stats::AdminStats,
 ];

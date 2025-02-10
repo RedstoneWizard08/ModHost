@@ -13,7 +13,7 @@ anyhow.workspace = true
 config.workspace = true
 modhost-core = { workspace = true, features = ["url", "config", "s3", "toml"] }
 oauth2.workspace = true
-rust-s3.workspace = true
+object_store.workspace = true
 serde.workspace = true
 toml.workspace = true
 tracing.workspace = true

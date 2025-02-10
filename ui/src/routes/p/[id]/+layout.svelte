@@ -268,19 +268,31 @@
             {/if}
 
             {#if hasRepo}
-                <a href={repo} class="anchor select-text no-underline" target="_blank">
+                <a
+                    href={repo}
+                    class="anchor hover:border-b-primary-500 select-text border-b-2 border-b-transparent no-underline transition-all"
+                    target="_blank"
+                >
                     {$_("package.source")}
                 </a>
             {/if}
 
             {#if hasIssues}
-                <a href={issues} class="anchor select-text no-underline" target="_blank">
+                <a
+                    href={issues}
+                    class="anchor hover:border-b-primary-500 select-text border-b-2 border-b-transparent no-underline transition-all"
+                    target="_blank"
+                >
                     {$_("package.issues")}
                 </a>
             {/if}
 
             {#if hasWiki}
-                <a href={wiki} class="anchor select-text no-underline" target="_blank">
+                <a
+                    href={wiki}
+                    class="anchor hover:border-b-primary-500 select-text border-b-2 border-b-transparent no-underline transition-all"
+                    target="_blank"
+                >
                     {$_("package.wiki")}
                 </a>
             {/if}
@@ -325,9 +337,12 @@
 
             <span class="flex flex-row items-center justify-end">
                 {$_(`id.${siteConfig.type}`)}&nbsp;
-                <button class="anchor select-text no-underline" onclick={copyId}
-                    >{$currentProject.id}</button
-                >
+                <button
+                    class="anchor flex select-text flex-row items-center justify-start no-underline"
+                    onclick={copyId}
+                    >{$currentProject.id}
+                    <Icon icon="tabler:copy" class="ml-1" />
+                </button>
             </span>
         </div>
 

@@ -6,7 +6,7 @@ pub use utoipa::{ToResponse, ToSchema, openapi::schema::ComponentsBuilder};
 #[macro_export]
 macro_rules! utoipa_types {
     [$($pat: ty),+ $(,)?] => {
-        /// Add types to a [`$crate::utoipa::ComponentsBuilder`].
+        /// Add types to a [`utoipa::ComponentsBuilder`].
         pub fn add_types(components: $crate::utoipa::ComponentsBuilder) -> $crate::utoipa::ComponentsBuilder {
             use $crate::utoipa::{ToResponse, ToSchema};
 

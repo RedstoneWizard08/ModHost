@@ -16,5 +16,5 @@ diesel-async.workspace = true
 itertools.workspace = true
 modhost-core = { workspace = true, features = ["anyhow", "diesel", "diesel-async", "s3"] }
 modhost-db.workspace = true
-rust-s3.workspace = true
+object_store.workspace = true
 semver.workspace = true

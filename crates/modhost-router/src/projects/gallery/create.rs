@@ -18,6 +18,7 @@ use modhost_db::{
 };
 use modhost_db_util::{gallery::transform_gallery_image, projects::get_project};
 use modhost_server_core::state::AppState;
+use object_store::{ObjectStore, PutPayload};
 use sha1::{Digest, Sha1};
 
 /// The data for uploading a gallery image.
@@ -120,7 +121,10 @@ pub async fn create_handler(
     state
         .buckets
         .gallery
-        .put_object(format!("/{}", file_name), &file)
+        .put(
+            &format!("/{}", file_name).into(),
+            PutPayload::from_bytes(file),
+        )
         .await?;
 
     let data = NewGalleryImage {

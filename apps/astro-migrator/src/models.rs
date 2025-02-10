@@ -7,7 +7,7 @@ use modhost_db::{
     ProjectVersion, ProjectVisibility, gallery_images, project_authors, project_versions, projects,
     version_files,
 };
-use s3::Bucket;
+use object_store::{ObjectStore, PutPayload, aws::AmazonS3};
 use serde::{Deserialize, Serialize};
 use serde_this_or_that::{as_bool, as_i64};
 use sha1::{Digest, Sha1};
@@ -170,7 +170,7 @@ impl From<DumpMod> for Mod {
 }
 
 impl Version {
-    pub async fn upload(&self, bucket: &Bucket) -> Result<(String, i64)> {
+    pub async fn upload(&self, bucket: &AmazonS3) -> Result<(String, i64)> {
         let mods_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("mods")
             .join("releaseMods");
@@ -182,17 +182,23 @@ impl Version {
         hasher.update(&file);
 
         let file_id = format!("{:x}", hasher.finalize());
+        let file_size = file.len() as i64;
 
-        bucket.put_object(format!("/{}", &file_id), &file).await?;
+        bucket
+            .put(
+                &format!("/{}", &file_id).into(),
+                PutPayload::from_bytes(file.into()),
+            )
+            .await?;
 
-        Ok((file_id, file.len() as i64))
+        Ok((file_id, file_size))
     }
 
     pub async fn as_ver(
         self,
         pkg: &Project,
         db: &mut DbConn,
-        bucket: &Bucket,
+        bucket: &AmazonS3,
     ) -> Result<ProjectVersion> {
         let (id, size) = self.upload(bucket).await?;
         let file_name = self.release_file_name.clone();
@@ -257,8 +263,8 @@ impl Mod {
         self,
         user_id: i32,
         db: &mut DbConn,
-        bucket: &Bucket,
-        imgs: &Bucket,
+        bucket: &AmazonS3,
+        imgs: &AmazonS3,
     ) -> Result<(Project, Vec<ProjectVersion>)> {
         let pkg = self.clone().into_pkg();
 
@@ -292,7 +298,11 @@ impl Mod {
 
             let img_id = format!("{:x}", hasher.finalize());
 
-            imgs.put_object(format!("/{}", &img_id), &img).await?;
+            imgs.put(
+                &format!("/{}", &img_id).into(),
+                PutPayload::from_bytes(img.into()),
+            )
+            .await?;
 
             let img_data = NewGalleryImage {
                 name: self.mod_id.clone(),

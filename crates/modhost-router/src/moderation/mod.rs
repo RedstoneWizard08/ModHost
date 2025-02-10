@@ -1,6 +1,6 @@
 //! ModHost's moderation routes.
 
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use modhost_server_core::state::AppState;
 
 pub mod queue;

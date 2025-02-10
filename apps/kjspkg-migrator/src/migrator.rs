@@ -5,15 +5,15 @@ use crate::{
     fetcher::{get_github_owner, get_manifest, get_package_tarball, get_packages_map, get_readme},
 };
 use anyhow::Result;
-use diesel::{insert_into, SelectableHelper};
+use diesel::{SelectableHelper, insert_into};
 use diesel_async::RunQueryDsl;
 use indicatif::ProgressIterator;
 use modhost::init_logger;
 use modhost_config::get_config;
 use modhost_db::{
-    create_connection, project_authors, project_versions, projects, run_migrations, users,
-    version_files, NewProject, NewProjectFile, NewProjectVersion, NewUser, Project, ProjectAuthor,
-    ProjectVersion, ProjectVisibility, User,
+    NewProject, NewProjectFile, NewProjectVersion, NewUser, Project, ProjectAuthor, ProjectVersion,
+    ProjectVisibility, User, create_connection, project_authors, project_versions, projects,
+    run_migrations, users, version_files,
 };
 use octocrab::Octocrab;
 use sha1::{Digest, Sha1};
@@ -48,14 +48,14 @@ pub async fn run() -> Result<()> {
         if repo.contains('$') {
             let (repo_split, dir_split) = repo.split_once('$').unwrap();
 
-            repo = repo_split.into();
+            repo = repo_split;
             dir = Some(dir_split.into());
         }
 
         if repo.contains('@') {
             let (repo_split, branch_split) = repo.split_once('@').unwrap();
 
-            repo = repo_split.into();
+            repo = repo_split;
             branch = Some(branch_split.into());
         }
 
@@ -83,7 +83,7 @@ pub async fn run() -> Result<()> {
             let (commit, tarball) =
                 get_package_tarball(&octocrab, owner, repo, &branch, &dir).await?;
 
-            if !added_users.contains_key(&author_id) {
+            if let std::collections::hash_map::Entry::Vacant(e) = added_users.entry(author_id) {
                 let user = NewUser {
                     github_id: author_id as i32,
                     username: author_name,
@@ -95,7 +95,7 @@ pub async fn run() -> Result<()> {
                     .get_result(&mut conn)
                     .await?;
 
-                added_users.insert(author_id, user.id);
+                e.insert(user.id);
             }
 
             let user_id = *added_users.get(&author_id).unwrap();
@@ -142,13 +142,13 @@ pub async fn run() -> Result<()> {
                 version_number: format!("0.0.0+{}", &commit[0..7]),
                 changelog: Some("Migrated from the old KJSPKG.".into()),
                 downloads: 0,
-                loaders: manifest.modloaders.into_iter().map(|v| Some(v)).collect(),
+                loaders: manifest.modloaders.into_iter().map(Some).collect(),
                 project: project.id,
                 game_versions: manifest
                     .versions
                     .into_iter()
-                    .filter_map(|v| get_version_str(v))
-                    .map(|v| Some(v))
+                    .filter_map(get_version_str)
+                    .map(Some)
                     .collect(),
             };
 

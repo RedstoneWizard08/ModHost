@@ -30,5 +30,5 @@ pub async fn download_handler(
     let mut conn = state.pool.get().await?;
     let img = get_gallery_image(id, &mut conn).await?;
 
-    Ok(get_image(img.s3_id, &state.buckets.gallery).await?)
+    get_image(img.s3_id, &state.buckets.gallery).await
 }

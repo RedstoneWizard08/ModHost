@@ -1,8 +1,8 @@
 //! Utilities for tokens.
 
-use crate::{user_tokens, users, DbConn, DbPool, NewUserToken, User, UserToken};
+use crate::{DbConn, DbPool, NewUserToken, User, UserToken, user_tokens, users};
 use chrono::{DateTime, Utc};
-use diesel::{insert_into, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper, insert_into};
 use diesel_async::RunQueryDsl;
 use modhost_core::Result;
 use random_string::{charsets::ALPHANUMERIC, generate};

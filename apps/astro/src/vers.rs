@@ -1,10 +1,10 @@
-use crate::{models::MediaWiki, PATCH_NOTES_URL, VER_REGEX};
+use crate::{PATCH_NOTES_URL, VER_REGEX, models::MediaWiki};
 use anyhow::Result;
 use const_format::formatcp;
 use itertools::Itertools;
 use modhost::GameVersion;
 use parse_wiki_text_2::{Configuration, Node, TableNode};
-use reqwest::{header::USER_AGENT, Client};
+use reqwest::{Client, header::USER_AGENT};
 use tracing::info;
 
 pub const AMH_USER_AGENT: &str = formatcp!("AstroModHost/{}", env!("CARGO_PKG_VERSION"));

@@ -28,7 +28,7 @@ impl MeilisearchService {
             if sort != Sort::None {
                 let sorter = create_very_dumb_sorter((sort, mode));
 
-                if sorter[0] != "" {
+                if !sorter[0].is_empty() {
                     query.with_sort(sorter);
                 }
             }

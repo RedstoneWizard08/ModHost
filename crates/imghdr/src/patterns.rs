@@ -7,25 +7,25 @@ use crate::Type;
 pub(crate) const MAX_LENGTH: usize = 12;
 
 // Magic numbers
-const PNG: &'static [u8] = b"\x89PNG\r\n\x1a\n";
-const JFIF: &'static [u8] = b"JFIF";
-const EXIF: &'static [u8] = b"Exif";
-const JPEGRAW: &'static [u8] = b"\xDB\x00C"; // JPG RAW/Lossless without JFIF
-const GIF87A: &'static [u8] = b"GIF87a";
-const GIF89A: &'static [u8] = b"GIF89a";
-const TIFF_MM: &'static [u8] = b"MM"; // Motorola byte order
-const TIFF_II: &'static [u8] = b"II"; // Intel byte order
-const RAST: &'static [u8] = b"\x59\xA6\x6A\x95";
-const XBM: &'static [u8] = b"#define ";
-const RIFF: &'static [u8] = b"RIFF";
-const WEBP: &'static [u8] = b"WEBP";
-const EXR: &'static [u8] = b"\x76\x2F\x31\x01";
-const BMP: &'static [u8] = b"BM";
-const BGP: &'static [u8] = b"BPG\xfb";
-const RGB: &'static [u8] = b"\x01\xda";
-const FLIF: &'static [u8] = b"FLIF";
-const ICO: &'static [u8] = b"\x00\x00\x01\x00";
-const AVIF: &'static [u8] = b"avif";
+const PNG: &[u8] = b"\x89PNG\r\n\x1a\n";
+const JFIF: &[u8] = b"JFIF";
+const EXIF: &[u8] = b"Exif";
+const JPEGRAW: &[u8] = b"\xDB\x00C"; // JPG RAW/Lossless without JFIF
+const GIF87A: &[u8] = b"GIF87a";
+const GIF89A: &[u8] = b"GIF89a";
+const TIFF_MM: &[u8] = b"MM"; // Motorola byte order
+const TIFF_II: &[u8] = b"II"; // Intel byte order
+const RAST: &[u8] = b"\x59\xA6\x6A\x95";
+const XBM: &[u8] = b"#define ";
+const RIFF: &[u8] = b"RIFF";
+const WEBP: &[u8] = b"WEBP";
+const EXR: &[u8] = b"\x76\x2F\x31\x01";
+const BMP: &[u8] = b"BM";
+const BGP: &[u8] = b"BPG\xfb";
+const RGB: &[u8] = b"\x01\xda";
+const FLIF: &[u8] = b"FLIF";
+const ICO: &[u8] = b"\x00\x00\x01\x00";
+const AVIF: &[u8] = b"avif";
 
 #[inline]
 fn is_pbm(bytes: &[u8]) -> bool {

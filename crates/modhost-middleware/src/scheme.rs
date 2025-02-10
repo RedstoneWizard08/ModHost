@@ -1,7 +1,5 @@
 //! The HTTP [`Scheme`] extractor.
 
-use std::future::Future;
-
 use axum::{
     extract::FromRequestParts,
     http::{self, request::Parts},
@@ -34,29 +32,24 @@ where
 {
     type Rejection = SchemeRejection;
 
-    fn from_request_parts(
-        parts: &mut Parts,
-        _state: &S,
-    ) -> impl Future<Output = Result<Self, Self::Rejection>> + Send {
-        async {
-            if let Some(referer) = parts
-                .headers
-                .get(http::header::REFERER)
-                .and_then(|referer| referer.to_str().ok()?.parse::<Url>().ok())
-            {
-                return Ok(Scheme(referer.scheme().into()));
-            }
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        if let Some(referer) = parts
+            .headers
+            .get(http::header::REFERER)
+            .and_then(|referer| referer.to_str().ok()?.parse::<Url>().ok())
+        {
+            return Ok(Scheme(referer.scheme().into()));
+        }
 
-            if let Some(scheme) = parts.uri.scheme() {
-                return Ok(Scheme(scheme.to_string()));
-            }
+        if let Some(scheme) = parts.uri.scheme() {
+            return Ok(Scheme(scheme.to_string()));
+        }
 
-            cfg_if::cfg_if! {
-                if #[cfg(not(debug_assertions))] {
-                    Ok(Scheme("https".into()))
-                } else {
-                    Ok(Scheme("http".into()))
-                }
+        cfg_if::cfg_if! {
+            if #[cfg(not(debug_assertions))] {
+                Ok(Scheme("https".into()))
+            } else {
+                Ok(Scheme("http".into()))
             }
         }
     }

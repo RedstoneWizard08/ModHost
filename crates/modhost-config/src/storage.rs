@@ -1,7 +1,7 @@
 //! The S3 storage configuration.
 
 use modhost_core::Result;
-use s3::{creds::Credentials, Bucket, Region};
+use s3::{Bucket, Region, creds::Credentials};
 
 /// The S3 storage configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]

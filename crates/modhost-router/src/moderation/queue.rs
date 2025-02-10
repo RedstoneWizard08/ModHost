@@ -1,6 +1,6 @@
 //! Moderation queue routes.
 
-use axum::{extract::State, http::HeaderMap, Json};
+use axum::{Json, extract::State, http::HeaderMap};
 use axum_extra::extract::CookieJar;
 use modhost_auth::get_user_from_req;
 use modhost_core::{AppError, Result};

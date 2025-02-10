@@ -7,11 +7,11 @@ use axum::{
     response::Response,
 };
 use axum_extra::extract::CookieJar;
-use diesel::{dsl::delete, BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, SelectableHelper, dsl::delete};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
-use modhost_db::{get_user, project_authors, ProjectAuthor, ProjectData};
+use modhost_db::{ProjectAuthor, ProjectData, get_user, project_authors};
 use modhost_db_util::projects::{get_full_project, get_project};
 use modhost_server_core::state::AppState;
 
@@ -51,7 +51,7 @@ pub async fn remove_handler(
         .load(&mut conn)
         .await?;
 
-    if authors.iter().find(|v| v.user_id == user.id).is_none() && !user.admin {
+    if !authors.iter().any(|v| v.user_id == user.id) && !user.admin {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);
@@ -59,7 +59,7 @@ pub async fn remove_handler(
 
     let to_remove = get_user(body, &mut conn).await?;
 
-    if authors.iter().find(|v| v.user_id == to_remove.id).is_none() {
+    if !authors.iter().any(|v| v.user_id == to_remove.id) {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::new(

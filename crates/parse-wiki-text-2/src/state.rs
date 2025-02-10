@@ -90,7 +90,7 @@ impl State {
         let scan_position = self.scan_position;
         self.flush(scan_position);
         self.stack.push(OpenNode {
-            nodes: std::mem::replace(&mut self.nodes, vec![]),
+            nodes: std::mem::take(&mut self.nodes),
             start: scan_position,
             type_,
         });

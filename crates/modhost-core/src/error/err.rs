@@ -13,12 +13,6 @@ pub enum AppError {
     #[cfg(feature = "diesel-async")]
     Pool(#[from] diesel_async::pooled_connection::deadpool::PoolError),
 
-    /// An error with the synchronous database pool occured.
-    #[deprecated]
-    #[error(transparent)]
-    #[cfg(feature = "diesel")]
-    SyncPool(#[from] diesel::r2d2::PoolError),
-
     /// An error with a GitHub API client occured.
     #[error(transparent)]
     #[cfg(feature = "octocrab")]
@@ -268,7 +262,7 @@ impl super::HasCode for AppError {
 #[cfg(feature = "axum")]
 impl axum::response::IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
-        self.as_response()
+        self.into_axum()
     }
 }
 
@@ -282,6 +276,6 @@ pub trait FixError<T> {
 #[cfg(feature = "axum")]
 impl<T, E: Into<AppError>> FixError<T> for Result<T, E> {
     fn fix_err(self) -> Result<T, axum::response::Response> {
-        self.map_err(|v| v.into().as_response())
+        self.map_err(|v| v.into().into_axum())
     }
 }

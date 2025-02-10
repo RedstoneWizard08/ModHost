@@ -2,8 +2,8 @@
 
 use bytes::Bytes;
 use http::{
-    header::{HeaderMap, HeaderName},
     HeaderValue,
+    header::{HeaderMap, HeaderName},
 };
 use sha1::{Digest, Sha1};
 

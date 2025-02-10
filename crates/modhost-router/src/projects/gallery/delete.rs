@@ -7,11 +7,11 @@ use axum::{
     response::Response,
 };
 use axum_extra::extract::CookieJar;
-use diesel::{delete, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, QueryDsl, SelectableHelper, delete};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
-use modhost_db::{gallery_images, get_gallery_image, project_authors, GalleryImage, ProjectAuthor};
+use modhost_db::{GalleryImage, ProjectAuthor, gallery_images, get_gallery_image, project_authors};
 use modhost_db_util::projects::get_project;
 use modhost_server_core::state::AppState;
 
@@ -51,7 +51,7 @@ pub async fn delete_handler(
         .load(&mut conn)
         .await?;
 
-    if authors.iter().find(|v| v.user_id == user.id).is_none() && !user.admin {
+    if !authors.iter().any(|v| v.user_id == user.id) && !user.admin {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);

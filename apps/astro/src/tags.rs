@@ -1,4 +1,4 @@
-use modhost::{tags, Tag};
+use modhost::{Tag, tags};
 
 pub fn tags() -> Vec<Tag> {
     tags![

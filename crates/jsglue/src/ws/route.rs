@@ -1,16 +1,16 @@
 use std::net::SocketAddr;
 
 use axum::{
+    Extension,
     body::Body,
     debug_handler,
     extract::{ConnectInfo, Request},
     response::IntoResponse,
-    Extension,
 };
 use axumite::upgrade::WebSocketUpgrade;
 use hyper::{
-    header::{SEC_WEBSOCKET_PROTOCOL, USER_AGENT},
     HeaderMap,
+    header::{SEC_WEBSOCKET_PROTOCOL, USER_AGENT},
 };
 use tungstenite::http::HeaderValue;
 

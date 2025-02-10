@@ -10,8 +10,8 @@ pub mod update;
 pub mod versions;
 
 use axum::{
-    routing::{delete, get, patch, put},
     Router,
+    routing::{delete, get, patch, put},
 };
 use modhost_server_core::state::AppState;
 

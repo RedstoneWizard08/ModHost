@@ -1,6 +1,6 @@
 //! Project file-related models.
 
-use crate::{schema::version_files, ProjectVersion};
+use crate::{ProjectVersion, schema::version_files};
 use chrono::NaiveDateTime;
 use diesel::pg::Pg;
 

@@ -59,7 +59,7 @@ impl<'a> File<'a> {
     }
 }
 
-impl<'a> Debug for File<'a> {
+impl Debug for File<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let File {
             path,

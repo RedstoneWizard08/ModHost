@@ -7,7 +7,7 @@ use itertools::Itertools;
 use meilisearch_sdk::documents::DocumentDeletionQuery;
 use modhost_core::{AppError, Result};
 use modhost_db::{
-    project_authors, project_versions, projects, users, DbConn, Project, ProjectVersion, User,
+    DbConn, Project, ProjectVersion, User, project_authors, project_versions, projects, users,
 };
 
 impl MeilisearchService {
@@ -37,7 +37,7 @@ impl MeilisearchService {
                         .unzip::<User, ProjectVersion, Vec<User>, Vec<ProjectVersion>>(),
                 )
             })
-            .map(|v| MeiliProject::from_data(v.0, v.1 .0, v.1 .1))
+            .map(|v| MeiliProject::from_data(v.0, v.1.0, v.1.1))
             .collect_vec();
 
         let index = self.projects();
@@ -73,7 +73,7 @@ impl MeilisearchService {
 
                     (
                         v.0,
-                        (user_and_ver.0, user_and_ver.1.into_iter().filter_map(|v| v).collect()),
+                        (user_and_ver.0, user_and_ver.1.into_iter().flatten().collect()),
                     )
                 },
             )

@@ -157,7 +157,7 @@ pub fn parse_end_of_line(state: &mut crate::State) {
             crate::list::parse_list_end_of_line(state);
         }
         Some(crate::OpenNode {
-            type_: crate::OpenNodeType::ExternalLink { .. },
+            type_: crate::OpenNodeType::ExternalLink,
             ..
         }) => {
             crate::external_link::parse_external_link_end_of_line(state);
@@ -214,13 +214,13 @@ fn parse_preformatted_end_of_line(state: &mut crate::State) {
                 Some(b'|')
                     if state.get_byte(position + 1) == Some(b'}')
                         && state.stack.len() > 1
-                        && match state.stack.get(state.stack.len() - 2) {
+                        && matches!(
+                            state.stack.get(state.stack.len() - 2),
                             Some(crate::OpenNode {
                                 type_: crate::OpenNodeType::Table { .. },
                                 ..
-                            }) => true,
-                            _ => false,
-                        } =>
+                            })
+                        ) =>
                 {
                     break;
                 }

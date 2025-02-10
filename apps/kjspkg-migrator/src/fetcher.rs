@@ -1,6 +1,6 @@
 use crate::models::LegacyManifest;
-use anyhow::{anyhow, Result};
-use flate2::{bufread::GzDecoder, write::GzEncoder, Compression};
+use anyhow::{Result, anyhow};
+use flate2::{Compression, bufread::GzDecoder, write::GzEncoder};
 use http_body_util::BodyExt;
 use octocrab::Octocrab;
 use std::{
@@ -123,7 +123,7 @@ pub async fn get_readme(
         }
     };
 
-    Ok(client
+    client
         .repos(owner, repo)
         .get_readme()
         .r#ref(branch)
@@ -134,7 +134,7 @@ pub async fn get_readme(
             "Could not get readme content for repo: {}/{}",
             owner,
             repo
-        ))?)
+        ))
 }
 
 /// Get the tarball for a repository.

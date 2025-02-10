@@ -1,18 +1,18 @@
 //! The project create route.
 
 use axum::{
+    Json,
     body::Body,
     extract::State,
     http::{HeaderMap, StatusCode},
     response::Response,
-    Json,
 };
 use axum_extra::extract::CookieJar;
-use diesel::{insert_into, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper, insert_into};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
-use modhost_db::{project_authors, projects, NewProject, Project, ProjectAuthor, ProjectData};
+use modhost_db::{NewProject, Project, ProjectAuthor, ProjectData, project_authors, projects};
 use modhost_db_util::projects::get_full_project;
 use modhost_server_core::state::AppState;
 
@@ -49,12 +49,13 @@ pub async fn create_handler(
             .body(Body::new("Slug must not be empty!".to_string()))?);
     }
 
-    if let Some(_) = projects::table
+    if projects::table
         .filter(projects::slug.eq(body.slug.clone()))
         .select(Project::as_select())
         .first(&mut conn)
         .await
         .optional()?
+        .is_some()
     {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)

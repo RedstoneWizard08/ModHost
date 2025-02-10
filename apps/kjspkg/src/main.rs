@@ -58,28 +58,26 @@ pub fn verify_project(bytes: Bytes) -> bool {
     let mut data = GzDecoder::new(Cursor::new(bytes));
     let mut gunzip = Vec::new();
 
-    if let Err(_) = data.read_to_end(&mut gunzip) {
+    if data.read_to_end(&mut gunzip).is_err() {
         return false;
     }
 
     let mut archive = Archive::new(Cursor::new(gunzip));
 
     if let Ok(entries) = archive.entries() {
-        for entry in entries {
-            if let Ok(mut entry) = entry {
-                if entry.path().unwrap_or_default().to_str().unwrap() == "kjspkg.json" {
-                    let mut data = String::new();
+        for mut entry in entries.flatten() {
+            if entry.path().unwrap_or_default().to_str().unwrap() == "kjspkg.json" {
+                let mut data = String::new();
 
-                    if let Err(_) = entry.read_to_string(&mut data) {
-                        return false;
-                    }
-
-                    if let Err(_) = serde_json::from_str::<ProjectManifest>(&data) {
-                        return false;
-                    }
-
-                    return true;
+                if entry.read_to_string(&mut data).is_err() {
+                    return false;
                 }
+
+                if serde_json::from_str::<ProjectManifest>(&data).is_err() {
+                    return false;
+                }
+
+                return true;
             }
         }
     }

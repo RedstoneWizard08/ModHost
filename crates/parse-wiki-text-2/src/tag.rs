@@ -128,10 +128,8 @@ pub fn parse_start_tag(state: &mut crate::State, configuration: &crate::Configur
     let tag_name_end_position = match state.wiki_text.as_bytes()[tag_name_start_position..]
         .iter()
         .cloned()
-        .position(|character| match character {
-            b'\t' | b'\n' | b' ' | b'/' | b'>' => true,
-            _ => false,
-        }) {
+        .position(|character| matches!(character, b'\t' | b'\n' | b' ' | b'/' | b'>'))
+    {
         None => state.wiki_text.len(),
         Some(position) => tag_name_start_position + position,
     };
@@ -139,7 +137,7 @@ pub fn parse_start_tag(state: &mut crate::State, configuration: &crate::Configur
     let tag_name = if tag_name.as_bytes().iter().all(u8::is_ascii_lowercase) {
         tag_name.into()
     } else {
-        tag_name.to_ascii_lowercase().into()
+        tag_name.to_ascii_lowercase()
     };
     match configuration.tag_name_map.get(&tag_name as &str) {
         None => {

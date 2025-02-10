@@ -4,18 +4,18 @@ use axum::{
     body::Body,
     extract::State,
     http::{
-        header::{LOCATION, SET_COOKIE},
         HeaderValue, StatusCode, Uri,
+        header::{LOCATION, SET_COOKIE},
     },
     response::Response,
 };
 use axum_extra::extract::Host;
 use diesel::{
-    dsl::insert_into, update, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
+    ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper, dsl::insert_into, update,
 };
 use diesel_async::RunQueryDsl;
 use modhost_core::Result;
-use modhost_db::{create_token, users, NewUser, User};
+use modhost_db::{NewUser, User, create_token, users};
 use modhost_middleware::scheme::Scheme;
 use modhost_server_core::{github::create_github_client, state::AppState};
 use oauth2::{RedirectUrl, TokenResponse};
@@ -120,13 +120,13 @@ pub async fn callback_handler(
                     .insert(LOCATION, HeaderValue::from_str("/api/v1/users/me").unwrap());
             }
 
-            return Ok(response);
+            Ok(response)
         }
 
         Err(_) => {
             let mut resp = Response::new(Body::empty());
             *resp.status_mut() = StatusCode::TEMPORARY_REDIRECT;
-            return Ok(resp);
+            Ok(resp)
         }
     }
 }

@@ -10,14 +10,14 @@ use crate::{
     socket::WebSocket,
     util::{header_contains, header_eq, sign},
 };
-use axum_core::{body::Body, extract::FromRequestParts, response::Response, Error};
+use axum_core::{Error, body::Body, extract::FromRequestParts, response::Response};
 use futures_util::Future;
-use http::{header, request::Parts, HeaderValue, Method, StatusCode};
+use http::{HeaderValue, Method, StatusCode, header, request::Parts};
 use hyper_util::rt::TokioIo;
 use std::borrow::Cow;
 use tokio_tungstenite::{
-    tungstenite::protocol::{self, WebSocketConfig},
     WebSocketStream,
+    tungstenite::protocol::{self, WebSocketConfig},
 };
 
 /// A WebSocket upgrade request.
@@ -179,48 +179,43 @@ where
 {
     type Rejection = WebSocketUpgradeRejection;
 
-    fn from_request_parts(
-        parts: &mut Parts,
-        _state: &S,
-    ) -> impl Future<Output = Result<Self, Self::Rejection>> + Send {
-        async {
-            if parts.method != Method::GET {
-                return Err(MethodNotGet.into());
-            }
-
-            if !header_contains(&parts.headers, header::CONNECTION, "upgrade") {
-                return Err(InvalidConnectionHeader.into());
-            }
-
-            if !header_eq(&parts.headers, header::UPGRADE, "websocket") {
-                return Err(InvalidUpgradeHeader.into());
-            }
-
-            if !header_eq(&parts.headers, header::SEC_WEBSOCKET_VERSION, "13") {
-                return Err(InvalidWebSocketVersionHeader.into());
-            }
-
-            let sec_websocket_key = parts
-                .headers
-                .get(header::SEC_WEBSOCKET_KEY)
-                .ok_or(WebSocketKeyHeaderMissing)?
-                .clone();
-
-            let on_upgrade = parts
-                .extensions
-                .remove::<hyper::upgrade::OnUpgrade>()
-                .ok_or(ConnectionNotUpgradable)?;
-
-            let sec_websocket_protocol = parts.headers.get(header::SEC_WEBSOCKET_PROTOCOL).cloned();
-
-            Ok(Self {
-                config: Default::default(),
-                protocol: None,
-                sec_websocket_key,
-                on_upgrade,
-                sec_websocket_protocol,
-                on_failed_upgrade: DefaultOnFailedUpgrade,
-            })
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        if parts.method != Method::GET {
+            return Err(MethodNotGet.into());
         }
+
+        if !header_contains(&parts.headers, header::CONNECTION, "upgrade") {
+            return Err(InvalidConnectionHeader.into());
+        }
+
+        if !header_eq(&parts.headers, header::UPGRADE, "websocket") {
+            return Err(InvalidUpgradeHeader.into());
+        }
+
+        if !header_eq(&parts.headers, header::SEC_WEBSOCKET_VERSION, "13") {
+            return Err(InvalidWebSocketVersionHeader.into());
+        }
+
+        let sec_websocket_key = parts
+            .headers
+            .get(header::SEC_WEBSOCKET_KEY)
+            .ok_or(WebSocketKeyHeaderMissing)?
+            .clone();
+
+        let on_upgrade = parts
+            .extensions
+            .remove::<hyper::upgrade::OnUpgrade>()
+            .ok_or(ConnectionNotUpgradable)?;
+
+        let sec_websocket_protocol = parts.headers.get(header::SEC_WEBSOCKET_PROTOCOL).cloned();
+
+        Ok(Self {
+            config: Default::default(),
+            protocol: None,
+            sec_websocket_key,
+            on_upgrade,
+            sec_websocket_protocol,
+            on_failed_upgrade: DefaultOnFailedUpgrade,
+        })
     }
 }

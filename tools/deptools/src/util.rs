@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use glob::glob;
 use std::{
     collections::HashMap,
@@ -72,7 +72,7 @@ pub fn get_crate_map() -> Result<HashMap<String, PathBuf>> {
                 .map(|v| v.filter_map(|v| v.ok()).collect::<Vec<_>>())
                 .ok()
         })
-        .flat_map(|v| v)
+        .flatten()
         .filter(|v| v.join("Cargo.toml").exists())
         .collect::<Vec<_>>();
 

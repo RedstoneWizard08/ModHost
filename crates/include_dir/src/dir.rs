@@ -1,4 +1,4 @@
-use crate::{file::File, DirEntry};
+use crate::{DirEntry, file::File};
 use std::fs;
 use std::path::Path;
 

@@ -28,7 +28,7 @@ pub fn parse_parameter_name_end(state: &mut crate::State) {
                     state.scan_position + 1,
                 );
                 state.scan_position = state.flushed_position;
-                *name = Some(std::mem::replace(&mut state.nodes, vec![]));
+                *name = Some(std::mem::take(&mut state.nodes));
                 return;
             }
         }
@@ -51,7 +51,7 @@ pub fn parse_parameter_separator(state: &mut crate::State) {
                     position,
                     &state.wiki_text,
                 );
-                *name = Some(std::mem::replace(&mut state.nodes, vec![]));
+                *name = Some(std::mem::take(&mut state.nodes));
             } else {
                 crate::state::flush(
                     &mut state.nodes,
@@ -59,7 +59,7 @@ pub fn parse_parameter_separator(state: &mut crate::State) {
                     state.scan_position,
                     &state.wiki_text,
                 );
-                *default = Some(std::mem::replace(&mut state.nodes, vec![]));
+                *default = Some(std::mem::take(&mut state.nodes));
                 state.warnings.push(crate::Warning {
                     end: state.scan_position + 1,
                     message: crate::WarningMessage::UselessTextInParameter,
@@ -206,12 +206,12 @@ pub fn parse_template_separator(state: &mut crate::State) {
                 crate::state::skip_whitespace_forwards(&state.wiki_text, state.scan_position + 1);
             state.scan_position = state.flushed_position;
             if name.is_none() {
-                *name = Some(std::mem::replace(&mut state.nodes, vec![]));
+                *name = Some(std::mem::take(&mut state.nodes));
             } else {
                 let parameters_length = parameters.len();
                 let parameter = &mut parameters[parameters_length - 1];
                 parameter.end = position;
-                parameter.value = std::mem::replace(&mut state.nodes, vec![]);
+                parameter.value = std::mem::take(&mut state.nodes);
             }
             parameters.push(crate::Parameter {
                 end: 0,

@@ -4,13 +4,13 @@
 #[macro_use]
 extern crate tracing;
 
-pub use modhost_core::{logger::*, Result};
+pub use modhost_core::{Result, logger::*};
 pub use modhost_server_core::{loader, loaders, models::*, tag, tags};
 
-use axum::{body::Bytes, extract::connect_info::IntoMakeServiceWithConnectInfo, serve, Router};
+use axum::{Router, body::Bytes, extract::connect_info::IntoMakeServiceWithConnectInfo, serve};
 use jsglue::{glue::Glue, util::is_debug};
-use modhost_config::{get_config, AppConfig};
-use modhost_db::{create_connection, run_migrations, DbPool};
+use modhost_config::{AppConfig, get_config};
+use modhost_db::{DbPool, create_connection, run_migrations};
 use modhost_router::{create_api_spec, create_router};
 use modhost_search::MeiliProject;
 use modhost_server_core::{glue::make_glue, state::AppState, worker::run_worker};

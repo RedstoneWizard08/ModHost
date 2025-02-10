@@ -1,19 +1,19 @@
 //! The project update route.
 
 use axum::{
+    Json,
     body::Body,
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::Response,
-    Json,
 };
 use axum_extra::extract::CookieJar;
-use diesel::{update, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, QueryDsl, SelectableHelper, update};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
 use modhost_db::{
-    project_authors, projects, Project, ProjectAuthor, ProjectData, ProjectVisibility,
+    Project, ProjectAuthor, ProjectData, ProjectVisibility, project_authors, projects,
 };
 use modhost_db_util::projects::{get_full_project, get_project};
 use modhost_server_core::state::AppState;
@@ -94,7 +94,7 @@ pub async fn update_handler(
         .load(&mut conn)
         .await?;
 
-    if authors.iter().find(|v| v.user_id == user.id).is_none() && !user.admin {
+    if !authors.iter().any(|v| v.user_id == user.id) && !user.admin {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);
@@ -106,14 +106,14 @@ pub async fn update_handler(
             projects::name.eq(data.name.unwrap_or(pkg.name)),
             projects::readme.eq(data.readme.unwrap_or(pkg.readme)),
             projects::description.eq(data.description.unwrap_or(pkg.description)),
-            projects::source.eq(data.source.map(|v| Some(v)).unwrap_or(pkg.source)),
-            projects::issues.eq(data.issues.map(|v| Some(v)).unwrap_or(pkg.issues)),
-            projects::wiki.eq(data.wiki.map(|v| Some(v)).unwrap_or(pkg.wiki)),
+            projects::source.eq(data.source.map(Some).unwrap_or(pkg.source)),
+            projects::issues.eq(data.issues.map(Some).unwrap_or(pkg.issues)),
+            projects::wiki.eq(data.wiki.map(Some).unwrap_or(pkg.wiki)),
             projects::visibility.eq(data.visibility.unwrap_or(pkg.visibility)),
-            projects::license.eq(data.license.map(|v| Some(v)).unwrap_or(pkg.license)),
+            projects::license.eq(data.license.map(Some).unwrap_or(pkg.license)),
             projects::tags.eq(data
                 .tags
-                .map(|v| v.into_iter().map(|v| Some(v)).collect::<Vec<_>>())
+                .map(|v| v.into_iter().map(Some).collect::<Vec<_>>())
                 .unwrap_or(pkg.tags)),
         ))
         .returning(Project::as_select())

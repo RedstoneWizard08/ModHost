@@ -4,10 +4,11 @@
 
 pub fn parse_heading_end(state: &mut crate::State) {
     let mut end_position = state.scan_position;
-    loop {
-        match state.get_byte(end_position - 1) {
-            Some(b'\t') | Some(b' ') => end_position -= 1,
-            _ => break,
+    while let Some(byte) = state.get_byte(end_position - 1) {
+        if byte == b'\t' || byte == b' ' {
+            end_position -= 1;
+        } else {
+            break;
         }
     }
     let open_node = state.stack.pop().unwrap();

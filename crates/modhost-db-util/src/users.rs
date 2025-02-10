@@ -5,7 +5,7 @@ use diesel_async::RunQueryDsl;
 use itertools::Itertools;
 use modhost_core::Result;
 use modhost_db::{
-    project_authors, projects, users, DbConn, Project, ProjectData, ProjectVisibility, User,
+    DbConn, Project, ProjectData, ProjectVisibility, User, project_authors, projects, users,
 };
 
 /// Get a list of projects for a user.

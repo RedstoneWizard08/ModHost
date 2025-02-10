@@ -2,7 +2,7 @@ use crate::{
     embedded::handle_embedded, framework::Framework, handler::fallback_handler, state::ProxyState,
     ws::route::websocket_handler,
 };
-use axum::{routing::get, Extension, Router};
+use axum::{Extension, Router, routing::get};
 use std::path::PathBuf;
 
 /// Register the proxy handler.

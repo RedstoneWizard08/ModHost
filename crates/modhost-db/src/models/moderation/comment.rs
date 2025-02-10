@@ -1,6 +1,6 @@
 //! Moderation comment models.
 
-use crate::{moderation_comment, Project, User};
+use crate::{Project, User, moderation_comment};
 use diesel::pg::Pg;
 
 /// A moderation comment.

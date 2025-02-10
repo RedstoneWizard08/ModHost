@@ -3,20 +3,20 @@
 use std::time::Duration;
 
 use crate::Result;
-use opentelemetry::{global, trace::TracerProvider as OTracerProvider, KeyValue};
+use opentelemetry::{KeyValue, global, trace::TracerProvider as OTracerProvider};
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
 use opentelemetry_otlp::{LogExporter, MetricExporter, SpanExporter};
 use opentelemetry_sdk::{
+    Resource,
     logs::LoggerProvider,
     metrics::{MeterProviderBuilder, PeriodicReader, SdkMeterProvider, Temporality},
     runtime,
     trace::{RandomIdGenerator, Sampler, TracerProvider},
-    Resource,
 };
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
 use tracing_subscriber::{
-    filter::LevelFilter, fmt, layer::SubscriberExt, registry, util::SubscriberInitExt, EnvFilter,
-    Layer,
+    EnvFilter, Layer, filter::LevelFilter, fmt, layer::SubscriberExt, registry,
+    util::SubscriberInitExt,
 };
 
 /// Converts a [`log::LevelFilter`] to a [`LevelFilter`].

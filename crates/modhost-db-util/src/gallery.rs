@@ -5,7 +5,7 @@ use modhost_db::{GalleryImage, PublicGalleryImage};
 use s3::Bucket;
 
 /// Get a gallery image's bytes from S3.
-pub async fn get_image(id: impl AsRef<str>, bucket: &Box<Bucket>) -> Result<Vec<u8>> {
+pub async fn get_image(id: impl AsRef<str>, bucket: &Bucket) -> Result<Vec<u8>> {
     Ok(bucket
         .get_object(format!("/{}", id.as_ref()))
         .await?

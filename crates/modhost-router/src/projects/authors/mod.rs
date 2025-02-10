@@ -1,8 +1,8 @@
 //! Routes concerning project authors.
 
 use axum::{
-    routing::{delete, get, put},
     Router,
+    routing::{delete, get, put},
 };
 use modhost_server_core::state::AppState;
 

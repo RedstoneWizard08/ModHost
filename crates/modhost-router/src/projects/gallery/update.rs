@@ -1,21 +1,21 @@
 //! The gallery image update route.
 
 use axum::{
+    Json,
     body::Body,
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::Response,
-    Json,
 };
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
-use diesel::{update, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, QueryDsl, SelectableHelper, update};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
 use modhost_db::{
-    gallery_images, get_gallery_image, project_authors, GalleryImage, ProjectAuthor,
-    PublicGalleryImage,
+    GalleryImage, ProjectAuthor, PublicGalleryImage, gallery_images, get_gallery_image,
+    project_authors,
 };
 use modhost_db_util::{gallery::transform_gallery_image, projects::get_project};
 use modhost_server_core::state::AppState;
@@ -76,7 +76,7 @@ pub async fn update_handler(
         .load(&mut conn)
         .await?;
 
-    if authors.iter().find(|v| v.user_id == user.id).is_none() && !user.admin {
+    if !authors.iter().any(|v| v.user_id == user.id) && !user.admin {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);
@@ -87,8 +87,7 @@ pub async fn update_handler(
         .set((
             gallery_images::name.eq(data.name.unwrap_or(img.name)),
             gallery_images::ordering.eq(data.ordering.unwrap_or(img.ordering)),
-            gallery_images::description
-                .eq(data.description.map(|v| Some(v)).unwrap_or(img.description)),
+            gallery_images::description.eq(data.description.map(Some).unwrap_or(img.description)),
             gallery_images::updated_at.eq(Utc::now().naive_utc()),
         ))
         .returning(GalleryImage::as_select())

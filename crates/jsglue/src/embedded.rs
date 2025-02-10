@@ -1,5 +1,5 @@
-use axum::{body::Body, debug_handler, extract::Request, response::Response, Extension};
-use hyper::{header::CONTENT_TYPE, StatusCode};
+use axum::{Extension, body::Body, debug_handler, extract::Request, response::Response};
+use hyper::{StatusCode, header::CONTENT_TYPE};
 use std::{fs, path::PathBuf};
 
 #[debug_handler]

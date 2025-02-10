@@ -1,9 +1,9 @@
 //! OpenAPI routes.
 
 use axum::{
+    Router,
     extract::{Query, State},
     routing::get,
-    Router,
 };
 use modhost_core::Result;
 use modhost_server_core::state::AppState;

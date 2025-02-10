@@ -6,7 +6,7 @@ use axum::{
     response::Response,
 };
 use modhost_core::Result;
-use modhost_db::{get_user, User};
+use modhost_db::{User, get_user};
 use modhost_server_core::state::AppState;
 
 /// Get User

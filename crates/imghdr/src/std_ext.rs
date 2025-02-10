@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{Read, Result};
 use std::path::Path;
 
-use super::{patterns, Type};
+use super::{Type, patterns};
 
 /// Try to determine image format from an IO stream of bytes.
 ///
@@ -31,7 +31,7 @@ pub fn from_reader<T: Read>(mut f: T) -> Result<Option<Type>> {
     let mut buffer = [0; patterns::MAX_LENGTH];
     f.read_exact(&mut buffer)?;
 
-    Ok(crate::from_bytes(&buffer))
+    Ok(crate::from_bytes(buffer))
 }
 
 /// Open file and try to determine if it is an image.

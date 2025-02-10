@@ -1,8 +1,8 @@
 //! Project version-related models.
 
 use crate::{
-    schema::{project_version_refs, project_versions},
     Project,
+    schema::{project_version_refs, project_versions},
 };
 use chrono::NaiveDateTime;
 use diesel::pg::Pg;

@@ -1,4 +1,4 @@
-use futures_util::{stream::SplitSink, Sink, SinkExt};
+use futures_util::{Sink, SinkExt, stream::SplitSink};
 use std::{fmt::Debug, net::SocketAddr, ops::ControlFlow};
 use tokio_tungstenite::tungstenite::Message;
 

@@ -7,8 +7,8 @@ use diesel::{
 use diesel_async::RunQueryDsl;
 use modhost_core::Result;
 use modhost_db::{
-    projects, users, DbConn, GalleryImage, ModerationQueueStatus, Project, ProjectAuthor,
-    ProjectData, ProjectVisibility, User,
+    DbConn, GalleryImage, ModerationQueueStatus, Project, ProjectAuthor, ProjectData,
+    ProjectVisibility, User, projects, users,
 };
 
 /// Utilities for working with a project.

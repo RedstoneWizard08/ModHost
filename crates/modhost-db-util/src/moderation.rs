@@ -1,11 +1,11 @@
 //! Moderation data utilities.
 
-use diesel::{insert_into, update, BelongingToDsl, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{BelongingToDsl, ExpressionMethods, QueryDsl, SelectableHelper, insert_into, update};
 use diesel_async::RunQueryDsl;
 use modhost_core::Result;
 use modhost_db::{
-    moderation_comment, moderation_queue, DbConn, ModerationComment, ModerationQueueItem,
-    ModerationQueueStatus, NewModerationComment, NewModerationQueueItem, Project, User,
+    DbConn, ModerationComment, ModerationQueueItem, ModerationQueueStatus, NewModerationComment,
+    NewModerationQueueItem, Project, User, moderation_comment, moderation_queue,
 };
 
 /// Get the entire queue of pending moderation items.

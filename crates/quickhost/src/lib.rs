@@ -60,8 +60,8 @@ macro_rules! quickhost {
             }
 
             impl QuickHostCli {
-                fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
-                    generate(gen, cmd, cmd.get_name().to_string(), &mut stdout());
+                fn print_completions<G: Generator>(generator: G, cmd: &mut Command) {
+                    generate(generator, cmd, cmd.get_name().to_string(), &mut stdout());
                 }
 
                 pub async fn run(self) -> Result<()> {

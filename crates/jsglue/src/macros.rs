@@ -10,7 +10,7 @@ macro_rules! client {
 
         #[cfg(not(debug_assertions))]
         mod client {
-            use $crate::include_dir::{self, include_dir, Dir};
+            use $crate::include_dir::{self, Dir, include_dir};
 
             pub const CLIENT_DIR: Option<Dir<'static>> = Some(include_dir!($dir));
         }

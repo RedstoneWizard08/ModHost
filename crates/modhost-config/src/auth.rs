@@ -2,7 +2,7 @@
 
 use modhost_core::Result;
 use oauth2::{
-    basic::BasicClient, AuthUrl, ClientId, ClientSecret, EndpointNotSet, EndpointSet, TokenUrl,
+    AuthUrl, ClientId, ClientSecret, EndpointNotSet, EndpointSet, TokenUrl, basic::BasicClient,
 };
 
 /// ModHost's auth methods configuration.

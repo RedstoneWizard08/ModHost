@@ -79,28 +79,33 @@
 //!
 //! ```
 //! use parse_wiki_text_2::{Configuration, Node};
+//!
 //! let wiki_text = "\
-//!		==Our values==\n\
-//!		*Correctness\n\
-//!		*Speed\n\
-//!		*Ergonomics\
+//!     ==Our values==\n\
+//!     *Correctness\n\
+//!     *Speed\n\
+//!     *Ergonomics\
 //! ";
+//!
 //! let result = Configuration::default().parse(wiki_text).expect("parsing timed out");
 //! assert!(result.warnings.is_empty());
 //! # let mut found = false;
 //! for node in result.nodes {
-//!	if let Node::UnorderedList { items, .. } = node {
-//!		println!("Our values are:");
-//!		for item in items {
-//! 		let text = item.nodes.iter().map(|node| match node {
-//!				Node::Text { value, .. } => value,
-//!				_ => ""
-//!			}).collect::<String>();
-//!			println!("- {text}");
-//! # 		found = true;
-//!		}
-//!	 }
+//!     if let Node::UnorderedList { items, .. } = node {
+//!         println!("Our values are:");
+//!
+//!         for item in items {
+//!             let text = item.nodes.iter().map(|node| match node {
+//!                 Node::Text { value, .. } => value,
+//!                 _ => ""
+//!             }).collect::<String>();
+//!
+//!             println!("- {text}");
+//!     #       found = true;
+//!         }
+//!     }
 //! }
+//!
 //! # assert!(found);
 //! ```
 

@@ -6,12 +6,12 @@ use crate::{
 };
 use modhost_config::AppConfig;
 use utoipa::{
+    Modify, OpenApi as OpenApiTrait,
     openapi::{
+        InfoBuilder, LicenseBuilder, OpenApi, OpenApiBuilder, Tag,
         security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
         tag::TagBuilder,
-        InfoBuilder, LicenseBuilder, OpenApi, OpenApiBuilder, Tag,
     },
-    Modify, OpenApi as OpenApiTrait,
 };
 
 /// An addon for the OpenAPI spec to add token auth.

@@ -1,6 +1,6 @@
 //! The project model itself.
 
-use crate::{schema::projects, User};
+use crate::{User, schema::projects};
 use chrono::NaiveDateTime;
 use diesel::pg::Pg;
 use diesel_derive_enum::DbEnum;
@@ -225,7 +225,7 @@ impl Project {
             downloads: self.downloads,
             visibility: self.visibility,
             license: self.license,
-            tags: self.tags.into_iter().filter_map(|v| v).collect_vec(),
+            tags: self.tags.into_iter().flatten().collect_vec(),
             authors,
         }
     }
@@ -259,7 +259,7 @@ impl ProjectData {
             downloads: self.downloads,
             visibility: self.visibility,
             license: self.license.clone(),
-            tags: self.tags.into_iter().map(|v| Some(v)).collect_vec(),
+            tags: self.tags.into_iter().map(Some).collect_vec(),
         }
     }
 }

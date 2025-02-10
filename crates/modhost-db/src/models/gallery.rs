@@ -1,6 +1,6 @@
 //! Project gallery-related models.
 
-use crate::{gallery_images, Project};
+use crate::{Project, gallery_images};
 use chrono::NaiveDateTime;
 use diesel::pg::Pg;
 

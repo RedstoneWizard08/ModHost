@@ -1,10 +1,10 @@
 use anyhow::Result;
 use http_body_util::Full;
 use hyper::{
-    body::{Bytes, Incoming},
-    client::conn::http1::{handshake, SendRequest},
-    header::{HeaderValue, HOST},
     HeaderMap, Method, Request, Response, Uri,
+    body::{Bytes, Incoming},
+    client::conn::http1::{SendRequest, handshake},
+    header::{HOST, HeaderValue},
 };
 use hyper_util::rt::TokioIo;
 use tokio::{net::TcpStream, spawn};

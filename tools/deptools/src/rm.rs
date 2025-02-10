@@ -1,5 +1,5 @@
 use crate::util::{get_crate_map, get_root_cargo_toml};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use std::fs;
 use toml_edit::DocumentMut;
 
@@ -28,9 +28,9 @@ pub fn remove_crate(name: String, pkg: String) -> Result<()> {
         .unwrap()
         .remove(&name);
 
-    pkg_toml["dependencies"]
-        .as_inline_table_mut()
-        .map(|table| table.fmt());
+    if let Some(table) = pkg_toml["dependencies"].as_inline_table_mut() {
+        table.fmt()
+    }
 
     if !toml["workspace"]["dependencies"]
         .as_table()
@@ -57,9 +57,9 @@ pub fn remove_crate(name: String, pkg: String) -> Result<()> {
             .remove(&name);
     }
 
-    toml["workspace"]["dependencies"]
-        .as_inline_table_mut()
-        .map(|table| table.fmt());
+    if let Some(table) = toml["workspace"]["dependencies"].as_inline_table_mut() {
+        table.fmt()
+    }
 
     fs::write(toml_path, toml.to_string())?;
     fs::write(pkg_path, pkg_toml.to_string())?;

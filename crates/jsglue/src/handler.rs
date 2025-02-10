@@ -4,10 +4,10 @@ use crate::{
     state::ProxyState,
     util::{req_to_bytes, res_to_bytes},
 };
-use axum::{body::Body, debug_handler, extract::Request, response::Response, Extension};
+use axum::{Extension, body::Body, debug_handler, extract::Request, response::Response};
 use hyper::{
-    header::{CONTENT_LENGTH, CONTENT_TYPE, TRANSFER_ENCODING},
     StatusCode,
+    header::{CONTENT_LENGTH, CONTENT_TYPE, TRANSFER_ENCODING},
 };
 
 #[debug_handler]

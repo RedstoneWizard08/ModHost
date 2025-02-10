@@ -1,5 +1,4 @@
-//! Error handling utilities.
-#![cfg(feature = "axum")]
+//! Error handling utilities for Axum.
 
 use axum::{body::Body, response::Response};
 use std::fmt::Display;
@@ -16,7 +15,7 @@ where
     Self: Sized + HasCode,
 {
     /// Get the [`Response`].
-    fn as_response(self) -> Response {
+    fn into_axum(self) -> Response {
         match Response::builder()
             .status(self.code())
             .body(Body::new(format!("{}", self)))

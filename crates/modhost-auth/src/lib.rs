@@ -4,7 +4,7 @@
 use axum::http::HeaderMap;
 use axum_extra::extract::CookieJar;
 use modhost_core::{AppError, Result};
-use modhost_db::{get_user_for_token, DbConn, User};
+use modhost_db::{DbConn, User, get_user_for_token};
 
 /// Get a user from a request if the token is present.
 pub async fn get_user_from_req(
@@ -17,12 +17,10 @@ pub async fn get_user_from_req(
 
         if val.starts_with("Bearer ") {
             value.to_str()?.trim_start_matches("Bearer ").to_string()
+        } else if let Some(value) = jar.get("auth-token") {
+            value.value().to_string()
         } else {
-            if let Some(value) = jar.get("auth-token") {
-                value.value().to_string()
-            } else {
-                return Err(AppError::MissingToken);
-            }
+            return Err(AppError::MissingToken);
         }
     } else if let Some(value) = jar.get("auth-token") {
         value.value().to_string()

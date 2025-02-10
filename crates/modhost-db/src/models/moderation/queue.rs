@@ -1,6 +1,6 @@
 //! Moderation queue models.
 
-use crate::{schema::moderation_queue, Project, User};
+use crate::{Project, User, schema::moderation_queue};
 use diesel::pg::Pg;
 use diesel_derive_enum::DbEnum;
 

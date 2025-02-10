@@ -5,7 +5,7 @@ pub mod loaders;
 pub mod tags;
 pub mod vers;
 
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use modhost_server_core::state::AppState;
 
 /// Register metadata-related endpoints.

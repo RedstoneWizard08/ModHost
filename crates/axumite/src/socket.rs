@@ -9,7 +9,7 @@ use axum_core::Error;
 use futures_util::{Sink, SinkExt, Stream, StreamExt};
 use http::HeaderValue;
 use hyper_util::rt::TokioIo;
-use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
+use tokio_tungstenite::{WebSocketStream, tungstenite::Message};
 
 /// A WebSocket.
 #[derive(Debug)]

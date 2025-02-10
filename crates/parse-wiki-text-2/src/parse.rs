@@ -19,7 +19,6 @@ pub enum ParseError {
     },
 }
 
-#[must_use]
 pub fn parse(
     configuration: &crate::Configuration,
     wiki_text: impl AsRef<str>,
@@ -101,13 +100,13 @@ pub fn parse(
             }
             Some(b'!')
                 if state.get_byte(state.scan_position + 1) == Some(b'!')
-                    && match state.stack.last() {
+                    && matches!(
+                        state.stack.last(),
                         Some(crate::OpenNode {
                             type_: crate::OpenNodeType::Table(..),
                             ..
-                        }) => true,
-                        _ => false,
-                    } =>
+                        })
+                    ) =>
             {
                 crate::table::parse_heading_cell(&mut state);
             }
@@ -158,7 +157,7 @@ pub fn parse(
                     if state.get_byte(state.scan_position + 1) == Some(b']') {
                         crate::link::parse_link_end(
                             &mut state,
-                            &configuration,
+                            configuration,
                             start,
                             nodes,
                             namespace,

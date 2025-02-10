@@ -1,6 +1,6 @@
 //! Utilities for project versions.
 
-use crate::{schema::project_versions, DbConn, ProjectVersion};
+use crate::{DbConn, ProjectVersion, schema::project_versions};
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper,
 };

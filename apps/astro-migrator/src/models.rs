@@ -1,11 +1,11 @@
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use diesel::{insert_into, SelectableHelper};
+use diesel::{SelectableHelper, insert_into};
 use diesel_async::RunQueryDsl;
 use modhost_db::{
-    gallery_images, project_authors, project_versions, projects, version_files, DbConn,
-    NewGalleryImage, NewProject, NewProjectFile, NewProjectVersion, Project, ProjectAuthor,
-    ProjectVersion, ProjectVisibility,
+    DbConn, NewGalleryImage, NewProject, NewProjectFile, NewProjectVersion, Project, ProjectAuthor,
+    ProjectVersion, ProjectVisibility, gallery_images, project_authors, project_versions, projects,
+    version_files,
 };
 use s3::Bucket;
 use serde::{Deserialize, Serialize};
@@ -170,7 +170,7 @@ impl From<DumpMod> for Mod {
 }
 
 impl Version {
-    pub async fn upload(&self, bucket: &Box<Bucket>) -> Result<(String, i64)> {
+    pub async fn upload(&self, bucket: &Bucket) -> Result<(String, i64)> {
         let mods_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("mods")
             .join("releaseMods");
@@ -192,7 +192,7 @@ impl Version {
         self,
         pkg: &Project,
         db: &mut DbConn,
-        bucket: &Box<Bucket>,
+        bucket: &Bucket,
     ) -> Result<ProjectVersion> {
         let (id, size) = self.upload(bucket).await?;
         let file_name = self.release_file_name.clone();
@@ -205,7 +205,7 @@ impl Version {
             .await?;
 
         let file = NewProjectFile {
-            file_name: file_name,
+            file_name,
             s3_id: id.clone(),
             sha1: id,
             version_id: ver.id,
@@ -243,7 +243,7 @@ impl Mod {
             source: None,
             issues: None,
             wiki: None,
-            tags: self.tags.into_iter().map(|v| Some(v)).collect(),
+            tags: self.tags.into_iter().map(Some).collect(),
             visibility: if self.published {
                 ProjectVisibility::Public
             } else {
@@ -257,8 +257,8 @@ impl Mod {
         self,
         user_id: i32,
         db: &mut DbConn,
-        bucket: &Box<Bucket>,
-        imgs: &Box<Bucket>,
+        bucket: &Bucket,
+        imgs: &Bucket,
     ) -> Result<(Project, Vec<ProjectVersion>)> {
         let pkg = self.clone().into_pkg();
 
@@ -313,7 +313,7 @@ impl Mod {
         let mut vers = Vec::new();
 
         for ver in self.versions.clone() {
-            if ver.release_file_name == "" {
+            if ver.release_file_name.is_empty() {
                 println!(
                     "Encountered invalid version: {} (project: {})",
                     ver.version, pkg.slug
@@ -328,8 +328,8 @@ impl Mod {
     }
 }
 
-impl Into<Vec<Mod>> for ModsDump {
-    fn into(self) -> Vec<Mod> {
-        self.items.into_iter().map(|v| v.into()).collect()
+impl From<ModsDump> for Vec<Mod> {
+    fn from(val: ModsDump) -> Self {
+        val.items.into_iter().map(|v| v.into()).collect()
     }
 }

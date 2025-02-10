@@ -12,7 +12,7 @@ mod bun;
 
 use modhost_config::AppConfig;
 use modhost_core::Result;
-use std::{fs, path::PathBuf};
+use std::{fs, path::Path};
 
 /// The default favicon.ico bytes.
 pub const DEFAULT_FAVICON_ICO: &[u8] = include_bytes!("./assets/modhost.ico");
@@ -41,10 +41,11 @@ pub const API_SOURCE: include_dir::Dir<'static> =
 ///  - Write the favicon files
 ///  - Install dependencies
 ///  - Build the UI
+///
 /// In release builds, this will return a [`PathBuf`] containing the full
 /// path to the built UI. In debug builds this will return `()`.
 #[cfg(debug_assertions)]
-pub async fn build_ui(config: &AppConfig, dir: &PathBuf) -> Result<()> {
+pub async fn build_ui(config: &AppConfig, dir: &Path) -> Result<()> {
     if config.ui.favicon_ico == "default" {
         info!("Downloading favicon.ico...");
 
@@ -89,10 +90,11 @@ pub async fn build_ui(config: &AppConfig, dir: &PathBuf) -> Result<()> {
 ///  - Write the favicon files
 ///  - Install dependencies
 ///  - Build the UI
+///
 /// In release builds, this will return a [`PathBuf`] containing the full
 /// path to the built UI. In debug builds this will return `()`.
 #[cfg(not(debug_assertions))]
-pub async fn build_ui(config: &AppConfig) -> Result<PathBuf> {
+pub async fn build_ui(config: &AppConfig) -> Result<std::path::PathBuf> {
     use serde_json::Value;
     use tempfile::TempDir;
     use tokio::process::Command;

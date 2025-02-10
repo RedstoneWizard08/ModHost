@@ -81,6 +81,5 @@ pub fn parse_redirect(
                 start: start_position,
             });
         }
-        return;
     }
 }

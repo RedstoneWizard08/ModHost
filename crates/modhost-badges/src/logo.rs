@@ -5,7 +5,7 @@ pub async fn resolve_simpleicons_logo(id: impl AsRef<str>) -> Option<String> {
     let url = format!("https://simpleicons.org/icons/{}.svg", id.as_ref());
     let status = reqwest::get(&url).await.ok()?.status().as_u16();
 
-    if status >= 200 && status < 400 {
+    if (200..400).contains(&status) {
         Some(url)
     } else {
         None

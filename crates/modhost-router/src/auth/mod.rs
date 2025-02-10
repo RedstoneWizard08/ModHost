@@ -6,7 +6,7 @@
 pub mod callback;
 pub mod login;
 
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use modhost_server_core::state::AppState;
 
 /// The relative URL for the GitHub auth callback.

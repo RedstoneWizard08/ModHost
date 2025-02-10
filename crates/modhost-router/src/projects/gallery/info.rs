@@ -9,7 +9,7 @@ use axum::{
 use axum_extra::extract::CookieJar;
 use modhost_auth::get_user_from_req;
 use modhost_core::{AppError, Result};
-use modhost_db::{get_gallery_image, ProjectVisibility, PublicGalleryImage};
+use modhost_db::{ProjectVisibility, PublicGalleryImage, get_gallery_image};
 use modhost_db_util::{gallery::transform_gallery_image, projects::get_full_project};
 use modhost_server_core::state::AppState;
 

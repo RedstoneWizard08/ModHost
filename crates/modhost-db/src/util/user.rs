@@ -1,6 +1,6 @@
 //! Utilities for users.
 
-use crate::{schema::users, DbConn, User};
+use crate::{DbConn, User, schema::users};
 use diesel::{
     ExpressionMethods, OptionalExtension, PgTextExpressionMethods, QueryDsl, SelectableHelper,
 };

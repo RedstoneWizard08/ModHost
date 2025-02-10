@@ -1,6 +1,6 @@
 //! The project author relation model.
 
-use crate::{schema::project_authors, Project, User};
+use crate::{Project, User, schema::project_authors};
 use diesel::pg::Pg;
 
 /// A project author.

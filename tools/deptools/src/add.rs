@@ -1,8 +1,8 @@
 use crate::util::{get_crate_map, get_root_cargo_toml};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use crates_io_api::AsyncClient;
 use std::{fs, time::Duration};
-use toml_edit::{array, value, DocumentMut, InlineTable};
+use toml_edit::{DocumentMut, InlineTable, array, value};
 
 pub async fn add_crate(
     name: String,
@@ -44,7 +44,7 @@ pub async fn add_crate(
         }
     }
 
-    if unknown_feats.len() > 0 {
+    if !unknown_feats.is_empty() {
         return Err(anyhow!(
             "Missing features in crate: {}",
             unknown_feats.join(", ")
@@ -58,16 +58,16 @@ pub async fn add_crate(
         toml["workspace"]["dependencies"][&item_name]["features"][idx] = value(feat);
     }
 
-    toml["workspace"]["dependencies"][&item_name]
-        .as_inline_table_mut()
-        .map(|table| table.fmt());
+    if let Some(table) = toml["workspace"]["dependencies"][&item_name].as_inline_table_mut() {
+        table.fmt()
+    }
 
     pkg_toml["dependencies"][&item_name] = value(InlineTable::new());
     pkg_toml["dependencies"][&item_name]["workspace"] = value(true);
 
-    pkg_toml["dependencies"]
-        .as_inline_table_mut()
-        .map(|table| table.fmt());
+    if let Some(table) = pkg_toml["dependencies"].as_inline_table_mut() {
+        table.fmt()
+    }
 
     fs::write(toml_path, toml.to_string())?;
     fs::write(pkg_path, pkg_toml.to_string())?;

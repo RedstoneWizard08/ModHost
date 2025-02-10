@@ -8,13 +8,13 @@ use axum::{
 };
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
-use diesel::{insert_into, update, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, QueryDsl, SelectableHelper, insert_into, update};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::{AppError, Result};
 use modhost_db::{
-    project_authors, project_versions, projects, version_files, NewProjectFile, NewProjectVersion,
-    Project, ProjectAuthor, ProjectFile, ProjectVersion, ProjectVersionInit,
+    NewProjectFile, NewProjectVersion, Project, ProjectAuthor, ProjectFile, ProjectVersion,
+    ProjectVersionInit, project_authors, project_versions, projects, version_files,
 };
 use modhost_db_util::projects::get_project;
 use modhost_server_core::state::AppState;
@@ -55,7 +55,7 @@ pub async fn create_handler(
         .load(&mut conn)
         .await?;
 
-    if authors.iter().find(|v| v.user_id == user.id).is_none() && !user.admin {
+    if !authors.iter().any(|v| v.user_id == user.id) && !user.admin {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);

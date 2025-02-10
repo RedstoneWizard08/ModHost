@@ -1,9 +1,9 @@
 //! The version list route.
 
 use axum::{
+    Json,
     extract::{Path, State},
     http::HeaderMap,
-    Json,
 };
 use axum_extra::extract::CookieJar;
 use modhost_auth::get_user_from_req;

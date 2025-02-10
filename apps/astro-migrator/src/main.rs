@@ -1,12 +1,12 @@
 use anyhow::Result;
 use astro_migrator::models::{Mod, ModsDump};
-use diesel::{insert_into, SelectableHelper};
+use diesel::{SelectableHelper, insert_into};
 use diesel_async::RunQueryDsl;
 use indicatif::ProgressIterator;
 use itertools::Itertools;
 use modhost::init_logger;
 use modhost_config::get_config;
-use modhost_db::{create_connection, run_migrations, users, NewUser, User};
+use modhost_db::{NewUser, User, create_connection, run_migrations, users};
 use modhost_search::MeilisearchService;
 use ron::ser::PrettyConfig;
 use std::{fs, path::PathBuf};
@@ -52,12 +52,7 @@ pub async fn main() -> Result<()> {
         tags.extend(pkg.tags);
     }
 
-    let tags = tags
-        .into_iter()
-        .filter_map(|v| v)
-        .sorted()
-        .dedup()
-        .collect_vec();
+    let tags = tags.into_iter().flatten().sorted().dedup().collect_vec();
 
     let search = MeilisearchService::new(&config)?;
 

@@ -1,13 +1,13 @@
 //! Structs for the server's shared state.
 
 use axum::body::Bytes;
-use base64::{prelude::BASE64_STANDARD, Engine};
+use base64::{Engine, prelude::BASE64_STANDARD};
 use modhost_config::AppConfig;
 use modhost_core::Result;
 use modhost_db::DbPool;
 use modhost_search::MeilisearchService;
 use modhost_ui::DEFAULT_FAVICON_PNG;
-use oauth2::{basic::BasicClient, EndpointNotSet, EndpointSet};
+use oauth2::{EndpointNotSet, EndpointSet, basic::BasicClient};
 use s3::Bucket;
 use std::{fs, sync::Arc};
 use utoipa::openapi::OpenApi;

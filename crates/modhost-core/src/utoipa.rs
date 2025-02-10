@@ -1,6 +1,6 @@
 //! Helpers for working with [`utoipa`] types.
 
-pub use utoipa::{openapi::schema::ComponentsBuilder, ToResponse, ToSchema};
+pub use utoipa::{ToResponse, ToSchema, openapi::schema::ComponentsBuilder};
 
 /// Generate a function to add types to a utoipa [`ComponentBuilder`].
 #[macro_export]

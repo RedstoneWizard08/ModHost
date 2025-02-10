@@ -5,7 +5,7 @@ use diesel_async::RunQueryDsl;
 use itertools::Itertools;
 use modhost_core::{AppError, Result};
 use modhost_db::{
-    project_versions, version_files, DbConn, ProjectFile, ProjectVersion, ProjectVersionData,
+    DbConn, ProjectFile, ProjectVersion, ProjectVersionData, project_versions, version_files,
 };
 use semver::Version;
 

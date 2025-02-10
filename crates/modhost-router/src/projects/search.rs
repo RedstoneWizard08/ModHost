@@ -1,9 +1,9 @@
 //! The project search route.
 
 use axum::{
+    Json,
     extract::{Query, State},
     http::HeaderMap,
-    Json,
 };
 use axum_extra::extract::CookieJar;
 use modhost_auth::get_user_from_req;
@@ -75,7 +75,7 @@ pub async fn search_handler(
 ) -> Result<Json<SearchResults>> {
     let mut conn = state.pool.get().await?;
     let page = page.unwrap_or(1).max(1);
-    let per_page = per_page.unwrap_or(25).min(MAX_PER_PAGE).max(1);
+    let per_page = per_page.unwrap_or(25).clamp(1, MAX_PER_PAGE);
     let filters =
         serde_json::from_str::<Vec<(String, Vec<String>)>>(&filters.unwrap_or("[]".into()))?;
     let mut facets = Vec::new();

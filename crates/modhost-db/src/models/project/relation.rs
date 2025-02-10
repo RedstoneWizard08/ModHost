@@ -1,7 +1,8 @@
 //! Project relation-related models.
 
-use crate::{schema::project_relations, ProjectVersion, ProjectVersionRef};
+use crate::{ProjectVersion, ProjectVersionRef, schema::project_relations};
 use diesel::{
+    Queryable,
     backend::Backend,
     deserialize::{FromSql, Result as DeResult},
     expression::AsExpression,
@@ -9,7 +10,6 @@ use diesel::{
     pg::Pg,
     serialize::{Output, Result as SerResult, ToSql},
     sql_types::Integer,
-    Queryable,
 };
 
 // TODO: Do something with this xD
@@ -108,7 +108,7 @@ impl AsExpression<Integer> for RelationKind {
     }
 }
 
-impl<'a> AsExpression<Integer> for &'a RelationKind {
+impl AsExpression<Integer> for &RelationKind {
     type Expression = Bound<Integer, Self>;
 
     fn as_expression(self) -> Self::Expression {

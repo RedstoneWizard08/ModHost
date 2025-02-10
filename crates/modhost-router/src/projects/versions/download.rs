@@ -5,13 +5,13 @@ use axum::{
     http::HeaderMap,
 };
 use axum_extra::extract::CookieJar;
-use diesel::{update, ExpressionMethods, SelectableHelper};
+use diesel::{ExpressionMethods, SelectableHelper, update};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::AppError;
 use modhost_core::Result;
 use modhost_db::{
-    get_version, project_versions, projects, Project, ProjectVersion, ProjectVisibility,
+    Project, ProjectVersion, ProjectVisibility, get_version, project_versions, projects,
 };
 use modhost_db_util::{projects::get_full_project, vers::get_version_file};
 use modhost_server_core::state::AppState;

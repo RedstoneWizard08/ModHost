@@ -1,19 +1,19 @@
 //! The version update route.
 
 use axum::{
+    Json,
     body::Body,
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::Response,
-    Json,
 };
 use axum_extra::extract::CookieJar;
 use chrono::Utc;
-use diesel::{update, ExpressionMethods, QueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, QueryDsl, SelectableHelper, update};
 use diesel_async::RunQueryDsl;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
-use modhost_db::{get_version, project_authors, project_versions, ProjectAuthor, ProjectVersion};
+use modhost_db::{ProjectAuthor, ProjectVersion, get_version, project_authors, project_versions};
 use modhost_db_util::projects::get_project;
 use modhost_server_core::state::AppState;
 use semver::Version;
@@ -83,7 +83,7 @@ pub async fn update_handler(
         .load(&mut conn)
         .await?;
 
-    if authors.iter().find(|v| v.user_id == user.id).is_none() && !user.admin {
+    if !authors.iter().any(|v| v.user_id == user.id) && !user.admin {
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(Body::empty())?);
@@ -98,8 +98,7 @@ pub async fn update_handler(
         .set((
             project_versions::name.eq(data.name.unwrap_or(ver.name)),
             project_versions::version_number.eq(data.version_number.unwrap_or(ver.version_number)),
-            project_versions::changelog
-                .eq(data.changelog.map(|v| Some(v)).unwrap_or(ver.changelog)),
+            project_versions::changelog.eq(data.changelog.map(Some).unwrap_or(ver.changelog)),
             project_versions::loaders.eq(data
                 .loaders
                 .map(|v| v.iter().map(|v| Some(v.clone())).collect::<Vec<_>>())

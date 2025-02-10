@@ -1,8 +1,8 @@
 //! Routes concerning project galleries.
 
 use axum::{
-    routing::{delete, get, patch, put},
     Router,
+    routing::{delete, get, patch, put},
 };
 use modhost_server_core::state::AppState;
 

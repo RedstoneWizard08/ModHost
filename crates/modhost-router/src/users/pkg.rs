@@ -1,14 +1,14 @@
 //! Routes concerning user projects.
 
 use axum::{
+    Json,
     extract::{Path, State},
     http::HeaderMap,
-    Json,
 };
 use axum_extra::extract::CookieJar;
 use modhost_auth::get_user_from_req;
 use modhost_core::Result;
-use modhost_db::{get_user, ProjectData};
+use modhost_db::{ProjectData, get_user};
 use modhost_db_util::users::get_user_projects;
 use modhost_server_core::state::AppState;
 

@@ -1,8 +1,8 @@
 use axum::{body::Body, extract::Request};
 use http_body_util::BodyExt;
 use hyper::{
-    body::{Bytes, Incoming},
     Response,
+    body::{Bytes, Incoming},
 };
 
 pub fn is_debug() -> bool {
@@ -44,9 +44,5 @@ pub async fn res_to_bytes(mut body: Response<Incoming>) -> Bytes {
 }
 
 pub fn scheme_port(scheme: &str) -> u16 {
-    if scheme.starts_with("https") {
-        443
-    } else {
-        80
-    }
+    if scheme.starts_with("https") { 443 } else { 80 }
 }

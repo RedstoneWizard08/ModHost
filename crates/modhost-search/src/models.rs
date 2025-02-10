@@ -114,18 +114,18 @@ impl MeiliProject {
             loaders: versions
                 .iter()
                 .flat_map(|v| v.loaders.clone())
-                .filter_map(|v| v)
+                .flatten()
                 .sorted()
                 .dedup()
                 .collect_vec(),
             game_versions: versions
                 .iter()
                 .flat_map(|v| v.game_versions.clone())
-                .filter_map(|v| v)
+                .flatten()
                 .sorted()
                 .dedup()
                 .collect_vec(),
-            tags: pkg.tags.into_iter().filter_map(|v| v).collect_vec(),
+            tags: pkg.tags.into_iter().flatten().collect_vec(),
             authors,
             versions,
         }

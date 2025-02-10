@@ -2,7 +2,7 @@
 
 use axum::{body::Body, debug_handler, extract::Query, response::Response};
 use modhost_core::Result;
-use reqwest::{header::CONTENT_TYPE, StatusCode};
+use reqwest::{StatusCode, header::CONTENT_TYPE};
 
 use crate::{generator::generate_badge, models::BadgeOptions};
 

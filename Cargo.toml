@@ -3,7 +3,7 @@ resolver = "2"
 members = ["./apps/*", "./crates/*", "./tools/*"]
 
 [workspace.package]
-edition = "2021"
+edition = "2024"
 license = "MIT"
 repository = "https://github.com/RedstoneWizard08/ModHost"
 homepage = "https://github.com/RedstoneWizard08/ModHost"
@@ -32,7 +32,7 @@ copy_dir = "0.1.3"
 crates_io_api = "0.11.0"
 ctrlc = "3.4.5"
 derive_builder = "0.20.2"
-diesel = { version = "2.2.6", features = ["chrono", "postgres", "r2d2"] }
+diesel = { version = "2.2.6", features = ["chrono", "postgres"] }
 diesel-async = { version = "0.5.2", features = ["tokio", "postgres", "deadpool"] }
 diesel_async_migrations = "0.15.0"
 diesel-derive-enum = { version = "2.1.0", features = ["postgres"] }

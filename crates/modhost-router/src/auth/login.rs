@@ -6,7 +6,7 @@ use super::CALLBACK_URL;
 use axum::{
     body::Body,
     extract::State,
-    http::{header::LOCATION, HeaderValue, StatusCode, Uri},
+    http::{HeaderValue, StatusCode, Uri, header::LOCATION},
     response::Response,
 };
 use axum_extra::extract::Host;

@@ -1,6 +1,6 @@
 //! The meta endpoint for getting a list of tags.
 
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use modhost_core::Result;
 use modhost_server_core::{models::Tag, state::AppState};
 

@@ -1,6 +1,6 @@
 //! Utilities for gallery images.
 
-use crate::{gallery_images, DbConn, GalleryImage, Result};
+use crate::{DbConn, GalleryImage, Result, gallery_images};
 use diesel::{ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 

@@ -1,10 +1,10 @@
 use axumite::socket::WebSocket;
 use futures_util::StreamExt;
 use hyper::{
+    Request, Uri, Version,
     header::{
         CONNECTION, HOST, SEC_WEBSOCKET_KEY, SEC_WEBSOCKET_PROTOCOL, SEC_WEBSOCKET_VERSION, UPGRADE,
     },
-    Request, Uri, Version,
 };
 use std::net::SocketAddr;
 use tokio::select;

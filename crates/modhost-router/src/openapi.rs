@@ -76,6 +76,7 @@ pub fn build_openapi(_config: &AppConfig) -> OpenApi {
         modhost_search,
         modhost_server_core,
         modhost_badges,
+        modhost_core,
     ]
     .build();
 

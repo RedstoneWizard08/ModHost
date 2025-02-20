@@ -127,47 +127,47 @@
 
 <div class="flex h-full w-full flex-row items-start justify-start">
     <div
-        class="bg-primary-500 bg-opacity-20 mr-4 flex h-full w-[40%] max-w-[40%] flex-col items-start justify-start overflow-scroll rounded-xl p-2 px-3 space-y-1"
+        class="bg-primary-500 mr-4 flex h-full w-[40%] max-w-[40%] flex-col items-start justify-start space-y-1 overflow-scroll rounded-xl bg-opacity-20 p-2 px-3"
     >
         <p class="border-b-primary-700 mb-1 w-full border-b py-1 text-lg font-bold">
             Package Overview
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:tag" height="24" />
             <span class="font-bold">Display Name:</span>
             <span>{name == "" ? "Unset" : name}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:link" height="24" />
             <span class="font-bold">Slug:</span>
             <span>{slug == "" ? "Unset" : slug}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:info-circle" height="24" />
             <span class="font-bold">Description:</span>
             <span>{description == "" ? "Unset" : description}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:code" height="24" />
             <span class="font-bold">Repository:</span>
             <span>{repo == "" ? "Unset" : repo}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:exclamation-circle" height="24" />
             <span class="font-bold">Issues:</span>
             <span>{issues == "" ? "Unset" : issues}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:world" height="24" />
             <span class="font-bold">Wiki:</span>
             <span>{wiki == "" ? "Unset" : wiki}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:license" height="24" />
             <span class="font-bold">License:</span>
             <span>{license == "" ? "Unset" : license}</span>
         </p>
-        <p class="flex flex-row items-center justify-start flex-wrap space-x-1">
+        <p class="flex flex-row flex-wrap items-center justify-start space-x-1">
             <Icon icon="tabler:eye" height="24" />
             <span class="font-bold">Visibility:</span>
             <span>{visibility}</span>

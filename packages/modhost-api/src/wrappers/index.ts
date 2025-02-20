@@ -1,9 +1,12 @@
 import { Client } from "../client";
 import type { Facet, ProjectInit, SortDirection, SortMode } from "../models";
+import { AdminWrapper } from "./admin";
 import { MetaWrapper } from "./meta";
 import { ProjectWrapper } from "./project";
 import { UserWrapper } from "./user";
 
+export * from "./admin";
+export * from "./admin-user";
 export * from "./authors";
 export * from "./gallery";
 export * from "./project";
@@ -11,6 +14,7 @@ export * from "./versions";
 export * from "./files";
 export * from "./meta";
 export * from "./user";
+export * from "./stats-socket";
 
 /**
  * The ergonomic API client meant to be used by other applications.
@@ -71,5 +75,9 @@ export class ModHostClient {
 
     public createProject(data: ProjectInit) {
         return this._client.createProject(data);
+    }
+
+    public admin() {
+        return new AdminWrapper(this._client);
     }
 }

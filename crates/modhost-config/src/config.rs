@@ -1,6 +1,6 @@
 //! The main config models.
 
-use crate::{AuthConfigs, MeilisearchConfig, PostgresConfig, StorageConfig, UIConfig};
+use crate::{AdminConfig, AuthConfigs, MeilisearchConfig, PostgresConfig, StorageConfig, UIConfig};
 use modhost_core::Result;
 use std::fs;
 
@@ -24,6 +24,9 @@ pub struct AppConfig {
 
     /// The Meilisearch configuration.
     pub meilisearch: MeilisearchConfig,
+
+    /// Admin panel configuration.
+    pub admin: AdminConfig,
 }
 
 /// The server configuration.

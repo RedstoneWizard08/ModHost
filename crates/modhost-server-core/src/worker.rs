@@ -23,7 +23,7 @@ pub fn run_worker(pool: DbPool) -> JoinHandle<Result<()>> {
 
 /// The internal worker loop.
 /// This function will never return unless an error occurs.
-async fn worker_loop(pool: DbPool) -> Result<()> {
+pub async fn worker_loop(pool: DbPool) -> Result<()> {
     let mut conn = pool.get().await?;
 
     loop {

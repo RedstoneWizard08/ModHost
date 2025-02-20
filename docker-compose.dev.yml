@@ -1,0 +1,66 @@
+#                       ModHost Dev Docker Compose Setup
+# =============================================================================
+# This contains the Minio and Meilisearch instances ModHost uses, as well as a
+# OpenTelemetry/LGTM stack container for monitoring. This is for dev only! Make
+# sure to make an actual setup for production!
+# -----------------------------------------------------------------------------
+# Make sure to change all occurances of "CHANGE_ME" in this file and in your
+# prometheus.yaml file! Things may work if you don't, but it's good practice to
+# change your tokens to ones that can't be easily guessed!
+# -----------------------------------------------------------------------------
+# Before running, make sure to create the .otel-lgtm/configs directory and copy
+# your prometheus.yaml into there. For convenience, an example file (located at
+# prometheus.dev.yaml in this repo) is provided, and feel free to modify it as
+# much as you want.
+
+version: "3.7"
+
+services:
+  minio:
+    container_name: modhost-minio
+    image: minio/minio
+    ports:
+      - 9001:9001
+      - 9000:9000
+    volumes:
+      - ./.minio/data:/data
+    environment:
+      MINIO_ROOT_USER: CHANGE_ME
+      MINIO_ROOT_PASSWORD: CHANGE_ME
+    command: server /data --console-address ":9001"
+    networks:
+      - modhost_net
+  meili:
+    container_name: modhost-meilisearch
+    image: getmeili/meilisearch:v1.11
+    ports:
+      - 7700:7700
+    volumes:
+      - ./.meili/data:/meili_data
+    environment:
+      MEILI_MASTER_KEY: CHANGE_ME
+    networks:
+      - modhost_net
+  otel-lgtm:
+    container_name: modhost-otel-lgtm
+    image: grafana/otel-lgtm:latest
+    command: /bin/bash -c 'rm -f /otel-lgtm/prometheus.yaml && cp /data/configs/prometheus.yaml /otel-lgtm/prometheus.yaml && /otel-lgtm/run-all.sh'
+    ports:
+      - 4002:3000
+      - 4317:4317
+      - 4318:4318
+    volumes:
+      - ./.otel-lgtm/configs:/data/configs
+      - ./.otel-lgtm/grafana:/data/grafana
+      - ./.otel-lgtm/prometheus:/data/prometheus
+      - ./.otel-lgtm/loki:/data/loki
+    environment:
+      GF_PATHS_DATA: /data/grafana
+    depends_on:
+      - meili
+      - minio
+    networks:
+      - modhost_net
+
+networks:
+  modhost_net:

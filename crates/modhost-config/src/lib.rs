@@ -8,6 +8,7 @@ extern crate serde;
 #[macro_use]
 extern crate tracing;
 
+mod admin;
 mod auth;
 mod config;
 mod db;
@@ -16,6 +17,7 @@ mod storage;
 mod ui;
 mod util;
 
+pub use admin::*;
 pub use auth::*;
 pub use config::*;
 pub use db::*;

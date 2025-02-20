@@ -1,7 +1,10 @@
 //! The S3 storage configuration.
 
 use modhost_core::Result;
-use object_store::aws::{AmazonS3, AmazonS3Builder};
+use object_store::{
+    ClientOptions,
+    aws::{AmazonS3, AmazonS3Builder},
+};
 
 /// The S3 storage configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,6 +52,7 @@ impl StorageConfig {
             .with_bucket_name(&self.projects_bucket)
             .with_access_key_id(&self.s3_access_key)
             .with_secret_access_key(&self.s3_secret_key)
+            .with_client_options(ClientOptions::new().with_allow_http(true))
             .build()?)
     }
 
@@ -60,6 +64,7 @@ impl StorageConfig {
             .with_bucket_name(&self.gallery_bucket)
             .with_access_key_id(&self.s3_access_key)
             .with_secret_access_key(&self.s3_secret_key)
+            .with_client_options(ClientOptions::new().with_allow_http(true))
             .build()?)
     }
 }

@@ -19,4 +19,6 @@ pub use models::*;
 pub use search::*;
 pub use service::*;
 
+pub use meilisearch_sdk::indexes::Index;
+
 modhost_core::utoipa_types![Sort, SortMode, SearchResults, Facet,];

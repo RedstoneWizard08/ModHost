@@ -1,21 +1,25 @@
-//! Admin stats route.
+//! The get user route.
 
-use crate::util::stats::{AdminStats, fetch_stats};
-use axum::{Json, extract::State, http::HeaderMap};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::HeaderMap,
+};
 use axum_extra::extract::CookieJar;
 use modhost_auth::get_user_from_req;
 use modhost_core::{AppError, Result};
+use modhost_db::{User, get_user};
 use modhost_server_core::state::AppState;
 
-/// Stats
+/// Get User
 ///
-/// Get statistics about this ModHost instance.
+/// Get a user.
 #[utoipa::path(
     get,
-    path = "/stats",
+    path = "/users/{id}",
     tag = "Admin",
     responses(
-        (status = 200, description = "Got stats!", body = AdminStats),
+        (status = 200, description = "Got user info!", body = User),
         (status = INTERNAL_SERVER_ERROR, description = "An internal error occured!"),
     ),
     security(
@@ -23,11 +27,12 @@ use modhost_server_core::state::AppState;
     ),
 )]
 #[debug_handler]
-pub async fn stats_handler(
+pub async fn get_handler(
     jar: CookieJar,
     headers: HeaderMap,
     State(state): State<AppState>,
-) -> Result<Json<AdminStats>> {
+    Path(id): Path<String>,
+) -> Result<Json<User>> {
     let mut conn = state.pool.get().await?;
     let user = get_user_from_req(&jar, &headers, &mut conn).await?;
 
@@ -35,13 +40,7 @@ pub async fn stats_handler(
         return Err(AppError::NoAccess);
     }
 
-    Ok(Json(
-        fetch_stats(
-            &state.buckets.projects,
-            &state.buckets.gallery,
-            &state.search.projects(),
-            &mut conn,
-        )
-        .await?,
-    ))
+    let found = get_user(id, &mut conn).await?;
+
+    Ok(Json(found))
 }

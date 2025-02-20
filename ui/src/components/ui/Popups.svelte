@@ -163,6 +163,16 @@
         <Icon icon="tabler:color-swatch" height="24" />
         <p class="text-lg">{$_("auth_icon.theme")}</p>
     </button>
+
+    {#if $user && $user.admin}
+        <a
+            href="/admin"
+            class="card variant-glass-tertiary hover:variant-glass-primary flex w-full flex-row items-center justify-start space-x-2 p-2 transition-all"
+        >
+            <Icon icon="tabler:user-shield" height="24" />
+            <p class="text-lg">Admin</p>
+        </a>
+    {/if}
 </div>
 
 <div

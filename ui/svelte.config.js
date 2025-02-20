@@ -14,6 +14,7 @@ const config = {
             "$locales/*": "./src/locales/*",
             "$components/*": "./src/components/*",
             $api: "./src/lib/api/index.ts",
+            $: "./src",
         },
     },
 

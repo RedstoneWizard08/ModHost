@@ -8,6 +8,9 @@ extern crate axum;
 extern crate serde;
 
 #[macro_use]
+extern crate tracing;
+
+#[macro_use]
 extern crate utoipa;
 
 pub mod admin;
@@ -18,6 +21,7 @@ pub mod moderation;
 pub mod openapi;
 pub mod projects;
 pub mod users;
+pub mod util;
 
 use axum::{Router, middleware::from_fn};
 use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer};
@@ -54,5 +58,6 @@ modhost_core::utoipa_types![
     projects::versions::update::PartialProjectVersion,
     projects::gallery::create::GalleryImageUpload,
     projects::gallery::update::PartialGalleryImage,
-    admin::stats::AdminStats,
+    util::stats::AdminStats,
+    admin::stats_ws::AdminStatsSocketQueryParams,
 ];

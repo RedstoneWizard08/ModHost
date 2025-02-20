@@ -15,6 +15,7 @@ anyhow = ["dep:anyhow"]
 axum = ["dep:axum"]
 chrono = ["dep:chrono"]
 config = ["dep:config"]
+crossbeam-channel = ["dep:crossbeam-channel"]
 diesel = ["dep:diesel"]
 diesel-async = ["dep:diesel-async"]
 dotenvy = ["dep:dotenvy"]
@@ -28,6 +29,7 @@ s3 = ["dep:object_store"]
 semver = ["dep:semver"]
 serde-json = ["dep:serde_json"]
 serde-yaml = ["dep:serde_yaml"]
+sysinfo = ["dep:sysinfo", "dep:utoipa", "dep:serde"]
 tempfile = ["dep:tempfile"]
 tokio = ["dep:tokio"]
 toml = ["dep:toml"]
@@ -40,6 +42,7 @@ anyhow = { workspace = true, optional = true }
 axum = { workspace = true, optional = true }
 chrono = { workspace = true, optional = true }
 config = { workspace = true, optional = true }
+crossbeam-channel = { workspace = true, optional = true }
 diesel = { workspace = true, optional = true }
 diesel-async = { workspace = true, optional = true }
 dotenvy = { workspace = true, optional = true }
@@ -51,8 +54,10 @@ octocrab = { workspace = true, optional = true }
 reqwest = { workspace = true, optional = true }
 rsbadges = { workspace = true, optional = true }
 semver = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 serde_yaml = { workspace = true, optional = true }
+sysinfo = { workspace = true, optional = true }
 tempfile = { workspace = true, optional = true }
 thiserror.workspace = true
 tokio = { workspace = true, features = [], optional = true }

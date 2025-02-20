@@ -9,6 +9,9 @@ pub mod logger;
 #[cfg(feature = "utoipa")]
 pub mod utoipa;
 
+#[cfg(feature = "sysinfo")]
+pub mod info;
+
 pub use error::*;
 
 /// The time the server started up.
@@ -27,5 +30,17 @@ pub fn core_init() {
 /// Get the instance uptime.
 #[cfg(feature = "chrono")]
 pub fn uptime_secs() -> u64 {
-    (unsafe { START_TIME } - chrono::Utc::now()).num_seconds() as u64
+    chrono::Utc::now()
+        .signed_duration_since(unsafe { START_TIME })
+        .num_seconds()
+        .try_into()
+        .unwrap_or_default()
 }
+
+#[cfg(all(feature = "utoipa", feature = "sysinfo"))]
+utoipa_types![
+    info::SysInfo,
+    info::CpuInfo,
+    info::DiskInfo,
+    info::NetworkInfo
+];

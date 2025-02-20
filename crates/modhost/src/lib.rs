@@ -15,7 +15,7 @@ use modhost_router::{create_api_spec, create_router};
 use modhost_search::MeiliProject;
 use modhost_server_core::{glue::make_glue, state::AppState, worker::run_worker};
 use std::net::{IpAddr, SocketAddr};
-use tokio::{join, net::TcpListener};
+use tokio::{join, net::TcpListener, task::JoinHandle};
 use utoipa::openapi::OpenApi;
 
 /// The main ModHost app.
@@ -43,6 +43,10 @@ pub struct ModHost {
     /// The internal [`axum`] router.
     /// Will be [`Option::None`] until [`Self::router`] is called.
     router: Option<IntoMakeServiceWithConnectInfo<Router, SocketAddr>>,
+
+    /// The join handle for the stats thread.
+    #[allow(dead_code)]
+    stats_thread: JoinHandle<Result<()>>,
 }
 
 impl ModHost {
@@ -79,6 +83,10 @@ impl ModHost {
 
         let glue = make_glue(&config).await?;
 
+        info!("Starting stats thread...");
+
+        let stats_thread = modhost_router::util::stats::start_stats_thread(&state);
+
         info!("Getting listen address...");
 
         let ip: IpAddr = config.server.host.parse()?;
@@ -92,6 +100,7 @@ impl ModHost {
             addr,
             api_spec,
             router: None,
+            stats_thread,
         })
     }
 

@@ -16,6 +16,7 @@ import {
     type Tag,
     type User,
 } from "./models";
+import type { AdminStats } from "./models/admin";
 
 /**
  * The base API client.
@@ -40,6 +41,10 @@ export class Client {
 
     public hasToken() {
         return !!this._token;
+    }
+
+    public getToken() {
+        return this._token;
     }
 
     private _fetch(
@@ -330,5 +335,35 @@ export class Client {
 
     public async getTags() {
         return await this._jsonFetch<Tag[]>(false, "GET", "/meta/tags");
+    }
+
+    // =================== ADMIN ===================
+
+    public async getAdminStats() {
+        return await this._jsonFetch<AdminStats>(true, "GET", "/admin/stats");
+    }
+
+    public async adminGetAllUsers() {
+        return await this._jsonFetch<User[]>(true, "GET", "/users/list");
+    }
+
+    public async adminGetUser(user: string | number) {
+        return await this._jsonFetch<User>(true, "GET", `/users/${user}`);
+    }
+
+    public async adminDeleteUser(user: string | number) {
+        return await this._jsonFetch<User>(true, "DELETE", `/users/${user}`);
+    }
+
+    public async listAdmins() {
+        return await this._jsonFetch<User[]>(true, "GET", "/admin/list");
+    }
+
+    public async addAdmin(user: string | number) {
+        return await this._fetch(true, "PUT", `/admin/add/${user}`);
+    }
+
+    public async removeAdmin(user: string | number) {
+        return await this._fetch(true, "DELETE", `/admin/remove/${user}`);
     }
 }

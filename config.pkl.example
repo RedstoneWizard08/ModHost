@@ -76,6 +76,12 @@ app: ModHost.AppConfig = new {
             )
         }
     }
+
+    admin {
+        stats {
+            interval = 5.s
+        }
+    }
 }
 
 output {

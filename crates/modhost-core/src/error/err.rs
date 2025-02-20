@@ -184,9 +184,18 @@ pub enum AppError {
     #[cfg(feature = "logging")]
     OpenTelemetryTrace(#[from] opentelemetry::trace::TraceError),
 
+    /// An error receiving a message from a crossbeam channel occured.
+    #[error(transparent)]
+    #[cfg(feature = "crossbeam-channel")]
+    CrossbeamChannelRecv(#[from] crossbeam_channel::RecvError),
+
     /// A token was missing.
     #[error("Missing required token header or cookie!")]
     MissingToken,
+
+    /// A token was invalid.
+    #[error("Token was invalid!")]
+    InvalidToken,
 
     /// A user could not be found.
     #[error("Unknown user!")]
@@ -246,8 +255,7 @@ impl super::HasCode for AppError {
             | Self::InvalidImageFile
             | Self::NoLogo(_) => 400,
 
-            Self::MissingToken => 401,
-            Self::NoAccess => 403,
+            Self::MissingToken | Self::InvalidToken | Self::NoAccess => 403,
             Self::NotFound | Self::UnknownUser | Self::NoVersions => 404,
             _ => 500,
         }

@@ -19,8 +19,11 @@ class AppConfig {
     /// UI (frontend) configuration.
     ui: UIConfig
 
-    /// Meilisearch configuration
+    /// Meilisearch configuration.
     meilisearch: MeilisearchConfig
+
+    /// Admin panel configuration.
+    admin: AdminConfig
 }
 
 /// Server configuration.
@@ -204,6 +207,18 @@ class MeilisearchConfig {
     indexes: MeilisearchIndexConfig = new {}
 }
 
+/// Admin panel configuration.
+class AdminConfig {
+    /// Configuration for the statistics shown on the admin panel.
+    stats: AdminStatsConfig = new {}
+}
+
+/// Configuration for the statistics shown on the admin panel.
+class AdminStatsConfig {
+    /// How long the server will wait before refreshing system and instance info.
+    interval: Duration = 5.s
+}
+
 class RealStorageConfig {
     s3_region: String
     s3_endpoint: String
@@ -234,6 +249,10 @@ class RealMeilisearchConfig {
     protocol: String
     key: String
     project_index: String
+}
+
+class RealAdminConfig {
+    stats_interval: String
 }
 
 function fixStorageConfig(cfg: StorageConfig): RealStorageConfig = new {
@@ -268,10 +287,61 @@ function fixMeilisearchConfig(cfg: MeilisearchConfig): RealMeilisearchConfig = n
     project_index = cfg.indexes.projects
 }
 
+function formatDuration(value: Duration): String =
+    let (days = value.toUnit("d").value.toInt())
+    let (hours = value.toUnit("h").value.toInt() % 24)
+    let (minutes = value.toUnit("min").value.toInt() % 60)
+    let (seconds = value.toUnit("s").value.toInt() % 60)
+    let (ms = value.toUnit("ms").value.toInt() % 1000)
+    let (us = value.toUnit("us").value.toInt() % 1000)
+    let (ns = value.toUnit("ns").value.toInt() % 1000)
+
+    new Listing {
+        when (days != 0) {
+            days
+            "d"
+        }
+
+        when (hours != 0) {
+            hours
+            "h"
+        }
+
+        when (minutes != 0) {
+            minutes
+            "min"
+        }
+
+        when (seconds != 0) {
+            seconds
+            "s"
+        }
+
+        when (ms != 0) {
+            ms
+            "ms"
+        }
+
+        when (us != 0) {
+            us
+            "us"
+        }
+
+        when (ns != 0) {
+            ns
+            "ns"
+        }
+    }.join("")
+
+function fixAdminConfig(cfg: AdminConfig): RealAdminConfig = new {
+    stats_interval = formatDuration(cfg.stats.interval)
+}
+
 mh_converters: Mapping<Class | String, (unknown) -> Any> = new {
     [StorageConfig] = (cfg) -> fixStorageConfig(cfg)
     [UIConfig] = (cfg) -> fixUIConfig(cfg)
     [MeilisearchConfig] = (cfg) -> fixMeilisearchConfig(cfg)
+    [AdminConfig] = (cfg) -> fixAdminConfig(cfg)
 }
 
 /// Create the TOML renderer for ModHost configs, with ModHost's
